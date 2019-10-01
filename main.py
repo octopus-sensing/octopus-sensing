@@ -34,6 +34,7 @@ class BackgroudWindow(Gtk.Window):
     def __init__(self, image_path, start_delay):
         Gtk.Window.__init__(self, title="")
         self._start_delay = start_delay
+        self._next = None
 
         image_box = Gtk.Box()
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(image_path, image_width,image_height, False)
@@ -104,7 +105,11 @@ class BackgroudWindow(Gtk.Window):
 
         # This will call the questionnaire showing after disapearing the stimili
         stimuli.show_window()
-        stimuli.connect("destroy", self._show_questionnaire)
+        self._next = self._show_questionnaire
+        stimuli.connect("destroy", self._make_delay)
+
+    def _make_delay(self, *args):
+        GLib.timeout_add_seconds(0.5, self._next)
 
     def _show_questionnaire(self, *args):
         '''
@@ -119,7 +124,8 @@ class BackgroudWindow(Gtk.Window):
 
         questionnaire = Questionnaire(subject_number, self._image_index)
         questionnaire.show()
-        questionnaire.connect("destroy", self._show_next)
+        self._next = self._show_next
+        questionnaire.connect("destroy", self._make_delay)
 
     def _show_next(self, *args):
         self._image_index += 1
@@ -129,7 +135,7 @@ class BackgroudWindow(Gtk.Window):
             self._trigger_queue.put("terminate")
             self.destroy()
             return
-        elif self._image_index%5 == 0:
+        elif self._image_index%10 == 0:
             self._pause()
         else:
             self._show_fixation_cross()
@@ -138,7 +144,8 @@ class BackgroudWindow(Gtk.Window):
         pause_window = \
             PauseWindow(PAUSE_IMAGE_PATH)
         pause_window.show_window()
-        pause_window.connect("destroy", self._show_fixation_cross)
+        self._next = self._show_fixation_cross
+        pause_window.connect("destroy", self._make_delay)
 
 
 def main():

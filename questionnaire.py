@@ -5,7 +5,7 @@ from gi.repository import Gtk
 
 class Questionnaire(Gtk.Window):
     def __init__(self, participant_number, stimuli_number):
-        self.file_name = "created_files/answers/p-{0}-answers.csv".format(participant_number)
+        self.file_name = "answers/p-{0}-answers.csv".format(participant_number)
         self.stimuli_number = stimuli_number
         self.valence_level = 5
         self.arousal_level = 5
