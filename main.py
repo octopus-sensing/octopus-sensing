@@ -49,11 +49,11 @@ class BackgroudWindow(Gtk.Window):
 
         # Save stimuli list order
         file_name = \
-            "created_files/p{}-t{}.csv".format(subject_number, str(time.time()))
+            "created_files/image_index/p{}-t{}.csv".format(subject_number, str(time.time()))
         with open(file_name, 'w') as csv_file:
             writer = csv.writer(csv_file)
             for item in self._stimuli_list:
-                writer.writerow(item)
+                writer.writerow([item])
 
         # Initializing recorders
         self._video_queue = multiprocessing.Queue()
