@@ -10,7 +10,7 @@ class Questionnaire(Gtk.Window):
         self.valence_level = 5
         self.arousal_level = 5
         self.dominance_level = 5
-        self.emotions = []
+        self.emotion = 5 # Neutral
         Gtk.Window.__init__(self, title="Questionnaire")
         self.set_border_width(10)
         self.set_default_size(400, 200)
@@ -26,49 +26,37 @@ class Questionnaire(Gtk.Window):
         question1.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
         question1_box.pack_start(question1, False, False, 0)
 
-        # Checkboxes
+        # emotion radio buttons
         grid.attach(question1_box, 0, 1, 1, 1)
 
         emotion_box = Gtk.Box(spacing=80)
         grid.attach(emotion_box, 0, 2, 1, 1)
 
-        happy = Gtk.CheckButton("Happy")
-        happy.connect("toggled", self.on_happy_toggled)
-        happy.get_child().set_markup("<span font_desc='Tahoma 12'>Happy</span>")
-        emotion_box.pack_start(happy, False, False, 0)
+        # emotion Radio buttons
+        happy = Gtk.RadioButton.new_with_label_from_widget(None, "Happy")
+        happy.connect("toggled", self.on_emotion_toggled, "4")
+        emotion_box.pack_start(happy, False, False, 45)
 
-        neutral = Gtk.CheckButton("Neutral")
-        neutral.connect("toggled", self.on_neutral_toggled)
-        neutral.get_child().set_markup("<span font_desc='Tahoma 12'>Neutral</span>")
-        emotion_box.pack_start(neutral, False, False, 0)
-
-        sad = Gtk.CheckButton("Sad")
-        sad.connect("toggled", self.on_sad_toggled)
-        sad.get_child().set_markup("<span font_desc='Tahoma 12'>Sad</span>")
+        sad = Gtk.RadioButton.new_with_label_from_widget(happy, "Sad")
+        sad.connect("toggled", self.on_emotion_toggled, "6")
         emotion_box.pack_start(sad, False, False, 0)
 
-        angry = Gtk.CheckButton("Angry")
-        angry.connect("toggled", self.on_angry_toggled)
-        angry.get_child().set_markup("<span font_desc='Tahoma 12'>Angry</span>")
-        emotion_box.pack_start(angry, False, False, 0)
+        neutral = Gtk.RadioButton.new_with_label_from_widget(happy, "Neutral")
+        neutral.connect("toggled", self.on_emotion_toggled, "5")
+        emotion_box.pack_start(neutral, False, False, 0)
+        neutral.set_active(True)
 
-        disgust = Gtk.CheckButton("Disgust")
-        disgust.connect("toggled", self.on_disgust_toggled)
-        disgust.get_child().set_markup("<span font_desc='Tahoma 12'>Disgust</span>")
-        emotion_box.pack_start(disgust, False, False, 0)
-
-        fear = Gtk.CheckButton("Fear")
-        fear.connect("toggled", self.on_fear_toggled)
-        fear.get_child().set_markup("<span font_desc='Tahoma 12'>Fear</span>")
+        fear = Gtk.RadioButton.new_with_label_from_widget(happy, "Fear")
+        fear.connect("toggled", self.on_emotion_toggled, "3")
         emotion_box.pack_start(fear, False, False, 0)
 
-        #other = Gtk.Label("other")
-        #other.set_markup("<span font_desc='Tahoma 12'>Other</span>")
-        #emotion_box.pack_start(other, False, False, 0)
+        angry = Gtk.RadioButton.new_with_label_from_widget(happy, "Angry")
+        angry.connect("toggled", self.on_emotion_toggled, "1")
+        emotion_box.pack_start(angry, False, False, 45)
 
-        #other_text = Gtk.Entry()
-        ##other_text.connect("toggled", self.on_editable_toggled)
-        #emotion_box.pack_start(other_text, True, True, 0)
+        disgust = Gtk.RadioButton.new_with_label_from_widget(happy, "Disgust")
+        disgust.connect("toggled", self.on_emotion_toggled, "2")
+        emotion_box.pack_start(disgust, False, False, 45)
 
         # Question 2
         question2_box = Gtk.Box(spacing=100)
@@ -237,46 +225,9 @@ class Questionnaire(Gtk.Window):
         done_button.get_child().set_markup("<span font_desc='Tahoma 14'>Done</span>")
         grid.attach(done_button, 0, 12, 1, 1)
 
-    def on_sad_toggled(self, button):
-        if button.get_active() is True:
-            self.emotions.append(6)
-        if button.get_active() is False:
-            self.emotions.remove(6)
-
-    def on_neutral_toggled(self, button):
-        if button.get_active() is True:
-            self.emotions.append(5)
-        if button.get_active() is False:
-            self.emotions.remove(5)
-
-    def on_disgust_toggled(self, button):
-        if button.get_active() is True:
-            self.emotions.append(2)
-        if button.get_active() is False:
-            self.emotions.remove(2)
-
-    def on_happy_toggled(self, button):
-        if button.get_active() is True:
-            self.emotions.append(4)
-        if button.get_active() is False:
-            self.emotions.remove(4)
-
-    def on_fear_toggled(self, button):
-        if button.get_active() is True:
-            self.emotions.append(3)
-        if button.get_active() is False:
-            self.emotions.remove(3)
-
-    def on_angry_toggled(self, button):
-        if button.get_active() is True:
-            self.emotions.append(1)
-        if button.get_active() is False:
-            self.emotions.remove(1)
-
-    def on_editable_toggled(self, button):
-        value = button.get_active()
-        print("hello", value)
-        #self.entry.set_editable(value)
+    def on_emotion_toggled(self, button, name):
+        if button.get_active():
+            self.emotion = int(name)
 
     def on_valence_toggled(self, button, name):
         if button.get_active():
@@ -297,7 +248,7 @@ class Questionnaire(Gtk.Window):
     def save_answers(self):
         row = []
         row.append(self.stimuli_number)
-        row.append(self.emotions)
+        row.append(self.emotion)
         row.append(self.valence_level)
         row.append(self.arousal_level)
         row.append(self.dominance_level)
