@@ -2,17 +2,28 @@ import threading
 from config import processing_unit
 import csv
 import pyOpenBCI
+#import matplotlib.pyplot as plt
 
 class EEGStreaming(processing_unit):
     def __init__(self, file_queue):
         super().__init__()
         self._file_queue = file_queue
         self._stream_data = []
+        self.stream = []
         self._board = pyOpenBCI.OpenBCICyton(daisy=True)
         self._record = None
 
     def run(self):
         threading.Thread(target=self._stream_loop).start()
+        #plt.figure()
+        #ln, = plt.plot([])
+        #plt.ion()
+        #plt.show()
+        #while True:
+        #    plt.pause(1)
+        #    ln.set_xdata(range(len(self.stream)))
+        #    ln.set_ydata(self.stream)
+        #    plt.draw()
 
         while True:
             command = self._file_queue.get()
@@ -35,6 +46,7 @@ class EEGStreaming(processing_unit):
         self._board.start_stream(self._stream_callback)
 
     def _stream_callback(self, sample):
+        self.stream.append(sample.channels_data)
         print(sample.channels_data)
         if self._record:
             self._stream_data.append(sample.channels_data)
