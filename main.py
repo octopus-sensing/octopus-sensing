@@ -9,6 +9,7 @@ import multiprocessing
 from screeninfo import get_monitors
 from questionnaire import Questionnaire
 from video import VideoStreaming
+from gsr import GSRStreaming
 #from eeg import EEGStreaming
 import argparse
 from open_vibe_triger import OpenVibeTrigge
@@ -58,14 +59,17 @@ class BackgroudWindow(Gtk.Window):
         # Initializing recorders
         self._video_queue = multiprocessing.Queue()
         self._eeg_queue = multiprocessing.Queue()
+        self._gsr_queue = multiprocessing.Queue()
         self._trigger_queue = multiprocessing.Queue()
         self._event_id_queue = multiprocessing.Queue()
         video_streaming = VideoStreaming(self._video_queue)
-        openvibe_trigge = OpenVibeTrigge(self._trigger_queue, self._event_id_queue)
+        openvibe_trigger = OpenVibeTrigge(self._trigger_queue, self._event_id_queue)
+        gsr_streaming = GSRStreaming(self._gsr_queue)
         #eeg_streaming = EEGStreaming(self._eeg_queue)
         #eeg_streaming.start()
         video_streaming.start()
-        openvibe_trigge.start()
+        openvibe_trigger.start()
+        gsr_streaming.start()
         time.sleep(5)
 
     def show(self):
@@ -101,7 +105,9 @@ class BackgroudWindow(Gtk.Window):
         self._event_id_queue.put(self._image_index)
         self._trigger_queue.put("start")
         # Start EEG recording
-        self._eeg_queue.put("p-{}-s{}-t{}".format(subject_number, self._image_index, str(time.time())))
+        self._eeg_queue.put("p-{}-s{}-t{}-eeg".format(subject_number, self._image_index, str(time.time())))
+        # Start GSR and PPG recording
+        self._gsr_queue.put("p-{}-s{}-t{}-gsr".format(subject_number, self._image_index, str(time.time())))
 
         # This will call the questionnaire showing after disapearing the stimili
         stimuli.show_window()
@@ -121,6 +127,8 @@ class BackgroudWindow(Gtk.Window):
         self._trigger_queue.put("stop")
         # Stop EEG recording
         self._eeg_queue.put("stop_record")
+        # Stop GSR and PPG recording
+        self._gsr_queue.put("stop_record")
 
         questionnaire = Questionnaire(subject_number, self._image_index)
         questionnaire.show()
@@ -132,6 +140,7 @@ class BackgroudWindow(Gtk.Window):
         if self._image_index >= len(self._stimuli_list):
             self._video_queue.put("terminate")
             self._eeg_queue.put("terminate")
+            self._gsr_queue.put("terminate")
             self._trigger_queue.put("terminate")
             self.destroy()
             return
