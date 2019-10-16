@@ -18,7 +18,7 @@ from windows import ImageWindow, PauseWindow
 monitors = get_monitors()
 image_width =monitors[1].width
 image_height =monitors[1].height
-STIMULI_PATH = "stimuli/"
+STIMULI_PATH = "mock_stimuli/"
 Fixation_CROSS_IMAGE_PATH = "images/fixation_cross.jpg"
 PAUSE_IMAGE_PATH = "images/pause_image.jpg"
 GRAY_IMAGE_PATH = "images/gray_image.jpg"
@@ -52,10 +52,10 @@ class BackgroudWindow(Gtk.Window):
         # Save stimuli list order
         file_name = \
             "created_files/image_index/p{}-t{}.csv".format(subject_number, str(time.time()))
-        with open(file_name, 'w') as csv_file:
-            writer = csv.writer(csv_file)
-            for item in self._stimuli_list:
-                writer.writerow([item])
+        #with open(file_name, 'w') as csv_file:
+        #    writer = csv.writer(csv_file)
+        #    for item in self._stimuli_list:
+        #        writer.writerow([item])
 
         # Initializing recorders
         self._video_queue = multiprocessing.Queue()
@@ -63,15 +63,15 @@ class BackgroudWindow(Gtk.Window):
         self._gsr_queue = multiprocessing.Queue()
         self._trigger_queue = multiprocessing.Queue()
         self._event_id_queue = multiprocessing.Queue()
-        video_streaming = VideoStreaming(self._video_queue)
-        openvibe_trigger = OpenVibeTrigge(self._trigger_queue, self._event_id_queue)
-        gsr_streaming = GSRStreaming(self._gsr_queue)
+        #video_streaming = VideoStreaming(self._video_queue)
+        #openvibe_trigger = OpenVibeTrigge(self._trigger_queue, self._event_id_queue)
+        #gsr_streaming = GSRStreaming(self._gsr_queue)
         #eeg_streaming = EEGStreaming(self._eeg_queue)
         #eeg_streaming.start()
-        video_streaming.start()
-        openvibe_trigger.start()
-        gsr_streaming.start()
-        time.sleep(5)
+        #video_streaming.start()
+        #openvibe_trigger.start()
+        #gsr_streaming.start()
+        time.sleep(3)
 
     def show(self):
         '''
@@ -144,9 +144,8 @@ class BackgroudWindow(Gtk.Window):
             self._gsr_queue.put("terminate")
             self._trigger_queue.put("terminate")
             self._done()
-            #self.destroy()
             return
-        elif self._image_index%10 == 0:
+        elif self._image_index%2 == 0:
             self._pause()
         else:
             self._show_fixation_cross()
