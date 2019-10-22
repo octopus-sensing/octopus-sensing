@@ -220,7 +220,7 @@
 					<TypeIdentifier>(0x330306dd, 0x74a95f98)</TypeIdentifier>
 					<Name>Filename</Name>
 					<DefaultValue>record-[$core{date}-$core{time}].edf</DefaultValue>
-					<Value>/home/nastaran/Documents/Projects/git-projects/experiment/created_files/eeg/P3-[$core{date}-$core{time}].edf</Value>
+					<Value>/home/nastaran/Documents/Projects/git-projects/experiment/created_files/eeg/edf/P-3-[$core{date}-$core{time}].edf</Value>
 					<Modifiability>false</Modifiability>
 				</Setting>
 			</Settings>
@@ -266,7 +266,7 @@
 					<TypeIdentifier>(0x330306dd, 0x74a95f98)</TypeIdentifier>
 					<Name>Filename</Name>
 					<DefaultValue>record-[$core{date}-$core{time}].csv</DefaultValue>
-					<Value>/home/nastaran/Documents/Projects/git-projects/experiment/created_files/eeg/P3-[$core{date}-$core{time}].csv</Value>
+					<Value>/home/nastaran/Documents/Projects/git-projects/experiment/created_files/eeg/csv/P-3-[$core{date}-$core{time}].csv</Value>
 					<Modifiability>false</Modifiability>
 				</Setting>
 				<Setting>
