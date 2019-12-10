@@ -1,12 +1,14 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, GdkPixbuf, GLib
+from gi.repository import Gtk, GdkPixbuf, GLib, Gst
 
 from screeninfo import get_monitors
 monitors = get_monitors()
-image_width =monitors[1].width
-image_height =monitors[1].height
+image_width =monitors[0].width
+image_height =monitors[0].height
 
+Gst.init(None)
+Gst.init_check(None)
 
 class ImageWindow(Gtk.Window):
     def __init__(self, image_path, timeout):

@@ -262,8 +262,6 @@ class Questionnaire(Gtk.Window):
         self.show_all()
         Gtk.main()
 
-
-
 #win = Questionnaire(1,2)
 #win.connect("destroy", Gtk.main_quit)
 #win.show_all()
