@@ -4,13 +4,19 @@ import csv
 import struct, serial
 import math
 
-
 class GSRStreaming(processing_unit):
-    def __init__(self, file_queue):
+    def __init__(self, file_name, queue):
         super().__init__()
-        self._file_queue = file_queue
+        self._queue = queue
+        self._file_name = "created_files/gsr/" + file_name + '.csv'
+        backup_file_name = "created_files/gsr/" + file_name + '-backup.csv'
+        self._backup_file = open(backup_file_name, 'a')
+        self._writer = csv.writer(self._backup_file)
         self._stream_data = []
-        self._record = None
+        self._inintialize_connection()
+        self._trigger = []
+
+    def _inintialize_connection(self):
         self._serial = serial.Serial("/dev/rfcomm0", 115200)
         self._serial.flushInput()
         print("port opening, done.")
@@ -40,34 +46,22 @@ class GSRStreaming(processing_unit):
         self._wait_for_ack()
         print("start command sending, done.")
 
-        self._record = None
-
     def run(self):
+        print("start gsr")
         threading.Thread(target=self._stream_loop).start()
-        #plt.figure()
-        #ln, = plt.plot([])
-        #plt.ion()
-        #plt.show()
-        #while True:
-        #    plt.pause(1)
-        #    ln.set_xdata(range(len(self.stream)))
-        #    ln.set_ydata(self.stream)
-        #    plt.draw()
-
-        while True:
-            command = self._file_queue.get()
-            if command == "terminate":
-                break
-            elif command == "stop_record":
-                self._record = False
+        while(True):
+            command = self._queue.get()
+            if command is None:
+                continue
+            elif str(command).isdigit() is True:
+                print("Send trigger gsr", command)
+                self._trigger = command
+            elif command == "terminate":
+                self._backup_file.close()
                 self._save_to_file()
-
+                break
             else:
-                # Command is the file name
-                self._file_path = "created_files/gsr/" + command + '.csv'
-                print(self._file_path)
-                self._stream_data = []
-                self._record = True
+                continue
 
         self._serial.close()
 
@@ -113,11 +107,16 @@ class GSRStreaming(processing_unit):
              PPG_mv = PPG_raw * (3000.0/4095.0)
 
              timestamp = timestamp0 + timestamp1*256 + timestamp2*65536
-             if self._record:
-                 self._stream_data.append([packettype[0], timestamp, GSR_ohm, PPG_mv])
 
-             #print("0x%02x\t\t%5d,\t%4d,\t%4d" % (packettype[0], timestamp, GSR_ohm, PPG_mv))
+             #print([packettype[0], timestamp, GSR_ohm, PPG_mv] + self._trigger)
 
+             if self._trigger != []:
+                 row = [packettype[0], timestamp, GSR_ohm, PPG_mv, self._trigger]
+                 self._trigger = []
+             else:
+                 row = [packettype[0], timestamp, GSR_ohm, PPG_mv]
+             self._stream_data.append(row)
+             self._writer.writerow(row)
 
        except KeyboardInterrupt:
           #send stop streaming command
@@ -139,9 +138,8 @@ class GSRStreaming(processing_unit):
           print(ddata)
 
     def _save_to_file(self):
-        print("save gsr and ppg")
         print(len(self._stream_data))
-        with open(self._file_path, 'w') as csv_file:
+        with open(self._file_name, 'w') as csv_file:
             writer = csv.writer(csv_file)
             for row in self._stream_data:
                 writer.writerow(row)
