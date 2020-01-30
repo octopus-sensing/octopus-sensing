@@ -5,15 +5,16 @@ import multiprocessing
 import threading
 
 class VideoStreaming(processing_unit):
-    def __init__(self, file_queue):
+    def __init__(self, file_queue, camera_no):
         super().__init__()
         self._file_queue = file_queue
         self._stream_data = []
         self._record = False
         self._file_path = None
+        self._camera_no = camera_no
 
     def run(self):
-        self._video_capture = cv2.VideoCapture(1)
+        self._video_capture = cv2.VideoCapture(self._camera_no)
         threading.Thread(target=self._stream_loop).start()
         while True:
             command = self._file_queue.get()
@@ -24,6 +25,8 @@ class VideoStreaming(processing_unit):
                 self._save_to_file()
             else:
                 # Command is the file name
+                print("start video")
+                print(command)
                 self._file_path = "created_files/videos/" + command + '.avi'
                 self._stream_data = []
                 self._record = True

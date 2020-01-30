@@ -1,5 +1,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
+gi.require_version('Gst', '1.0')
+
 from gi.repository import Gtk, GdkPixbuf, GLib, Gst
 
 from screeninfo import get_monitors
@@ -32,7 +34,7 @@ class ImageWindow(Gtk.Window):
         GLib.timeout_add_seconds(self._timeout, self.destroy)
         self.show()
 
-class PauseWindow(Gtk.Window):
+class MessageWindow(Gtk.Window):
     def __init__(self, image_path):
         Gtk.Window.__init__(self, title="")
 
@@ -64,8 +66,6 @@ class PauseWindow(Gtk.Window):
         self.connect("destroy", Gtk.main_quit)
         self.show_all()
         Gtk.main()
-        #GLib.timeout_add_seconds(self._timeout, self.destroy)
-        #self.show()
 
     def on_click_continue_button(self, button):
         self.destroy()
