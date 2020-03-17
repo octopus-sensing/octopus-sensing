@@ -13,7 +13,7 @@ FONT_STYLE = "<span font_desc='Tahoma 16'>{}</span>"
 class AfterStimuliQuestionnaire(Gtk.Window):
     def __init__(self, participant_number, stimuli_number):
         self.file_name = \
-            "{}/after_stimuli/{}-{}.csv".format(PATH, participant_number, str(time.time()))
+            "{}/after_stimuli/{}.csv".format(PATH, participant_number)
         self.stimuli_number = stimuli_number
         self.q1_answer = 5 # Neutral
         self.q2_answer = 3 # mean
@@ -180,7 +180,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
         question4_box = Gtk.Box(spacing=100)
         question4 = Gtk.Label()
         text = "4- Your Valence level: Negative to Positive"
-        question4.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
+        question4.set_markup(FONT_STYLE.format(text))
         question4_box.pack_start(question4, False, False, 0)
 
         valence_image_box = Gtk.Box(spacing=120)
@@ -232,7 +232,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
         question5_box = Gtk.Box(spacing=120)
         question5 = Gtk.Label()
         text = "5- Your Arousal level: Calm to Excited"
-        question5.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
+        question5.set_markup(FONT_STYLE.format(text))
         question5_box.pack_start(question5, False, False, 0)
 
         arousal_image_box = Gtk.Box(spacing=120)
@@ -285,7 +285,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
         question6_box = Gtk.Box(spacing=120)
         question6 = Gtk.Label()
         text = "6- Dominance level: Submissive to Dominance (Controlled vs In-controlled)"
-        question6.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
+        question6.set_markup(FONT_STYLE.format(text))
         question6_box.pack_start(question6, False, False, 0)
 
         dominance_image_box = Gtk.Box(spacing=120)
@@ -537,7 +537,7 @@ class ConversationQuestionnaire_first(Gtk.Window):
 class ConversationQuestionnaire(Gtk.Window):
     def __init__(self, participant_number, stimuli_number):
         self.file_name = \
-            "{}/after_stimuli/{}-{}.csv".format(PATH, participant_number, str(time.time()))
+            "{}/after_stimuli/{}.csv".format(PATH, participant_number)
         self.stimuli_number = stimuli_number
         self.q1_answer = 5 # Neutral
         self.q2_answer = 3 # mean
@@ -582,7 +582,7 @@ class ConversationQuestionnaire(Gtk.Window):
         done_button = Gtk.Button.new_with_label("Done")
         done_button.connect("clicked", self.on_click_done_button)
         done_button.get_child().set_markup(FONT_STYLE.format("Done"))
-        grid.attach(done_button, 0, 12, 1, 1)
+        grid.attach(done_button, 0, 14, 1, 1)
 
     def __question1(self):
         question1_box = Gtk.Box(spacing=120)
@@ -675,7 +675,7 @@ class ConversationQuestionnaire(Gtk.Window):
         question3_box = Gtk.Box(spacing=100)
         question3 = Gtk.Label()
         text = "3- Your Valence level: Negative to Positive"
-        question3.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
+        question3.set_markup(FONT_STYLE.format(text))
         question3_box.pack_start(question3, False, False, 0)
 
         valence_image_box = Gtk.Box(spacing=120)
@@ -727,7 +727,7 @@ class ConversationQuestionnaire(Gtk.Window):
         question4_box = Gtk.Box(spacing=120)
         question4 = Gtk.Label()
         text = "4- Your Arousal level: Calm to Excited"
-        question4.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
+        question4.set_markup(FONT_STYLE.format(text))
         question4_box.pack_start(question4, False, False, 0)
 
         arousal_image_box = Gtk.Box(spacing=120)
@@ -779,7 +779,7 @@ class ConversationQuestionnaire(Gtk.Window):
         question5_box = Gtk.Box(spacing=120)
         question5 = Gtk.Label()
         text = "5- Dominance level: Submissive to Dominance (Controlled vs In-controlled)"
-        question5.set_markup("<span font_desc='Tahoma 12'>%s</span>" % text)
+        question5.set_markup(FONT_STYLE.format(text))
         question5_box.pack_start(question5, False, False, 0)
 
         dominance_image_box = Gtk.Box(spacing=120)
