@@ -185,57 +185,38 @@ class BackgroudWindow(Gtk.Window):
             MessageWindow(CONVERSATION_START_IMAGE_PATH)
         conversation_start_window.set_keep_above(True)
         conversation_start_window.show_window()
-        self._next = self._show_conversation_questionnaire
+        self._next = self._conversation
         conversation_start_window.connect("destroy", self._make_delay)
 
-    def _show_conversation_questionnaire(self, *args):
-        '''
-        showing conversation questionnaire
-        '''
-        # Start video recording
-        self._video_conv_queue.put("conversation/-p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time())))
+    def _conversation(self, *args):
+        i = 0
+        while i < 4:
+            # Start video recording
+            self._video_conv_queue.put("conversation/-p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time())))
 
-        # Sending start trigger to eeg and gsr recording
-        trigger = CONVERSATION * 1000 + START * 100 + self._film_index * 10
-        print(datetime.datetime.now())
-        self._eeg_trigger_queue.put(trigger)
-        self._gsr_trigger_queue.put(trigger)
+            # Sending start trigger to eeg and gsr recording
+            trigger = \
+                CONVERSATION * 1000 + START * 100 + self._film_index * 10 + i
+            print(datetime.datetime.now())
+            self._eeg_trigger_queue.put(trigger)
+            self._gsr_trigger_queue.put(trigger)
 
-        # Audio recording
-        audio_file_name = "p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time()))
-        audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
-        audio_streaming.start()
+            # Audio recording
+            audio_file_name = "p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time()))
+            audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
+            audio_streaming.start()
+            time.sleep(30)
+            questionnaire = \
+                ConversationQuestionnaire(CONVERSATION_TIME, self._film_index, self._eeg_trigger_queue, self._gsr_trigger_queue)
+            questionnaire.set_keep_above(True)
+            questionnaire.show_window()
+            questionnaire.connect("destroy", self._play_stop)
+            i += 1
 
-        questionnaire = \
-            ConversationQuestionnaire(CONVERSATION_TIME, self._film_index, self._eeg_trigger_queue, self._gsr_trigger_queue)
-        questionnaire.set_keep_above(True)
-        questionnaire.show_window()
-        self._next = self._show_after_conversation_questionnaire
-        questionnaire.connect("destroy", self._play_stop)
+        self._next = self._relaxation
 
     def _play_stop(self, *args):
         play(STOP_SOUND)
-        GLib.timeout_add_seconds(0.1, self._next)
-
-    def _show_after_conversation_questionnaire(self, *args):
-        '''
-        showing after conversation questionnaire
-        '''
-        print("next")
-        # Stop video recording
-        self._video_conv_queue.put("stop_record")
-        # Sending stop trigger to OpenVibe and gsr recording
-        trigger = CONVERSATION * 1000 + STOP * 100 + self._film_index * 10
-        print(datetime.datetime.now())
-        self._eeg_trigger_queue.put(trigger)
-        self._gsr_trigger_queue.put(trigger)
-
-        questionnaire = \
-            AfterConversationQuestionnaire(subject_number, self._film_index)
-        questionnaire.set_keep_above(True)
-        questionnaire.show()
-        self._next = self._relaxation
-        questionnaire.connect("destroy", self._make_delay)
 
     def _relaxation(self, *args):
         print("relaxation")
