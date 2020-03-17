@@ -40,7 +40,7 @@ class VideoStreaming(processing_unit):
                     continue
                 ret, frame = self._video_capture.read()
                 if ret:
-                    frame = cv2.flip(frame,180)
+                    frame = cv2.flip(frame, 180)
                     self._stream_data.append(frame)
 
         except Exception as error:

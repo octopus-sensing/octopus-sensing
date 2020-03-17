@@ -34,6 +34,7 @@ class GSRStreaming(processing_unit):
 
         '''
         sampling_freq = 32768 / clock_wait = X Hz
+        2 << 14 = 32768
         '''
         sampling_freq = 50
         clock_wait = math.ceil((2 << 14) / sampling_freq)

@@ -11,12 +11,12 @@ from screeninfo import get_monitors
 from questionnaire import AfterStimuliQuestionnaire, ConversationQuestionnaire, \
                           AfterConversationQuestionnaire
 from video import VideoStreaming
-from audio import AudioStreaming
-from gsr import GSRStreaming
-from eeg import EEGStreaming
+#from audio import AudioStreaming
+#from gsr import GSRStreaming
+#from eeg import EEGStreaming
 
 import argparse
-from open_vibe_trigger import OpenVibeTrigger
+#from open_vibe_trigger import OpenVibeTrigger
 from windows import ImageWindow, MessageWindow
 
 from pydub import AudioSegment
@@ -80,7 +80,7 @@ class BackgroudWindow(Gtk.Window):
         self._gsr_trigger_queue = multiprocessing.Queue()
 
         # Creating object for recording video during stimuli showing
-        video_streaming_stimuli = VideoStreaming(self._video_stimuli_queue, 2)
+        video_streaming_stimuli = VideoStreaming(self._video_stimuli_queue, 0) #2)
 
         # Creating object for recording video during conversation
         video_streaming_conv = VideoStreaming(self._video_conv_queue, 0)
@@ -93,7 +93,7 @@ class BackgroudWindow(Gtk.Window):
         #gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
 
         eeg_file_name = "p-{}-t{}-eeg".format(subject_number, str(datetime.datetime.now().time()))
-        eeg_streaming = EEGStreaming(eeg_file_name, self._eeg_trigger_queue)
+        #eeg_streaming = EEGStreaming(eeg_file_name, self._eeg_trigger_queue)
 
 
         # Audio recorder will initialize in loop. It could run just in thread
@@ -103,7 +103,7 @@ class BackgroudWindow(Gtk.Window):
         video_streaming_conv.start()
         #openvibe_trigger.start()
         #gsr_streaming.start()
-        eeg_streaming.start()
+        #eeg_streaming.start()
 
         # Make delay for initializing all processes
         time.sleep(5)
@@ -141,8 +141,12 @@ class BackgroudWindow(Gtk.Window):
         trigger = STIMULI * 1000 + START * 100 + self._film_index * 10
         self._eeg_trigger_queue.put(trigger)
         self._gsr_trigger_queue.put(trigger)
+        print("start ", datetime.datetime.now())
 
         # Showing stimuli
+        print(STIMULI_PATH)
+        print(self._stimuli_list[self._film_index])
+        print("**************************************")
         os.system("sh play_video.sh {}".format(STIMULI_PATH + self._stimuli_list[self._film_index]))
 
         self._next = self._after_stimuli_questionnaire
@@ -154,7 +158,7 @@ class BackgroudWindow(Gtk.Window):
         '''
         # Stop video recording
         self._video_stimuli_queue.put("stop_record")
-
+        print("stop ", datetime.datetime.now())
         # Sending stop trigger to eeg and gsr recording
         trigger = STIMULI * 1000 + STOP * 100 + self._film_index * 10
         self._eeg_trigger_queue.put(trigger)
@@ -195,8 +199,8 @@ class BackgroudWindow(Gtk.Window):
 
         # Audio recording
         audio_file_name = "p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time()))
-        audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
-        audio_streaming.start()
+        #audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
+        #audio_streaming.start()
 
         questionnaire = \
             ConversationQuestionnaire(CONVERSATION_TIME, self._film_index, self._eeg_trigger_queue, self._gsr_trigger_queue)

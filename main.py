@@ -11,7 +11,7 @@ from screeninfo import get_monitors
 from questionnaire import AfterStimuliQuestionnaire, ConversationQuestionnaire, \
                           AfterConversationQuestionnaire
 from video import VideoStreaming
-from audio import AudioStreaming
+#from audio import AudioStreaming
 from gsr import GSRStreaming
 from eeg import EEGStreaming
 import argparse
@@ -54,7 +54,7 @@ class BackgroudWindow(Gtk.Window):
         self._next = None
 
         image_box = Gtk.Box()
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(image_path, image_width,image_height, False)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(image_path, image_width, image_height, False)
         image = Gtk.Image()
         image.set_from_pixbuf(pixbuf)
         image_box.pack_start(image, False, False, 0)
@@ -88,10 +88,12 @@ class BackgroudWindow(Gtk.Window):
         #openvibe_trigger = OpenVibeTrigger(self._eeg_trigger_queue)
 
         # Creating object for sending trigger to gsr streaming
-        gsr_file_name = "p-{}-t{}-gsr".format(subject_number, str(datetime.datetime.now().time()))
-        gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
+        gsr_file_name = "p{}-t{}-gsr".format(str(subject_number).zfill(2),
+                                             str(datetime.datetime.now().time()))
+        #gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
 
-        eeg_file_name = "p-{}-t{}-eeg".format(subject_number, str(datetime.datetime.now().time()))
+        eeg_file_name = "p{}-t{}-eeg".format(str(subject_number).zfill(2),
+                                             str(datetime.datetime.now().time()))
         eeg_streaming = EEGStreaming(eeg_file_name, self._eeg_trigger_queue)
 
         # Audio recorder will initialize in loop. It could run just in thread
@@ -100,7 +102,7 @@ class BackgroudWindow(Gtk.Window):
         video_streaming_stimuli.start()
         video_streaming_conv.start()
         #openvibe_trigger.start()
-        gsr_streaming.start()
+        #gsr_streaming.start()
         eeg_streaming.start()
 
         # Make delay for initializing all processes
@@ -133,7 +135,9 @@ class BackgroudWindow(Gtk.Window):
         Showing stimuli. It uses vlc for showing video
         '''
         # Start video recording
-        self._video_stimuli_queue.put("stimuli/p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time())))
+        self._video_stimuli_queue.put("stimuli/p{}-s{}-t{}".format(str(subject_number).zfill(2),
+                                                                   str(self._film_index).zfill(2),
+                                                                   str(time.time())))
 
         # Sending start trigger to eeg and gsr recording
         trigger = STIMULI * 1000 + START * 100 + self._film_index * 10
@@ -143,13 +147,10 @@ class BackgroudWindow(Gtk.Window):
         # Showing stimuli
         os.system("sh play_video.sh {}".format(STIMULI_PATH + self._stimuli_list[self._film_index]))
 
-        self._next = self._after_stimuli_questionnaire
-        self._make_delay()
+        self._next = self.__stop_triggers
+        GLib.timeout_add_seconds(0.1, self._next)
 
-    def _after_stimuli_questionnaire(self, *args):
-        '''
-        After stimuli questionnaire
-        '''
+    def __stop_triggers(self, *args):
         # Stop video recording
         self._video_stimuli_queue.put("stop_record")
 
@@ -158,6 +159,14 @@ class BackgroudWindow(Gtk.Window):
         self._eeg_trigger_queue.put(trigger)
         self._gsr_trigger_queue.put(trigger)
 
+        self._next = self._after_stimuli_questionnaire
+        self._make_delay()
+
+
+    def _after_stimuli_questionnaire(self, *args):
+        '''
+        After stimuli questionnaire
+        '''
         questionnaire = \
             AfterStimuliQuestionnaire(subject_number, self._film_index)
         #questionnaire.set_position(Gtk.WIN_POS_CENTER)
@@ -188,6 +197,7 @@ class BackgroudWindow(Gtk.Window):
 
         # Sending start trigger to eeg and gsr recording
         trigger = CONVERSATION * 1000 + START * 100 + self._film_index * 10
+        print(datetime.datetime.now())
         self._eeg_trigger_queue.put(trigger)
         self._gsr_trigger_queue.put(trigger)
 
@@ -216,6 +226,7 @@ class BackgroudWindow(Gtk.Window):
         self._video_conv_queue.put("stop_record")
         # Sending stop trigger to OpenVibe and gsr recording
         trigger = CONVERSATION * 1000 + STOP * 100 + self._film_index * 10
+        print(datetime.datetime.now())
         self._eeg_trigger_queue.put(trigger)
         self._gsr_trigger_queue.put(trigger)
 

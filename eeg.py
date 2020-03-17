@@ -1,6 +1,7 @@
 import threading
 from config import processing_unit
 import csv
+
 import pyOpenBCI
 import datetime
 #import multiprocessing
@@ -18,8 +19,6 @@ class EEGStreaming(processing_unit):
         self._writer = csv.writer(self._backup_file)
 
     def run(self):
-        threading.Thread(target=self._stream_loop).start()
-
         print("start eeg")
         threading.Thread(target=self._stream_loop).start()
         while(True):
@@ -42,6 +41,7 @@ class EEGStreaming(processing_unit):
         self._board.start_stream(self._stream_callback)
 
     def _stream_callback(self, sample):
+        print(sample)
         sample.channels_data.append(str(datetime.datetime.now().time()))
         if self._trigger is not None:
             sample.channels_data.append(self._trigger)
