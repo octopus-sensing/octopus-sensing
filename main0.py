@@ -266,7 +266,7 @@ class BackgroudWindow(Gtk.Window):
             questionnaire.show_window()
             i += 1
 
-        self._next = self._relaxation
+        self._relaxation()
 
     def _relaxation(self, *args):
         print("relaxation")
