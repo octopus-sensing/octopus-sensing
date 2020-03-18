@@ -535,10 +535,12 @@ class ConversationQuestionnaire_first(Gtk.Window):
         self.show()
 
 class ConversationQuestionnaire(Gtk.Window):
-    def __init__(self, participant_number, stimuli_number):
+    def __init__(self, participant_number, stimuli_number, part_number):
         self.file_name = \
-            "{}/after_stimuli/{}.csv".format(PATH, participant_number)
+            "{}/after_conversation/{}.csv".format(PATH,
+                                                  participant_number)
         self.stimuli_number = stimuli_number
+        self.part_number = part_number
         self.q1_answer = 5 # Neutral
         self.q2_answer = 3 # mean
         self.valence_level = 5 # middle
@@ -862,11 +864,13 @@ class ConversationQuestionnaire(Gtk.Window):
     def save_answers(self):
         row = []
         row.append(self.stimuli_number)
+        row.append(self.part_number)
         row.append(self.q1_answer)
         row.append(self.q2_answer)
         row.append(self.valence_level)
         row.append(self.arousal_level)
         row.append(self.dominance_level)
+
         with open(self.file_name, 'a') as csvFile:
             writer = csv.writer(csvFile)
             writer.writerow(row)

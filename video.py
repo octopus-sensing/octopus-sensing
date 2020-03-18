@@ -28,6 +28,7 @@ class VideoStreaming(processing_unit):
                 print("start video")
                 print(command)
                 self._file_path = "created_files/videos/" + command + '.avi'
+                print(self._file_path)
                 self._stream_data = []
                 self._record = True
         self._video_capture.release()
@@ -61,10 +62,19 @@ class VideoStreaming(processing_unit):
 
 if __name__ == "__main__":
     queue = multiprocessing.Queue()
-    video = VideoStreaming(queue, 5)
-    video.start()
+    queue2 = multiprocessing.Queue()
+    video1 = VideoStreaming(queue, -1)
+    video2 = VideoStreaming(queue2, -1)
+    video1.start()
+    video2.start()
     time.sleep(7)
     queue.put("test_file")
     time.sleep(7)
+    queue2.put("test_file2")
+    time.sleep(6)
+    queue.put("stop_record")
+    queue2.put("stop_record")
     queue.put("terminate")
-    video.join()
+    queue2.put("terminate")
+    video1.join()
+    video2.join()
