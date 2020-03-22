@@ -12,3 +12,5 @@ env
 *.mp4
 *.csv
 *.edf
+*.log
+*.wav

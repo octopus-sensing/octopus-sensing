@@ -163,9 +163,10 @@ class BackgroudWindow(Gtk.Window):
                                          str(self._film_index).zfill(2),
                                          str(time.time()))
         trigger = STIMULI * 1000 + START * 100 + self._film_index * 10
-        # Start
+        # start
+        self._video_stimuli_queue.put(stimuli_recorded_video_file_name)
+
         self.__sending_triggers("Start stimuli",
-                                stimuli_recorded_video_file_name,
                                 trigger,
                                 trigger)
 
@@ -180,8 +181,8 @@ class BackgroudWindow(Gtk.Window):
 
     def _stop_stimuli(self, *args):
         trigger = STIMULI * 1000 + STOP * 100 + self._film_index * 10
+        self._video_stimuli_queue.put("stop_record")
         self.__sending_triggers("Stop stimuli",
-                                "stop_record",
                                 trigger,
                                 trigger)
 
@@ -190,16 +191,13 @@ class BackgroudWindow(Gtk.Window):
 
     def __sending_triggers(self,
                            message,
-                           video_command,
                            eeg_command,
                            gsr_command):
-        logging.info("Sending_trigger {}, vide {}, eeg {}, gsr {}, time {}".format(
+        logging.info("Sending trigger {}, eeg {}, gsr {}, time {}".format(
                      message,
-                     video_command,
                      eeg_command,
                      gsr_command,
                      datetime.datetime.now()))
-        self._video_stimuli_queue.put(video_command)
         self._eeg_trigger_queue.put(eeg_command)
         self._gsr_trigger_queue.put(gsr_command)
 
@@ -207,7 +205,7 @@ class BackgroudWindow(Gtk.Window):
         '''
         After stimuli questionnaire
         '''
-        logging.info("Stimuli questionnaire {}".format(datetime.datetime.now()))
+        logging.info("Stimuli questionnaire, {}".format(datetime.datetime.now()))
         questionnaire = \
             AfterStimuliQuestionnaire(subject_number, self._film_index)
         #questionnaire.set_position(Gtk.WIN_POS_CENTER)
@@ -222,7 +220,7 @@ class BackgroudWindow(Gtk.Window):
          conversation
         '''
         # Showing message
-        logging.info("Preparation for conversation {}".format(datetime.datetime.now()))
+        logging.info("Preparation for conversation, {}".format(datetime.datetime.now()))
         conversation_start_window = \
             MessageWindow(CONVERSATION_START_IMAGE_PATH)
         conversation_start_window.set_keep_above(True)
@@ -231,31 +229,33 @@ class BackgroudWindow(Gtk.Window):
         conversation_start_window.connect("destroy", self._make_delay)
 
     def _conversation(self, *args):
-        logging.info("Start conversation ".format(datetime.datetime.now()))
+        logging.info("Start conversation, ".format(datetime.datetime.now()))
         i = 0
         # Audio recording
         audio_file_name = "p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time()))
         #audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
         #audio_streaming.start()
-        while i < 4:
-            video_command = \
-                "conversation/-p-{}-s{}-t{}".format(subject_number,
-                                                    self._film_index,
-                                                    str(time.time()))
+        video_command = \
+            "conversation/-p-{}-s{}-t{}".format(subject_number,
+                                                self._film_index,
+                                                str(time.time()))
+        self._video_conv_queue.put(video_command)
+        logging.info("Video {}, Audio {}, {}".format(audio_file_name,
+                                                     video_command,
+                                                     datetime.datetime.now()))
+        while i < 3:
             # Sending start trigger to eeg and gsr recording
             trigger = \
                 CONVERSATION * 1000 + START * 100 + self._film_index * 10 + i
             self.__sending_triggers("Start conversation part {}".format(i),
-                                    video_command,
                                     trigger,
                                     trigger)
+
             time.sleep(CONVERSATION_TIME)
             # Sending stop trigger
-            video_command = "stop_record"
             trigger = \
                 CONVERSATION * 1000 + STOP * 100 + self._film_index * 10 + i
             self.__sending_triggers("Stop conversation part {}".format(i),
-                                    video_command,
                                     trigger,
                                     trigger)
             questionnaire = \
@@ -265,7 +265,7 @@ class BackgroudWindow(Gtk.Window):
             questionnaire.set_keep_above(True)
             questionnaire.show()
             i += 1
-
+        self._video_conv_queue.put("stop_record")
         self._relaxation()
 
     def _relaxation(self, *args):
