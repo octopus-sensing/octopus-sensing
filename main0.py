@@ -30,14 +30,14 @@ STOP_SOUND = AudioSegment.from_wav('stop.wav')
 monitors = get_monitors()
 image_width = monitors[0].width
 image_height = monitors[0].height
-STIMULI_PATH = "stimuli/"
+STIMULI_PATH = "stimuli-mock/"
 Fixation_CROSS_IMAGE_PATH = "images/fixation_cross.jpg"
 PAUSE_IMAGE_PATH = "images/pause_image.jpg"
 CONVERSATION_START_IMAGE_PATH = "images/conversation_start_image.jpg"
 AFTER_CONVERSATION_IMAGE_PATH = "images/after_conversation_image.jpg"
 GRAY_IMAGE_PATH = "images/gray_image.jpg"
 DONE_IMAGE_PATH = "images/done_image.jpg"
-CONVERSATION_TIME = 30
+CONVERSATION_TIME = 10
 FIXATION_CROSS_SHOW_TIME = 1
 GRAY_IMAGE_SHOW_TIME = 2
 # These constants are for making trigger in different conditions
@@ -51,11 +51,11 @@ parser.add_argument("-s", "--subject_number", help="The subject number")
 args = parser.parse_args()
 subject_number = args.subject_number
 
-logging.info('Start for participant ', subject_number)
-logging.info("stimuli path :", STIMULI_PATH)
-logging.info("CONVERSATION_TIME, FIXATION_CROSS_SHOW_TIME, GRAY_IMAGE_SHOW_TIME")
-logging.info(CONVERSATION_TIME, FIXATION_CROSS_SHOW_TIME, GRAY_IMAGE_SHOW_TIME)
-
+logging.info('Start for participant {}'.format(subject_number))
+logging.info("stimuli path : {}".format(STIMULI_PATH))
+logging.info("CONVERSATION_TIME = {}".format(CONVERSATION_TIME))
+logging.info("FIXATION_CROSS_SHOW_TIME = {}".format(FIXATION_CROSS_SHOW_TIME))
+logging.info("GRAY_IMAGE_SHOW_TIME = {}".format(GRAY_IMAGE_SHOW_TIME))
 
 class BackgroudWindow(Gtk.Window):
     def __init__(self, image_path, start_delay):
@@ -79,7 +79,7 @@ class BackgroudWindow(Gtk.Window):
         file_name = \
             "created_files/film_index/p-{}-t{}.csv".format(subject_number,
                                                            str(datetime.datetime.now().time()))
-        logging.info("Stimuli file name is ", file_name)
+        logging.info("Stimuli file name is {}".format(file_name))
         with open(file_name, 'w') as csv_file:
             writer = csv.writer(csv_file)
             for item in self._stimuli_list:
@@ -106,13 +106,13 @@ class BackgroudWindow(Gtk.Window):
         gsr_file_name = "p{}-t{}-gsr".format(str(subject_number).zfill(2),
                                              str(datetime.datetime.now().time()))
 
-        logging.info("Start GSR streaming", gsr_file_name)
+        logging.info("Start GSR streaming {}".format(gsr_file_name))
         #gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
 
         eeg_file_name = "p{}-t{}-eeg".format(str(subject_number).zfill(2),
                                              str(datetime.datetime.now().time()))
 
-        logging.info("Start GSR streaming", eeg_file_name)
+        logging.info("Start GSR streaming {}".format(eeg_file_name))
         eeg_streaming = EEGStreaming(eeg_file_name, self._eeg_trigger_queue)
 
         # Audio recorder will initialize in loop. It could run just in thread
@@ -129,7 +129,7 @@ class BackgroudWindow(Gtk.Window):
 
         # Make delay for initializing all processes
         time.sleep(5)
-        logging.info("End of initializing ", datetime.datetime.now())
+        logging.info("End of initializing {}".format(datetime.datetime.now()))
 
     def show(self):
         '''
@@ -169,9 +169,9 @@ class BackgroudWindow(Gtk.Window):
                                 trigger,
                                 trigger)
 
-        logging.info("Start showing stimuli {}, time ",
+        logging.info("Start showing stimuli {}, time {} ".format(
                      self._stimuli_list[self._film_index],
-                     datetime.datetime.now())
+                     datetime.datetime.now()))
         # Showing stimuli
         os.system("sh play_video.sh {}".format(STIMULI_PATH + self._stimuli_list[self._film_index]))
 
@@ -193,12 +193,12 @@ class BackgroudWindow(Gtk.Window):
                            video_command,
                            eeg_command,
                            gsr_command):
-        logging.info("Sending_trigger {}, vide {}, eeg {}, gsr {}, time",
+        logging.info("Sending_trigger {}, vide {}, eeg {}, gsr {}, time {}".format(
                      message,
                      video_command,
                      eeg_command,
                      gsr_command,
-                     datetime.datetime.now())
+                     datetime.datetime.now()))
         self._video_stimuli_queue.put(video_command)
         self._eeg_trigger_queue.put(eeg_command)
         self._gsr_trigger_queue.put(gsr_command)
@@ -207,7 +207,7 @@ class BackgroudWindow(Gtk.Window):
         '''
         After stimuli questionnaire
         '''
-        logging.info("Stimuli questionnaire", datetime.datetime.now())
+        logging.info("Stimuli questionnaire {}".format(datetime.datetime.now()))
         questionnaire = \
             AfterStimuliQuestionnaire(subject_number, self._film_index)
         #questionnaire.set_position(Gtk.WIN_POS_CENTER)
@@ -222,7 +222,7 @@ class BackgroudWindow(Gtk.Window):
          conversation
         '''
         # Showing message
-        logging.info("Preparation for conversation", datetime.datetime.now())
+        logging.info("Preparation for conversation {}".format(datetime.datetime.now()))
         conversation_start_window = \
             MessageWindow(CONVERSATION_START_IMAGE_PATH)
         conversation_start_window.set_keep_above(True)
@@ -231,7 +231,7 @@ class BackgroudWindow(Gtk.Window):
         conversation_start_window.connect("destroy", self._make_delay)
 
     def _conversation(self, *args):
-        logging.info("Start conversation", datetime.datetime.now())
+        logging.info("Start conversation ".format(datetime.datetime.now()))
         i = 0
         # Audio recording
         audio_file_name = "p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time()))
@@ -263,7 +263,7 @@ class BackgroudWindow(Gtk.Window):
                                           self._film_index,
                                           i)
             questionnaire.set_keep_above(True)
-            questionnaire.show_window()
+            questionnaire.show()
             i += 1
 
         self._relaxation()

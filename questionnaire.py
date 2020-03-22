@@ -565,21 +565,22 @@ class ConversationQuestionnaire(Gtk.Window):
         grid.attach(question2_options_box, 0, 4, 1, 1)
 
         # ***************************** Question 3 ****************************
-        question3_box, question3_options_box = self.__question3()
+        question3_box, valence_image_box, valence_box = self.__question3()
         grid.attach(question3_box, 0, 5, 1, 1)
-        grid.attach(question3_options_box, 0, 6, 1, 1)
+        grid.attach(valence_image_box, 0, 6, 1, 1)
+        grid.attach(valence_box, 0, 7, 1, 1)
 
         # ***************************** Question 4 **********************8*****
-        question4_box, valence_image_box, valence_box = self.__question4()
-        grid.attach(question4_box, 0, 7, 1, 1)
-        grid.attach(valence_image_box, 0, 8, 1, 1)
-        grid.attach(valence_box, 0, 9, 1, 1)
+        question4_box, arousal_image_box, arousal_box = self.__question4()
+        grid.attach(question4_box, 0, 8, 1, 1)
+        grid.attach(arousal_image_box, 0, 9, 1, 1)
+        grid.attach(arousal_box, 0, 10, 1, 1)
 
         # ***************************** Question 5 **********************8*****
-        question5_box, valence_image_box, valence_box = self.__question5()
-        grid.attach(question5_box, 0, 10, 1, 1)
-        grid.attach(valence_image_box, 0, 11, 1, 1)
-        grid.attach(valence_box, 0, 12, 1, 1)
+        question5_box, dominance_image_box, dominance_box = self.__question5()
+        grid.attach(question5_box, 0, 11, 1, 1)
+        grid.attach(dominance_image_box, 0, 12, 1, 1)
+        grid.attach(dominance_box, 0, 13, 1, 1)
 
         done_button = Gtk.Button.new_with_label("Done")
         done_button.connect("clicked", self.on_click_done_button)
@@ -637,7 +638,7 @@ class ConversationQuestionnaire(Gtk.Window):
 
     def __question2(self):
         question2_box = Gtk.Box(spacing=100)
-        text = "2- What is your certainty level? (1=low and 5=high)"
+        text = "2- How much is the intensity level of your emotion? (1=low and 5=high)"
         question2 = Gtk.Label()
         question2.set_markup(FONT_STYLE.format(text))
         question2_box.pack_start(question2, False, False, 0)
