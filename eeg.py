@@ -41,7 +41,6 @@ class EEGStreaming(processing_unit):
         self._board.start_stream(self._stream_callback)
 
     def _stream_callback(self, sample):
-        print(sample)
         sample.channels_data.append(str(datetime.datetime.now().time()))
         if self._trigger is not None:
             sample.channels_data.append(self._trigger)

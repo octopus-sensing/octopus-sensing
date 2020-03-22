@@ -1,0 +1,23 @@
+INFO:root:Start for participant None
+INFO:root:stimuli path : stimuli-mock/
+INFO:root:CONVERSATION_TIME = 10
+INFO:root:FIXATION_CROSS_SHOW_TIME = 1
+INFO:root:GRAY_IMAGE_SHOW_TIME = 2
+INFO:root:Stimuli order for participant None is ['fear1.mp4', 'sad1.mp4']
+INFO:root:Stimuli file name is created_files/film_index/p-None-t14:58:23.815377.csv
+INFO:root:Initializing camera 2 for watching video
+INFO:root:Initializing camera 1 for conversation
+INFO:root:Start GSR streaming pNone-t14:58:23.828689-gsr
+INFO:root:Start GSR streaming pNone-t14:58:23.828774-eeg
+INFO:root:Start video streaming process
+INFO:root:Start GSR streaming process
+INFO:root:Start EEG streaming process
+INFO:root:End of initializing 2020-03-19 14:58:33.863799
+INFO:root:Sending_trigger Start stimuli, vide stimuli/pNone-s00-t1584583119.4516118, eeg 1100, gsr 1100, time 2020-03-19 14:58:39.451835
+INFO:root:Start showing stimuli fear1.mp4, time 2020-03-19 14:58:39.457842 
+INFO:root:Sending_trigger Stop stimuli, vide stop_record, eeg 1200, gsr 1200, time 2020-03-19 14:58:50.448482
+INFO:root:Stimuli questionnaire 2020-03-19 14:58:50.449046
+INFO:root:Preparation for conversation 2020-03-19 14:58:56.449365
+INFO:root:Start conversation 
+INFO:root:Sending_trigger Start conversation part 0, vide conversation/-p-None-s0-t1584583139.4499378, eeg 2100, gsr 2100, time 2020-03-19 14:58:59.449972
+INFO:root:Sending_trigger Stop conversation part 0, vide stop_record, eeg 2200, gsr 2200, time 2020-03-19 14:59:09.460729

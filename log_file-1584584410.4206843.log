@@ -1,0 +1,43 @@
+INFO:root:Start for participant None
+INFO:root:stimuli path : stimuli-mock/
+INFO:root:CONVERSATION_TIME = 10
+INFO:root:FIXATION_CROSS_SHOW_TIME = 1
+INFO:root:GRAY_IMAGE_SHOW_TIME = 2
+INFO:root:Stimuli order for participant None is ['sad1.mp4', 'fear1.mp4']
+INFO:root:Stimuli file name is created_files/film_index/p-None-t15:20:10.481240.csv
+INFO:root:Initializing camera 2 for watching video
+INFO:root:Initializing camera 1 for conversation
+INFO:root:Start GSR streaming pNone-t15:20:10.484282-gsr
+INFO:root:Start GSR streaming pNone-t15:20:10.484329-eeg
+INFO:root:Start video streaming process
+INFO:root:Start GSR streaming process
+INFO:root:Start EEG streaming process
+INFO:root:End of initializing 2020-03-19 15:20:20.510694
+INFO:root:Sending_trigger Start stimuli, vide stimuli/pNone-s00-t1584584425.450996, eeg 1100, gsr 1100, time 2020-03-19 15:20:25.451119
+INFO:root:Start showing stimuli sad1.mp4, time 2020-03-19 15:20:25.456979 
+INFO:root:Sending_trigger Stop stimuli, vide stop_record, eeg 1200, gsr 1200, time 2020-03-19 15:20:35.448577
+INFO:root:Stimuli questionnaire 2020-03-19 15:20:35.450044
+INFO:root:Preparation for conversation 2020-03-19 15:20:38.448772
+INFO:root:Start conversation 
+INFO:root:Sending_trigger Start conversation part 0, vide conversation/-p-None-s0-t1584584441.4502554, eeg 2100, gsr 2100, time 2020-03-19 15:20:41.450310
+INFO:root:Sending_trigger Stop conversation part 0, vide stop_record, eeg 2200, gsr 2200, time 2020-03-19 15:20:51.459907
+INFO:root:Sending_trigger Start conversation part 1, vide conversation/-p-None-s0-t1584584481.3341727, eeg 2101, gsr 2101, time 2020-03-19 15:21:21.334277
+INFO:root:Sending_trigger Stop conversation part 1, vide stop_record, eeg 2201, gsr 2201, time 2020-03-19 15:21:31.339741
+INFO:root:Sending_trigger Start conversation part 2, vide conversation/-p-None-s0-t1584584494.8050048, eeg 2102, gsr 2102, time 2020-03-19 15:21:34.805099
+INFO:root:Sending_trigger Stop conversation part 2, vide stop_record, eeg 2202, gsr 2202, time 2020-03-19 15:21:44.816199
+INFO:root:Sending_trigger Start conversation part 3, vide conversation/-p-None-s0-t1584584506.3478172, eeg 2103, gsr 2103, time 2020-03-19 15:21:46.347843
+INFO:root:Sending_trigger Stop conversation part 3, vide stop_record, eeg 2203, gsr 2203, time 2020-03-19 15:21:56.358940
+INFO:root:Sending_trigger Start stimuli, vide stimuli/pNone-s01-t1584584541.4494877, eeg 1110, gsr 1110, time 2020-03-19 15:22:21.449501
+INFO:root:Start showing stimuli fear1.mp4, time 2020-03-19 15:22:21.449675 
+INFO:root:Sending_trigger Stop stimuli, vide stop_record, eeg 1210, gsr 1210, time 2020-03-19 15:22:35.583814
+INFO:root:Stimuli questionnaire 2020-03-19 15:22:35.584364
+INFO:root:Preparation for conversation 2020-03-19 15:22:39.448645
+INFO:root:Start conversation 
+INFO:root:Sending_trigger Start conversation part 0, vide conversation/-p-None-s1-t1584584561.6683433, eeg 2110, gsr 2110, time 2020-03-19 15:22:41.668391
+INFO:root:Sending_trigger Stop conversation part 0, vide stop_record, eeg 2210, gsr 2210, time 2020-03-19 15:22:51.679643
+INFO:root:Sending_trigger Start conversation part 1, vide conversation/-p-None-s1-t1584584574.8653784, eeg 2111, gsr 2111, time 2020-03-19 15:22:54.865477
+INFO:root:Sending_trigger Stop conversation part 1, vide stop_record, eeg 2211, gsr 2211, time 2020-03-19 15:23:04.875924
+INFO:root:Sending_trigger Start conversation part 2, vide conversation/-p-None-s1-t1584584591.1539168, eeg 2112, gsr 2112, time 2020-03-19 15:23:11.153957
+INFO:root:Sending_trigger Stop conversation part 2, vide stop_record, eeg 2212, gsr 2212, time 2020-03-19 15:23:21.164592
+INFO:root:Sending_trigger Start conversation part 3, vide conversation/-p-None-s1-t1584584603.43606, eeg 2113, gsr 2113, time 2020-03-19 15:23:23.436170
+INFO:root:Sending_trigger Stop conversation part 3, vide stop_record, eeg 2213, gsr 2213, time 2020-03-19 15:23:33.446696

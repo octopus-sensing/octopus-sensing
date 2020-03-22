@@ -1,0 +1,23 @@
+INFO:root:Start for participant 19
+INFO:root:stimuli path : stimuli-mock/
+INFO:root:CONVERSATION_TIME = 10
+INFO:root:FIXATION_CROSS_SHOW_TIME = 1
+INFO:root:GRAY_IMAGE_SHOW_TIME = 2
+INFO:root:Stimuli order for participant 19 is ['sad1.mp4', 'fear1.mp4']
+INFO:root:Stimuli file name is created_files/film_index/p-19-t16:55:30.392388.csv
+INFO:root:Initializing camera 2 for watching video
+INFO:root:Initializing camera 1 for conversation
+INFO:root:Start GSR streaming p19-t16:55:30.396706-gsr
+INFO:root:Start GSR streaming p19-t16:55:30.396784-eeg
+INFO:root:Start video streaming process
+INFO:root:Start GSR streaming process
+INFO:root:Start EEG streaming process
+INFO:root:End of initializing 2020-03-18 16:55:40.425853
+INFO:root:Sending_trigger Start stimuli, vide stimuli/p19-s00-t1584503745.622498, eeg 1100, gsr 1100, time 2020-03-18 16:55:45.622521
+INFO:root:Start showing stimuli sad1.mp4, time 2020-03-18 16:55:45.623246 
+INFO:root:Sending_trigger Stop stimuli, vide stop_record, eeg 1200, gsr 1200, time 2020-03-18 16:56:00.622372
+INFO:root:Stimuli questionnaire 2020-03-18 16:56:00.622959
+INFO:root:Preparation for conversation 2020-03-18 16:56:02.622307
+INFO:root:Start conversation 
+INFO:root:Sending_trigger Start conversation part 0, vide conversation/-p-19-s0-t1584503764.622421, eeg 2100, gsr 2100, time 2020-03-18 16:56:04.622428
+INFO:root:Sending_trigger Stop conversation part 0, vide stop_record, eeg 2200, gsr 2200, time 2020-03-18 16:56:14.632652
