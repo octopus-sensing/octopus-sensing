@@ -1,7 +1,0 @@
-INFO:root:CONVERSATION_TIME, FIXATION_CROSS_SHOW_TIME, GRAY_IMAGE_SHOW_TIME
-INFO:root:Stimuli order for participant 19 is ['fear1.mp4', 'sad1.mp4']
-INFO:root:Initializing camera 2 for watching video
-INFO:root:Initializing camera 1 for conversation
-INFO:root:Start video streaming process
-INFO:root:Start GSR streaming process
-INFO:root:Start EEG streaming process

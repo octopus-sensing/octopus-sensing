@@ -1,10 +1,14 @@
 import threading
 from config import processing_unit
 import csv
+import numpy as np
 
 import pyOpenBCI
 import datetime
 #import multiprocessing
+
+uVolts_per_count = (4500000)/24/(2**23-1)
+accel_G_per_count = 0.002 / (2**4) #G/count
 
 class EEGStreaming(processing_unit):
     def __init__(self, file_name, command_queue):
@@ -41,12 +45,16 @@ class EEGStreaming(processing_unit):
         self._board.start_stream(self._stream_callback)
 
     def _stream_callback(self, sample):
-        sample.channels_data.append(str(datetime.datetime.now().time()))
+        data = np.array(sample.channels_data) * uVolts_per_count
+        acc_data = np.array(sample.aux_data) * accel_G_per_count
+        data_list = list(data) + list(acc_data)
+        data_list.append(sample.id)
+        data_list.append(str(datetime.datetime.now().time()))
         if self._trigger is not None:
-            sample.channels_data.append(self._trigger)
+            data_list.append(self._trigger)
             self._trigger = None
-        self._stream_data.append(sample.channels_data)
-        self._writer.writerow(sample.channels_data)
+        self._stream_data.append(data_list)
+        self._writer.writerow(data_list)
 
     def _save_to_file(self):
         print("save eeg")
