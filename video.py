@@ -1,4 +1,5 @@
 import time
+import datetime
 import cv2
 from config import processing_unit
 import multiprocessing
@@ -15,6 +16,8 @@ class VideoStreaming(processing_unit):
 
     def run(self):
         self._video_capture = cv2.VideoCapture(self._camera_no)
+        self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
+        print("fps ***********************", self._fps)
         threading.Thread(target=self._stream_loop).start()
         while True:
             command = self._file_queue.get()
@@ -22,11 +25,14 @@ class VideoStreaming(processing_unit):
                 break
             elif command == "stop_record":
                 self._record = False
+                self._end = datetime.datetime.now()
+                print("End video *************************", self._end)
                 self._save_to_file()
             else:
                 # Command is the file name
                 print("start video")
                 print(command)
+                self._start = datetime.datetime.now()
                 self._file_path = "created_files/videos/" + command + '.avi'
                 print(self._file_path)
                 self._stream_data = []
@@ -49,11 +55,13 @@ class VideoStreaming(processing_unit):
 
 
     def _save_to_file(self):
+        sec = (self._end-self._start).seconds
+        fps = len(self._stream_data)/sec
         print("video recording")
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter(self._file_path,
                               fourcc,
-                              24.0,
+                              fps,
                               (640,480))
         print(len(self._stream_data))
         for frame in self._stream_data:
