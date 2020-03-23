@@ -25,7 +25,7 @@ from pydub.playback import play
 time_str = datetime.datetime.strftime(datetime.datetime.now(),
                                      "%Y-%m-%dT%H-%M-%S")
 
-logging.basicConfig(filename='log_file-{}.log'.format(time_str),
+logging.basicConfig(filename='logs/log_file-{}.log'.format(time_str),
                     level=logging.DEBUG)
 
 STOP_SOUND = AudioSegment.from_wav('stop.wav')
@@ -242,16 +242,16 @@ class BackgroudWindow(Gtk.Window):
         time_str = datetime.datetime.strftime(datetime.datetime.now(),
                                              "%Y-%m-%dT%H-%M-%S")
         # Audio recording
-        audio_file_name = "p-{}-s{}-t{}".format(subject_number,
-                                                self._film_index,
-                                                time_str)
+        audio_file_name = "p{}-s{}-t{}".format(str(subject_number).zfill(2),
+                                               str(self._film_index).zfill(2),
+                                               time_str)
         audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
         audio_streaming.start()
 
         video_command = \
-            "conversation/-p-{}-s{}-t{}".format(subject_number,
-                                                self._film_index,
-                                                time_str)
+            "conversation/p{}-s{}-t{}".format(str(subject_number).zfill(2),
+                                              str(self._film_index).zfill(2),
+                                              time_str)
         self._video_conv_queue.put(video_command)
         logging.info("Video {}, Audio {}, {}".format(audio_file_name,
                                                      video_command,
