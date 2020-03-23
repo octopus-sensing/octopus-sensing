@@ -12,7 +12,7 @@ from screeninfo import get_monitors
 from questionnaire import AfterStimuliQuestionnaire, ConversationQuestionnaire, \
                           AfterConversationQuestionnaire
 from video import VideoStreaming
-#from audio import AudioStreaming
+from audio import AudioStreaming
 from gsr import GSRStreaming
 from eeg import EEGStreaming
 import argparse
@@ -22,7 +22,10 @@ from windows import ImageWindow, MessageWindow
 from pydub import AudioSegment
 from pydub.playback import play
 
-logging.basicConfig(filename='log_file-{}.log'.format(time.time()),
+time_str = datetime.datetime.strftime(datetime.datetime.now(),
+                                     "%Y-%m-%dT%H-%M-%S")
+
+logging.basicConfig(filename='log_file-{}.log'.format(time_str),
                     level=logging.DEBUG)
 
 STOP_SOUND = AudioSegment.from_wav('stop.wav')
@@ -76,9 +79,11 @@ class BackgroudWindow(Gtk.Window):
         logging.info("Stimuli order for participant {0} is {1}".format(subject_number,
                                                                        self._stimuli_list))
         # Save stimuli list order
+        time_str = datetime.datetime.strftime(datetime.datetime.now(),
+                                             "%Y-%m-%dT%H-%M-%S")
         file_name = \
             "created_files/film_index/p-{}-t{}.csv".format(subject_number,
-                                                           str(datetime.datetime.now().time()))
+                                                           time_str)
         logging.info("Stimuli file name is {}".format(file_name))
         with open(file_name, 'w') as csv_file:
             writer = csv.writer(csv_file)
@@ -101,16 +106,17 @@ class BackgroudWindow(Gtk.Window):
 
         # Creating object for sending trigger to OpenVibe
         #openvibe_trigger = OpenVibeTrigger(self._eeg_trigger_queue)
-
+        time_str = datetime.datetime.strftime(datetime.datetime.now(),
+                                             "%Y-%m-%dT%H-%M-%S")
         # Creating object for sending trigger to gsr streaming
         gsr_file_name = "p{}-t{}-gsr".format(str(subject_number).zfill(2),
-                                             str(datetime.datetime.now().time()))
+                                             time_str)
 
         logging.info("Start GSR streaming {}".format(gsr_file_name))
-        #gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
+        gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
 
         eeg_file_name = "p{}-t{}-eeg".format(str(subject_number).zfill(2),
-                                             str(datetime.datetime.now().time()))
+                                             time_str)
 
         logging.info("Start GSR streaming {}".format(eeg_file_name))
         eeg_streaming = EEGStreaming(eeg_file_name, self._eeg_trigger_queue)
@@ -123,7 +129,7 @@ class BackgroudWindow(Gtk.Window):
         video_streaming_conv.start()
         #openvibe_trigger.start()
         logging.info("Start GSR streaming process")
-        #gsr_streaming.start()
+        gsr_streaming.start()
         logging.info("Start EEG streaming process")
         eeg_streaming.start()
 
@@ -157,11 +163,13 @@ class BackgroudWindow(Gtk.Window):
         '''
         Showing stimuli. It uses vlc for showing video
         '''
+        time_str = datetime.datetime.strftime(datetime.datetime.now(),
+                                              "%Y-%m-%dT%H-%M-%S")
         # Start video recording
         stimuli_recorded_video_file_name = \
             "stimuli/p{}-s{}-t{}".format(str(subject_number).zfill(2),
                                          str(self._film_index).zfill(2),
-                                         str(time.time()))
+                                         time_str)
         trigger = STIMULI * 1000 + START * 100 + self._film_index * 10
         # start
         self._video_stimuli_queue.put(stimuli_recorded_video_file_name)
@@ -231,14 +239,19 @@ class BackgroudWindow(Gtk.Window):
     def _conversation(self, *args):
         logging.info("Start conversation, ".format(datetime.datetime.now()))
         i = 0
+        time_str = datetime.datetime.strftime(datetime.datetime.now(),
+                                             "%Y-%m-%dT%H-%M-%S")
         # Audio recording
-        audio_file_name = "p-{}-s{}-t{}".format(subject_number, self._film_index, str(time.time()))
-        #audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
-        #audio_streaming.start()
+        audio_file_name = "p-{}-s{}-t{}".format(subject_number,
+                                                self._film_index,
+                                                time_str)
+        audio_streaming = AudioStreaming(audio_file_name, CONVERSATION_TIME + 3)
+        audio_streaming.start()
+
         video_command = \
             "conversation/-p-{}-s{}-t{}".format(subject_number,
                                                 self._film_index,
-                                                str(time.time()))
+                                                time_str)
         self._video_conv_queue.put(video_command)
         logging.info("Video {}, Audio {}, {}".format(audio_file_name,
                                                      video_command,
