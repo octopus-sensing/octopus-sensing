@@ -1,6 +1,6 @@
-# EmotionDataCollection
+# EmotionDataCollection, Octopus-Sensing
 
-It shows some stimuli and collect data from different sources like camera and OpenBCI cap syncronously.
+This software is for recording data synchronously from different sources including OpenBCI EEG headset, Shimmer sensor (GSR and PPG), Video and Audio. For other modalities that we want to add in the future, we should define a new process similar to others.
 
 For running this software:
 
@@ -21,7 +21,6 @@ For running this software:
 2- connect the camera to the second monitor
 
 3- setup the eeg cap and check ampedance using OpenBCI GUI
-# Just for myself: OpenBCI should run by sudo
 
 3- start eeg streaming through OpenVibe
    - start openvibe server and connect and play
@@ -43,5 +42,3 @@ For running this software:
 6- run the following command:
 
      python3 main.py -s = participant_number
-
-5- Put the cursor on the second screen
