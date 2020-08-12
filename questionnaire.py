@@ -70,7 +70,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
     def __question1(self):
         question1_box = Gtk.Box(spacing=120)
         question1 = Gtk.Label()
-        text = "1- Which emotion did you feel while watching the film?"
+        text = "1- What emotion did you feel the most?"
         question1.set_markup(FONT_STYLE.format(text))
         question1_box.pack_start(question1, False, False, 0)
 
@@ -118,7 +118,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
 
     def __question2(self):
         question2_box = Gtk.Box(spacing=100)
-        text = "2- What is your certainty level? (1=low and 5=high)"
+        text = "2- How strong was the emotion that you felt? (1=low and 5=high)"
         question2 = Gtk.Label()
         question2.set_markup(FONT_STYLE.format(text))
         question2_box.pack_start(question2, False, False, 0)
@@ -179,7 +179,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
     def __question4(self):
         question4_box = Gtk.Box(spacing=100)
         question4 = Gtk.Label()
-        text = "4- Your Valence level: Negative to Positive"
+        text = "4- How positive was the emotion that you felt? (Neutral=5)"
         question4.set_markup(FONT_STYLE.format(text))
         question4_box.pack_start(question4, False, False, 0)
 
@@ -231,7 +231,7 @@ class AfterStimuliQuestionnaire(Gtk.Window):
     def __question5(self):
         question5_box = Gtk.Box(spacing=120)
         question5 = Gtk.Label()
-        text = "5- Your Arousal level: Calm to Excited"
+        text = "5- What was your arousal level: Calm to Excited? (Neutral=5)"
         question5.set_markup(FONT_STYLE.format(text))
         question5_box.pack_start(question5, False, False, 0)
 
@@ -535,6 +535,159 @@ class ConversationQuestionnaire_first(Gtk.Window):
         self.show()
 
 class ConversationQuestionnaire(Gtk.Window):
+    def __init__(self, timeout, stimuli_index, eeg_trigger_queue, gsr_trigger_queue):
+        self._timeout = timeout
+        self._eeg_trigger_queue = eeg_trigger_queue
+        self._gsr_trigger_queue = gsr_trigger_queue
+        self._stimuli_index = stimuli_index
+
+        Gtk.Window.__init__(self, title="Questionnaire")
+        self.set_border_width(10)
+        self.set_default_size(400, 200)
+        grid = Gtk.Grid(column_homogeneous=False,
+                        column_spacing=10,
+                        row_spacing=10)
+        self.add(grid)
+
+        image = Gtk.Image.new_from_file("images/happiness-s.jpg")
+        happy_button = Gtk.Button()
+        happy_button.connect("clicked", self.on_click_happy_button)
+        happy_button.add(image)
+
+        image = Gtk.Image.new_from_file("images/sadness-s.jpg")
+        sad_button = Gtk.Button()
+        sad_button.connect("clicked", self.on_click_sad_button)
+        sad_button.add(image)
+
+        image = Gtk.Image.new_from_file("images/fear-s.jpg")
+        fear_button = Gtk.Button()
+        fear_button.connect("clicked", self.on_click_fear_button)
+        fear_button.add(image)
+
+        image = Gtk.Image.new_from_file("images/neutral-s.jpg")
+        neutral_button = Gtk.Button()
+        neutral_button.connect("clicked", self.on_click_neutral_button)
+        neutral_button.add(image)
+
+        image = Gtk.Image.new_from_file("images/surprise-s.jpg")
+        surprise_button = Gtk.Button()
+        surprise_button.connect("clicked", self.on_click_surprise_button)
+        surprise_button.add(image)
+
+        image = Gtk.Image.new_from_file("images/disgust-s.jpg")
+        disgust_button = Gtk.Button()
+        disgust_button.connect("clicked", self.on_click_disgust_button)
+        disgust_button.add(image)
+
+        image = Gtk.Image.new_from_file("images/anger-s.jpg")
+        anger_button = Gtk.Button()
+        anger_button.connect("clicked", self.on_click_anger_button)
+        anger_button.add(image)
+
+        inner_box = Gtk.HBox()
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(happy_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(sad_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(fear_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(neutral_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(surprise_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(disgust_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+        inner_box.pack_start(anger_button, False, False, 0)
+        inner_box.pack_start(Gtk.Alignment(), True, True, 0)
+
+
+        outer_box = Gtk.VBox()
+        outer_box.pack_start(inner_box, False, False, 0)
+
+        grid.attach(outer_box, 0, 1, 1, 1)
+
+    def on_click_happy_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("happy")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def on_click_neutral_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("neutral")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def on_click_sad_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("sad")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def on_click_anger_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("anger")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def on_click_surprise_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("surprise")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def on_click_disgust_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("disgust")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def on_click_fear_button(self, button):
+        trigger = (CONVERSATION * 1000 +
+                   TALKING * 100 +
+                   self._stimuli_index * 10 +
+                   EMOTION_LIST.index("fear")+1)
+        self._eeg_trigger_queue.put(trigger)
+        self._gsr_trigger_queue.put(trigger)
+
+    def show(self):
+        self.connect("destroy", Gtk.main_quit)
+        self.show_all()
+        Gtk.main()
+
+    def show_window(self):
+        GLib.timeout_add_seconds(self._timeout, self.destroy)
+        self.show()
+
+
+
+
+class ConversationQuestionnaire1(Gtk.Window):
     def __init__(self, participant_number, stimuli_number, part_number):
         self.file_name = \
             "{}/after_conversation/{}.csv".format(PATH,
@@ -964,7 +1117,7 @@ class AfterConversationQuestionnaire(Gtk.Window):
     def __question2(self):
         question2_box = Gtk.Box(spacing=100)
         question2 = Gtk.Label()
-        text = "2- What is your certainty level? (1=low and 5=high)"
+        text = "2- How positive was the emotion that you felt overally? (1=negative and 5=positive)"
         question2.set_markup(FONT_STYLE.format(text))
         question2_box.pack_start(question2, False, False, 0)
 
