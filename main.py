@@ -9,15 +9,16 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GdkPixbuf, GLib
 import multiprocessing
 from screeninfo import get_monitors
-from questionnaire import AfterStimuliQuestionnaire, ConversationQuestionnaire, \
-                          AfterConversationQuestionnaire
+from questionnaires.my_questionnaire import AfterStimuliQuestionnaire, \
+    ConversationQuestionnaire, AfterConversationQuestionnaire
 from webcam.webcam_streaming import WebcamStreaming
 from audio.audio_streaming import AudioStreaming
 from shimmer3.shimmer3_streaming import Shimmer3streaming
 from openbci.openbci_streaming import OpenBCIStreaming
 import argparse
 #from open_vibe.open_vibe_streaming import OpenVibeStreaming
-from windows import ImageWindow, MessageWindow
+from windows.image_window import ImageWindow
+from windows.image_window import MessageWindow
 
 from pydub import AudioSegment
 from pydub.playback import play
