@@ -10,7 +10,7 @@ import datetime
 uVolts_per_count = (4500000)/24/(2**23-1)
 accel_G_per_count = 0.002 / (2**4) #G/count
 
-class EEGStreaming(processing_unit):
+class OpenBCIStreaming(processing_unit):
     def __init__(self, file_name, command_queue):
         super().__init__()
         self._stream_data = []
@@ -26,13 +26,13 @@ class EEGStreaming(processing_unit):
         print("start eeg")
         threading.Thread(target=self._stream_loop).start()
         while(True):
-            command = self._command_queue.get()
-            if command is None:
+            message = self._command_queue.get()
+            if message is None:
                 continue
-            elif str(command).isdigit() is True:
-                print("Send trigger eeg", command)
-                self._trigger = command
-            elif command == "terminate":
+            elif message.type == "trigger":
+                print("Send trigger eeg", message)
+                self._trigger = message.payload
+            elif message.type == "terminate":
                 self._backup_file.close()
                 self._save_to_file()
                 break
