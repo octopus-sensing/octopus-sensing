@@ -6,7 +6,7 @@ HOST = '127.0.0.1'
 PORT = 15361
 
 # transform a value into an array of byte values in little-endian order.
-class OpenVibeTrigger(processing_unit):
+class OpenVibeStreaming(processing_unit):
     def __init__(self, queue):
         super().__init__()
         self._queue = queue

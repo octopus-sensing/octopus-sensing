@@ -5,7 +5,7 @@ import csv
 import struct, serial
 import math
 
-class GSRStreaming(processing_unit):
+class Shimmer3Streaming(processing_unit):
     def __init__(self, file_name, queue):
         super().__init__()
         self._queue = queue
@@ -88,13 +88,13 @@ class GSRStreaming(processing_unit):
         print("start gsr")
         threading.Thread(target=self._stream_loop).start()
         while(True):
-            command = self._queue.get()
-            if command is None:
+            message = self._queue.get()
+            if message is None:
                 continue
-            elif str(command).isdigit() is True:
-                print("Send trigger gsr", command)
-                self._trigger = command
-            elif command == "terminate":
+            elif message.type == "trigger":
+                print("Send trigger gsr", message.payload)
+                self._trigger = message.payload
+            elif message.type == "terminate":
                 self._backup_file.close()
                 self._save_to_file()
                 break

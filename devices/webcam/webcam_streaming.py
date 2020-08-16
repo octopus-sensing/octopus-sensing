@@ -5,7 +5,7 @@ from config import processing_unit
 import multiprocessing
 import threading
 
-class VideoStreaming(processing_unit):
+class WebcamStreaming(processing_unit):
     def __init__(self, file_queue, camera_no):
         super().__init__()
         self._file_queue = file_queue
@@ -20,10 +20,10 @@ class VideoStreaming(processing_unit):
         print("fps ***********************", self._fps)
         threading.Thread(target=self._stream_loop).start()
         while True:
-            command = self._file_queue.get()
-            if command == "terminate":
+            message = self._file_queue.get()
+            if message.type == "terminate":
                 break
-            elif command == "stop_record":
+            elif message.type == "stop_record":
                 self._record = False
                 self._end = datetime.datetime.now()
                 print("End video *************************", self._end)
@@ -31,9 +31,8 @@ class VideoStreaming(processing_unit):
             else:
                 # Command is the file name
                 print("start video")
-                print(command)
                 self._start = datetime.datetime.now()
-                self._file_path = "created_files/videos/" + command + '.avi'
+                self._file_path = "created_files/videos/" + message.payload + '.avi'
                 print(self._file_path)
                 self._stream_data = []
                 self._record = True
@@ -71,8 +70,8 @@ class VideoStreaming(processing_unit):
 if __name__ == "__main__":
     queue = multiprocessing.Queue()
     queue2 = multiprocessing.Queue()
-    video1 = VideoStreaming(queue, -1)
-    video2 = VideoStreaming(queue2, -1)
+    video1 = WebcamStreaming(queue, -1)
+    video2 = WebcamStreaming(queue2, -1)
     video1.start()
     video2.start()
     time.sleep(7)

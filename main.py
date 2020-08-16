@@ -11,12 +11,12 @@ import multiprocessing
 from screeninfo import get_monitors
 from questionnaire import AfterStimuliQuestionnaire, ConversationQuestionnaire, \
                           AfterConversationQuestionnaire
-from video import VideoStreaming
-from audio import AudioStreaming
-from gsr import GSRStreaming
-from eeg import EEGStreaming
+from webcam.webcam_streaming import WebcamStreaming
+from audio.audio_streaming import AudioStreaming
+from shimmer3.shimmer3_streaming import Shimmer3streaming
+from openbci.openbci_streaming import OpenBCIStreaming
 import argparse
-#from open_vibe_trigger import OpenVibeTrigger
+#from open_vibe.open_vibe_streaming import OpenVibeStreaming
 from windows import ImageWindow, MessageWindow
 
 from pydub import AudioSegment
@@ -105,11 +105,11 @@ class BackgroudWindow(Gtk.Window):
 
         logging.info("Initializing camera 2 for watching video")
         # Creating object for recording video during stimuli showing
-        video_streaming_stimuli = VideoStreaming(self._video_stimuli_queue, stimuli_camera)
+        video_streaming_stimuli = WebcamStreaming(self._video_stimuli_queue, stimuli_camera)
 
         logging.info("Initializing camera 1 for conversation")
         # Creating object for recording video during conversation
-        video_streaming_conv = VideoStreaming(self._video_conv_queue, conv_camera)
+        video_streaming_conv = WebcamStreaming(self._video_conv_queue, conv_camera)
 
         # Creating object for sending trigger to OpenVibe
         #openvibe_trigger = OpenVibeTrigger(self._eeg_trigger_queue)
@@ -120,13 +120,13 @@ class BackgroudWindow(Gtk.Window):
                                              time_str)
 
         logging.info("Start GSR streaming {}".format(gsr_file_name))
-        gsr_streaming = GSRStreaming(gsr_file_name, self._gsr_trigger_queue)
+        gsr_streaming = Shimmer3streaming(gsr_file_name, self._gsr_trigger_queue)
 
         eeg_file_name = "p{}-t{}-eeg".format(str(subject_number).zfill(2),
                                              time_str)
 
         logging.info("Start GSR streaming {}".format(eeg_file_name))
-        eeg_streaming = EEGStreaming(eeg_file_name, self._eeg_trigger_queue)
+        eeg_streaming = OpenBCIStreaming(eeg_file_name, self._eeg_trigger_queue)
 
         # Audio recorder will initialize in loop. It could run just in thread
 
