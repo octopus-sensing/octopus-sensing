@@ -684,9 +684,6 @@ class ConversationQuestionnaire(Gtk.Window):
         GLib.timeout_add_seconds(self._timeout, self.destroy)
         self.show()
 
-
-
-
 class ConversationQuestionnaire1(Gtk.Window):
     def __init__(self, participant_number, stimuli_number, part_number):
         self.file_name = \
