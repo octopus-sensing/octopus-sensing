@@ -4,6 +4,8 @@ venv
 env
 .pytest_cache
 .coverage
+dist/
+octopus_sensing.egg-info/
 *.pyc
 *.avi
 *.jpg
