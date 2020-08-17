@@ -1,9 +1,11 @@
 import time
 import datetime
 import cv2
-from config import processing_unit
 import multiprocessing
 import threading
+
+from octopus_sensing.config import processing_unit
+
 
 class WebcamStreaming(processing_unit):
     def __init__(self, file_queue, camera_no):
@@ -52,7 +54,6 @@ class WebcamStreaming(processing_unit):
         except Exception as error:
             print(error)
 
-
     def _save_to_file(self):
         sec = (self._end-self._start).seconds
         fps = len(self._stream_data)/sec
@@ -61,11 +62,12 @@ class WebcamStreaming(processing_unit):
         out = cv2.VideoWriter(self._file_path,
                               fourcc,
                               fps,
-                              (640,480))
+                              (640, 480))
         print(len(self._stream_data))
         for frame in self._stream_data:
             out.write(frame)
         out.release()
+
 
 if __name__ == "__main__":
     queue = multiprocessing.Queue()

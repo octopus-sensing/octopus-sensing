@@ -1,6 +1,6 @@
 import socket
 import time
-from config import processing_unit
+from octopus_sensing.config import processing_unit
 
 HOST = '127.0.0.1'
 PORT = 15361

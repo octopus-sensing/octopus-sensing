@@ -1,6 +1,6 @@
 import threading
 import datetime
-from config import processing_unit
+from octopus_sensing.config import processing_unit
 import csv
 import struct, serial
 import math

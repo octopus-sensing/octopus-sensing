@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "octopus-sensing"
+version = "1.1.0"
+description = ""
+authors = ["Nastaran Saffaryazdi <nsaffar@gmail.com>", "Aidin Gharibnavaz <aidin@aidinhut.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+sounddevice = "^0.4.0"
+scipy = "^1.5.2"
+opencv-python = "^4.4.0"
+# pyOpenBCI doesn't list its dependencies correctly.
+# The followings are pyOpenBCI's dependencies.
+pyOpenBCI = "^0.13"
+pyserial = "^3.4"
+requests = "^2.24.0"
+xmltodict = "^0.12.0"
+bluepy = "^1.3.0"
+bitstring = "^3.1.7"
+# End of pyOpenBCI dependencies.
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.autopep8]
+max_line_length = 120
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
