@@ -1,11 +1,11 @@
 import threading
-from config import processing_unit
 import csv
-import numpy as np
 
 import pyOpenBCI
 import datetime
 #import multiprocessing
+
+from octopus_sensing.config import processing_unit
 
 uVolts_per_count = (4500000)/24/(2**23-1)
 accel_G_per_count = 0.002 / (2**4) #G/count
