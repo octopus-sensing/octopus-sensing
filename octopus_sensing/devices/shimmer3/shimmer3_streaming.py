@@ -4,11 +4,11 @@ from octopus_sensing.config import processing_unit
 import csv
 import struct, serial
 import math
+from octopus_sensing.devices.device import Device
 
-class Shimmer3Streaming(processing_unit):
-    def __init__(self, file_name, queue):
+class Shimmer3Streaming(Device):
+    def __init__(self, file_name):
         super().__init__()
-        self._queue = queue
         self._file_name = "created_files/gsr/" + file_name + '.csv'
         backup_file_name = "created_files/gsr/" + file_name + '-backup.csv'
         self._backup_file = open(backup_file_name, 'a')
@@ -87,8 +87,8 @@ class Shimmer3Streaming(processing_unit):
     def run(self):
         print("start gsr")
         threading.Thread(target=self._stream_loop).start()
-        while(True):
-            message = self._queue.get()
+        while True:
+            message = self.message_queue.get()
             if message is None:
                 continue
             elif message.type == "trigger":

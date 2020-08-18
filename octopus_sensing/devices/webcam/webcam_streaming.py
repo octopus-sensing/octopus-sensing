@@ -4,13 +4,12 @@ import cv2
 import multiprocessing
 import threading
 
-from octopus_sensing.config import processing_unit
+from octopus_sensing.devices.device import Device
 
 
-class WebcamStreaming(processing_unit):
-    def __init__(self, file_queue, camera_no):
+class WebcamStreaming(Device):
+    def __init__(self, camera_no):
         super().__init__()
-        self._file_queue = file_queue
         self._stream_data = []
         self._record = False
         self._file_path = None
@@ -22,7 +21,7 @@ class WebcamStreaming(processing_unit):
         print("fps ***********************", self._fps)
         threading.Thread(target=self._stream_loop).start()
         while True:
-            message = self._file_queue.get()
+            message = self.message_queue.get()
             if message.type == "terminate":
                 break
             elif message.type == "stop_record":
