@@ -3,6 +3,7 @@ import csv
 
 import pyOpenBCI
 import datetime
+from octopus_sensing.devices.device import Device
 #import multiprocessing
 
 from octopus_sensing.config import processing_unit
@@ -10,13 +11,12 @@ from octopus_sensing.config import processing_unit
 uVolts_per_count = (4500000)/24/(2**23-1)
 accel_G_per_count = 0.002 / (2**4) #G/count
 
-class OpenBCIStreaming(processing_unit):
-    def __init__(self, file_name, command_queue):
+class OpenBCIStreaming(Device):
+    def __init__(self, file_name):
         super().__init__()
         self._stream_data = []
         self._board = pyOpenBCI.OpenBCICyton(daisy=True)
         self._trigger = None
-        self._command_queue = command_queue
         self._file_name = "created_files/eeg/" + file_name + '.csv'
         backup_file_name = "created_files/eeg/" + file_name + '-backup.csv'
         self._backup_file = open(backup_file_name, 'a')
@@ -26,7 +26,7 @@ class OpenBCIStreaming(processing_unit):
         print("start eeg")
         threading.Thread(target=self._stream_loop).start()
         while(True):
-            message = self._command_queue.get()
+            message = self.message_queue.get()
             if message is None:
                 continue
             elif message.type == "trigger":

@@ -1,12 +1,12 @@
 import socket
 import time
-from octopus_sensing.config import processing_unit
+from octopus_sensing.devices.device import Device
 
 HOST = '127.0.0.1'
 PORT = 15361
 
 # transform a value into an array of byte values in little-endian order.
-class OpenVibeStreaming(processing_unit):
+class OpenVibeStreaming(Device):
     def __init__(self, queue):
         super().__init__()
         self._queue = queue
