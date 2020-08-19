@@ -21,26 +21,25 @@ PORT = 15361
 
 # transform a value into an array of byte values in little-endian order.
 class OpenVibeStreaming(Device):
-    def __init__(self, queue):
+    def __init__(self):
         super().__init__()
-        self._queue = queue
         # connect
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket.connect((HOST, PORT))
 
     def run(self):
-        print("start EEG")
-        while(True):
-            command = self._queue.get()
-            if command is None:
+        while True:
+            message = self.message_queue.get()
+            if message is not None:
+                self.subject_id = message.subject_id
+                self.stimulus_id = message.stimulus_id
+            if message is None:
                 continue
-            elif str(command).isdigit() is True:
-                print("Send trigger")
-                self._send_trigger(command)
-            elif command == "terminate":
+            elif message.type == "terminate":
                 break
             else:
-                continue
+                print("Send trigger")
+                self._send_trigger(message.payload["trigger"])
         self._socket.close()
 
     def _send_trigger(self, event_id):
