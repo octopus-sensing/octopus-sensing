@@ -14,9 +14,9 @@
 
 import time
 import datetime
-import cv2
-import multiprocessing
 import threading
+import cv2
+
 
 from octopus_sensing.devices.device import Device
 
@@ -26,7 +26,6 @@ class WebcamStreaming(Device):
         super().__init__()
         self._stream_data = []
         self._record = False
-        self._file_path = None
         self._camera_no = camera_no
 
     def run(self):
@@ -36,6 +35,9 @@ class WebcamStreaming(Device):
         threading.Thread(target=self._stream_loop).start()
         while True:
             message = self.message_queue.get()
+            if message is not None:
+                self.subject_id = message.subject_id
+                self.stimulus_id = message.stimulus_id
             if message.type == "terminate":
                 break
             elif message.type == "stop_record":
@@ -45,10 +47,7 @@ class WebcamStreaming(Device):
                 self._save_to_file()
             else:
                 # Command is the file name
-                print("start video")
                 self._start = datetime.datetime.now()
-                self._file_path = "created_files/videos/" + message.payload + '.avi'
-                print(self._file_path)
                 self._stream_data = []
                 self._record = True
         self._video_capture.release()
@@ -68,11 +67,16 @@ class WebcamStreaming(Device):
             print(error)
 
     def _save_to_file(self):
+        file_name = \
+            "{0}/video/{1}-{2}-{3}.avi".format(self.output_path,
+                                               self.device_name,
+                                               self.subject_id,
+                                               self.stimulus_id)
         sec = (self._end-self._start).seconds
         fps = len(self._stream_data)/sec
         print("video recording")
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter(self._file_path,
+        out = cv2.VideoWriter(file_name,
                               fourcc,
                               fps,
                               (640, 480))
@@ -80,23 +84,3 @@ class WebcamStreaming(Device):
         for frame in self._stream_data:
             out.write(frame)
         out.release()
-
-
-if __name__ == "__main__":
-    queue = multiprocessing.Queue()
-    queue2 = multiprocessing.Queue()
-    video1 = WebcamStreaming(queue, -1)
-    video2 = WebcamStreaming(queue2, -1)
-    video1.start()
-    video2.start()
-    time.sleep(7)
-    queue.put("test_file")
-    time.sleep(7)
-    queue2.put("test_file2")
-    time.sleep(6)
-    queue.put("stop_record")
-    queue2.put("stop_record")
-    queue.put("terminate")
-    queue2.put("terminate")
-    video1.join()
-    video2.join()
