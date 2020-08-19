@@ -8,6 +8,18 @@ class DeviceCoordinator():
     def __init__(self):
         self.devices = []
         self.quesues = []
+        self.__device_counter = 0
+
+    def __get_device_id(self):
+        '''
+        Generate an ID for devices that do not have name
+
+        @rtype: str
+        @return device_id
+        '''
+        self.__device_counter += 1
+        device_id = "device_{0}".format(self.__device_counter)
+        return device_id
 
 
     def add_device(self, device):
@@ -20,6 +32,9 @@ class DeviceCoordinator():
         '''
         if device in self.devices:
             raise "This device already has been added"
+        if device.device_name is None:
+            device.device_name = self.__get_device_id()
+
         self.devices.append(device)
         queue = multiprocessing.Queue()
         device.set_queue(queue)
