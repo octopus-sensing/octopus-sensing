@@ -20,8 +20,8 @@ class DeviceCoordinator():
     Coordinating devices
     '''
     def __init__(self):
-        self.devices = []
-        self.quesues = []
+        self.__devices = {}
+        self.__quesues = []
         self.__device_counter = 0
 
     def __get_device_id(self):
@@ -38,21 +38,22 @@ class DeviceCoordinator():
 
     def add_device(self, device):
         '''
-        Adds new device to the coordinator
+        Adds new device to the coordinator and starts it
 
         @param Device device: a device object
 
         @keyword str name: The name of device
         '''
-        if device in self.devices:
-            raise "This device already has been added"
         if device.device_name is None:
             device.device_name = self.__get_device_id()
+        if device.device_name in self.__devices.keys():
+            raise "This device already has been added"
 
-        self.devices.append(device)
+        self.__devices[device.device_name] = device
         queue = multiprocessing.Queue()
         device.set_queue(queue)
-        self.quesues.append(queue)
+        self.__quesues.append(queue)
+        device.start()
 
     def add_devices(self, devices):
         '''
@@ -70,5 +71,5 @@ class DeviceCoordinator():
 
         @param Message message: a message object object
         '''
-        for queue in self.quesues:
-            queue.put(message)
+        for message_queue in self.__quesues:
+            message_queue.put(message)

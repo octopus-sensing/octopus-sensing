@@ -12,14 +12,16 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import threading
 import datetime
 import csv
 import math
 import struct
 import serial
-
 from octopus_sensing.devices.device import Device
+from octopus_sensing.common.message_creators import MessageType
+
 
 CONTINIOUS_SAVING_MODE = 0
 SEPARATED_SAVING_MODE = 1
@@ -34,6 +36,38 @@ class Shimmer3Streaming(Device):
         self._stream_data = []
         self._inintialize_connection()
         self._trigger = []
+
+    def run(self):
+        '''
+        Listening to the message queue and manage messages
+        '''
+        threading.Thread(target=self._stream_loop).start()
+        while True:
+            message = self.message_queue.get()
+            if message is None:
+                continue
+            if message.type == MessageType.START:
+                self.__set_trigger(message)
+            elif message.type == MessageType.STOP:
+                if self._saving_mode == CONTINIOUS_SAVING_MODE:
+                    file_name = \
+                        "{0}/gsr/{1}-{2}.csv".format(self.output_path,
+                                                     self.device_name,
+                                                     message.experiment_id)
+                    self._save_to_file(file_name)
+                else:
+                    self.__set_trigger(message)
+            elif message.type == "terminate":
+                if self._saving_mode == CONTINIOUS_SAVING_MODE:
+                    file_name = \
+                        "{0}/gsr/{1}-{2}-{3}.csv".format(self.output_path,
+                                                         self.device_name,
+                                                         message.experiment_id,
+                                                         message.stimulus_id)
+                    self._save_to_file(file_name)
+                break
+
+        self._serial.close()
 
     def _inintialize_connection(self):
         '''
@@ -105,29 +139,22 @@ class Shimmer3Streaming(Device):
         self._wait_for_ack()
         print("start command sending, done.")
 
-    def run(self):
-        '''
-        Listening to the message queue and manage messages
-        '''
-        threading.Thread(target=self._stream_loop).start()
-        while True:
-            message = self.message_queue.get()
-            if message is not None:
-                self.subject_id = message.subject_id
-                self.stimulus_id = message.stimulus_id
-            if message is None:
-                continue
-            elif message.type == "trigger":
-                print("Send trigger gsr", message.payload)
-                self._trigger = message.payload
-            elif message.type == "terminate":
-                self._backup_file.close()
-                self._save_to_file()
-                break
-            else:
-                continue
+    def _wait_for_ack(self):
+        ddata = ""
+        ack = struct.pack('B', 0xff)
+        while ddata != ack:
+            ddata = self._serial.read(1)
 
-        self._serial.close()
+    def __set_trigger(self, message):
+        '''
+        Takes a message and set the trigger using its data
+
+        @param Message message: a message object
+        '''
+        self._trigger = \
+            "{0}-{1}-{2}".format(message.type,
+                                 message.experiment_id,
+                                 message.stimulus_id)
 
     def _stream_loop(self):
         '''
@@ -198,7 +225,6 @@ class Shimmer3Streaming(Device):
                            PPG_mv,
                            record_time]
                 self._stream_data.append(row)
-                self._writer.writerow(row)
 
         except KeyboardInterrupt:
             #send stop streaming command
@@ -211,30 +237,21 @@ class Shimmer3Streaming(Device):
             self._serial.close()
             print("All done")
 
-    def _wait_for_ack(self):
-        ddata = ""
-        ack = struct.pack('B', 0xff)
-        while ddata != ack:
-            ddata = self._serial.read(1)
-
-    def _save_to_file(self):
-        if self._saving_mode == CONTINIOUS_SAVING_MODE:
-            file_name = "{0}/shimmer/{1}-{2}.csv".format(self.output_path,
-                                                         self.device_name,
-                                                         self.subject_id)
-        else:
-            file_name = "{0}/shimmer/{1}-{2}-{3}.csv".format(self.output_path,
-                                                             self.device_name,
-                                                             self.subject_id,
-                                                             self.stimulus_id)
-        with open(file_name, 'w') as csv_file:
+    def _save_to_file(self, file_name):
+        if not os.path.exists(file_name):
+            csv_file = open(file_name, 'a')
+            header = ["type", "time stamp", "Acc_x", "Acc_y", "Acc_z",
+                      "GSR_ohm",
+                      "PPG_mv",
+                      "time",
+                      "trigger"]
             writer = csv.writer(csv_file)
-            row = ["type", "time stamp", "Acc_x", "Acc_y", "Acc_z",
-                   "GSR_ohm",
-                   "PPG_mv",
-                   "time",
-                   "trigger"]
-            writer.writerow(row)
+            writer.writerow(header)
+            csv_file.flush()
+            csv_file.close()
+
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
