@@ -13,8 +13,9 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 from octopus_sensing.config import processing_unit
+import multiprocessing
 
-class Device(processing_unit):
+class Device(multiprocessing.Process):
     def __init__(self, name):
         super().__init__()
         self.device_name = None
@@ -22,6 +23,7 @@ class Device(processing_unit):
         self.subject_id = None
         self.stimulus_id = None
         self.output_path = "output"
+        self.name = name
 
     def run(self):
         raise NotImplementedError()
