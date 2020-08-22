@@ -12,29 +12,30 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Optional
 import multiprocessing
 
 
 class Device(multiprocessing.Process):
     '''All devices should inherit from Device class.'''
 
-    def __init__(self, name=None, output_path="output"):
+    def __init__(self, name: Optional[str] = None, output_path: str = "output"):
         super().__init__()
         self.device_name = name
-        self.message_queue = None
-        self.subject_id = None
-        self.stimulus_id = None
-        self.output_path = output_path
-        self.name = name
+        self.message_queue: Optional[multiprocessing.queues.Queue] = None
+        self.subject_id: Optional[str] = None
+        self.stimulus_id: Optional[str] = None
+        self.output_path: str = output_path
+        self.name: Optional[str] = name
 
-    def run(self):
+    def run(self) -> None:
         self._run()
 
-    def _run(self):
+    def _run(self) -> None:
         '''The subclass shouldn't implement 'run', but '_run' instead.'''
         raise NotImplementedError()
 
-    def set_queue(self, queue):
+    def set_queue(self, queue: multiprocessing.queues.Queue) -> None:
         '''
         Sets message queue for the device
 

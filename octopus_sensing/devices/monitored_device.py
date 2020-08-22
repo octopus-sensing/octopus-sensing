@@ -17,8 +17,11 @@ import pickle
 import multiprocessing
 import threading
 import traceback
+from typing import List, Any
 
 from octopus_sensing.devices.device import Device
+
+QueueType = multiprocessing.queues.Queue
 
 
 class MonitoredDevice(Device):
@@ -31,20 +34,20 @@ class MonitoredDevice(Device):
         self._monitor_in_q = None
         self._monitor_out_q = None
 
-    def set_monitoring_queues(self, monitor_in_q, monitor_out_q):
+    def set_monitoring_queues(self, monitor_in_q: QueueType, monitor_out_q: QueueType) -> None:
         '''Set the queues for communicating with the parent process.
         It should be called before the start of the process.
         '''
-        assert isinstance(monitor_in_q, multiprocessing.queues.Queue)
-        assert isinstance(monitor_out_q, multiprocessing.queues.Queue)
+        assert isinstance(monitor_in_q, QueueType)
+        assert isinstance(monitor_out_q, QueueType)
 
         self._monitor_in_q = monitor_in_q
         self._monitor_out_q = monitor_out_q
 
-    def run(self):
+    def run(self) -> None:
         # Ensuring queues are set.
-        assert isinstance(self._monitor_in_q, multiprocessing.queues.Queue)
-        assert isinstance(self._monitor_out_q, multiprocessing.queues.Queue)
+        assert isinstance(self._monitor_in_q, QueueType)
+        assert isinstance(self._monitor_out_q, QueueType)
 
         threading.Thread(target=self._monitor_loop,
                          name=self.__class__.__name__ + " monitor thread", daemon=True) \
@@ -52,7 +55,7 @@ class MonitoredDevice(Device):
 
         self._run()
 
-    def _monitor_loop(self):
+    def _monitor_loop(self) -> None:
         while True:
             requested_records = self._monitor_in_q.get()
             try:
@@ -71,7 +74,7 @@ class MonitoredDevice(Device):
                 self._monitor_out_q(pickle.dumps(
                     [], protocol=pickle.HIGHEST_PROTOCOL))
 
-    def _get_monitoring_data(self, requested_records):
+    def _get_monitoring_data(self, requested_records: int) -> List[Any]:
         '''Subclasses must implmenet this method. It should return
         a list of latest collected records.
         This method will be called in a separate thread, and should

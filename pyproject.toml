@@ -29,9 +29,11 @@ bitstring = "^3.1.7"
 # End of pyOpenBCI dependencies.
 msgpack = "^1.0.0"
 pyaudio = "^0.2.11"
+mypy = "^0.782"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+mypy = "^0.782"
 
 [tool.autopep8]
 max_line_length = 100
