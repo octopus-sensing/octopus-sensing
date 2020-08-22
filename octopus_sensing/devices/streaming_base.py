@@ -14,11 +14,13 @@
 
 import csv
 import threading
-from device import Device
+import multiprocessing
+
+from octopus_sensing.devices.device import Device
 
 
 class StreamingBase(Device):
-    def __init__(self, message_queue, file_name):
+    def __init__(self, message_queue: multiprocessing.queues.Queue, file_name: str):
         super().__init__()
         self._message_queue = message_queue
         self._file_name = file_name
