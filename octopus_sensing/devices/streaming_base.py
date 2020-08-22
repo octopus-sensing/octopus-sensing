@@ -16,13 +16,14 @@ import csv
 import threading
 from device import Device
 
+
 class StreamingBase(Device):
     def __init__(self, message_queue, file_name):
         super().__init__()
         self._message_queue = message_queue
         self._file_name = file_name
 
-    def run(self):
+    def _run(self):
         threading.Thread(target=self._stream_loop).start()
         while(True):
             command = self._message_queue.get()

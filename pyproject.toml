@@ -32,4 +32,4 @@ bitstring = "^3.1.7"
 pytest = "^5.2"
 
 [tool.autopep8]
-max_line_length = 120
+max_line_length = 100
