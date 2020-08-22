@@ -12,20 +12,26 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from octopus_sensing.config import processing_unit
 import multiprocessing
 
+
 class Device(multiprocessing.Process):
-    def __init__(self, name):
+    '''All devices should inherit from Device class.'''
+
+    def __init__(self, name=None, output_path="output"):
         super().__init__()
-        self.device_name = None
+        self.device_name = name
         self.message_queue = None
         self.subject_id = None
         self.stimulus_id = None
-        self.output_path = "output"
+        self.output_path = output_path
         self.name = name
 
     def run(self):
+        self._run()
+
+    def _run(self):
+        '''The subclass shouldn't implement 'run', but '_run' instead.'''
         raise NotImplementedError()
 
     def set_queue(self, queue):

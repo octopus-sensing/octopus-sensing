@@ -26,10 +26,12 @@ from octopus_sensing.common.message_creators import MessageType
 CONTINIOUS_SAVING_MODE = 0
 SEPARATED_SAVING_MODE = 1
 
+
 class Shimmer3Streaming(Device):
     '''
     Manages Shimmer3 streaming
     '''
+
     def __init__(self, saving_mode=CONTINIOUS_SAVING_MODE):
         super().__init__()
         self._saving_mode = saving_mode
@@ -37,7 +39,7 @@ class Shimmer3Streaming(Device):
         self._inintialize_connection()
         self._trigger = []
 
-    def run(self):
+    def _run(self):
         '''
         Listening to the message queue and manage messages
         '''
@@ -80,7 +82,8 @@ class Shimmer3Streaming(Device):
         # 4 bytes command:
         #     0x08 is SET_SENSORS_COMMAND
         #     Each bit in the three following bytes are one sensor.
-        self._serial.write(struct.pack('BBBB', 0x08 , 0x84, 0x01, 0x00))  #GSR and PPG
+        self._serial.write(struct.pack(
+            'BBBB', 0x08, 0x84, 0x01, 0x00))  # GSR and PPG
         self._wait_for_ack()
         print("sensor setting, done.")
 
@@ -193,13 +196,13 @@ class Shimmer3Streaming(Device):
                 elif data_range == 1:
                     rf = 287.0  # kohm
                 elif data_range == 2:
-                    rf = 1000.0 # kohm
+                    rf = 1000.0  # kohm
                 elif data_range == 3:
-                    rf = 3300.0 # kohm
+                    rf = 3300.0  # kohm
 
                 # convert GSR to kohm value
                 gsr_to_volts = (GSR_raw & 0x3fff) * (3.0/4095.0)
-                GSR_ohm = rf/( (gsr_to_volts /0.5) - 1.0)
+                GSR_ohm = rf/((gsr_to_volts / 0.5) - 1.0)
 
                 # convert PPG to milliVolt value
                 PPG_mv = PPG_raw * (3000.0/4095.0)
@@ -227,13 +230,13 @@ class Shimmer3Streaming(Device):
                 self._stream_data.append(row)
 
         except KeyboardInterrupt:
-            #send stop streaming command
+            # send stop streaming command
             self._serial.write(struct.pack('B', 0x20))
 
             print("stop command sent, waiting for ACK_COMMAND")
             self._wait_for_ack()
             print("ACK_COMMAND received.")
-            #close serial port
+            # close serial port
             self._serial.close()
             print("All done")
 

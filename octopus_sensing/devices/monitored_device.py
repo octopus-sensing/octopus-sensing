@@ -1,0 +1,88 @@
+# This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
+# Copyright © Zahra Saffaryazdi 2020
+#
+# Octopus Sensing is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+#  either version 3 of the License, or (at your option) any later version.
+#
+# Octopus Sensing is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with Foobar.
+# If not, see <https://www.gnu.org/licenses/>.
+
+import sys
+import pickle
+import multiprocessing
+import threading
+import traceback
+
+from octopus_sensing.devices.device import Device
+
+
+class MonitoredDevice(Device):
+    '''Provides functionalities for monitoring a device's data. For example,
+    using a visualizer.
+    '''
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._monitor_in_q = None
+        self._monitor_out_q = None
+
+    def set_monitoring_queues(self, monitor_in_q, monitor_out_q):
+        '''Set the queues for communicating with the parent process.
+        It should be called before the start of the process.
+        '''
+        assert isinstance(monitor_in_q, multiprocessing.queues.Queue)
+        assert isinstance(monitor_out_q, multiprocessing.queues.Queue)
+
+        self._monitor_in_q = monitor_in_q
+        self._monitor_out_q = monitor_out_q
+
+    def run(self):
+        # Ensuring queues are set.
+        assert isinstance(self._monitor_in_q, multiprocessing.queues.Queue)
+        assert isinstance(self._monitor_out_q, multiprocessing.queues.Queue)
+
+        threading.Thread(target=self._monitor_loop,
+                         name=self.__class__.__name__ + " monitor thread", daemon=True) \
+            .start()
+
+        self._run()
+
+    def _monitor_loop(self):
+        while True:
+            requested_records = self._monitor_in_q.get()
+            try:
+                # Only 10ms timeout, because we don't want to take cpu time from the
+                # main thread (data collector)
+                self._monitor_out_q.put(
+                    pickle.dumps(
+                        self._get_monitoring_data(requested_records),
+                        protocol=pickle.HIGHEST_PROTOCOL),
+                    timeout=0.01)
+
+            except pickle.PickleError:
+                print("Error pickling monitoring data", file=sys.stderr)
+                traceback.print_exc()
+                # We don't want to keep the parent process waiting
+                self._monitor_out_q(pickle.dumps(
+                    [], protocol=pickle.HIGHEST_PROTOCOL))
+
+    def _get_monitoring_data(self, requested_records):
+        '''Subclasses must implmenet this method. It should return
+        a list of latest collected records.
+        This method will be called in a separate thread, and should
+        be thread-safe.
+        Also, implmentation must return as quick as possible, to prevent
+        blocking of the main thread that doing the collecting.
+
+        @param requested_records: Number of records that should be returned.
+        @type requested_records: int
+
+        @return: List of records, or empty list if there's nothing.
+        @rtype: List[Any]
+        '''
+        raise NotImplementedError()
