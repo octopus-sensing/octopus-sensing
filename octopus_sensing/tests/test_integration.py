@@ -14,16 +14,18 @@
 
 import os
 import os.path
-import multiprocessing
-import multiprocessing.dummy
-import multiprocessing.queues
 import queue
 import random
 import time
 import tempfile
+import http.client
+import multiprocessing
+import multiprocessing.dummy
+import multiprocessing.queues
 
 import pytest
 import pyOpenBCI
+import msgpack
 
 
 class MockSample:
@@ -78,6 +80,7 @@ def test_system_health(mocked):
     import octopus_sensing.devices.openbci.openbci_streaming as openbci_streaming
     from octopus_sensing.device_coordinator import DeviceCoordinator
     from octopus_sensing.common.message_creators import ControlMessage
+    from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
 
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
 
@@ -86,19 +89,28 @@ def test_system_health(mocked):
     coordinator = DeviceCoordinator()
     coordinator.add_device(openbci)
 
+    monitoring_endpoint = MonitoringEndpoint(coordinator)
+    monitoring_endpoint.start()
+
     try:
         control_message = ControlMessage("int_test", "stimulus_1")
         coordinator.dispatch(control_message.start_message())
         time.sleep(1)
         coordinator.dispatch(control_message.stop_message())
 
-        records = coordinator.get_monitoring_data(3)
-        assert "eeg" in records
-        assert len(records["eeg"]) == 3
-        assert len(records["eeg"][0]) >= 8
+        http_client = http.client.HTTPConnection("127.0.0.1:9330")
+        http_client.request("GET", "/")
+        response = http_client.getresponse()
+        assert response.status == 200
+        monitoring_data = msgpack.unpackb(response.read())
+        assert isinstance(monitoring_data, dict)
+        assert isinstance(monitoring_data["eeg"], list)
+        assert len(monitoring_data["eeg"]) == 3
+        assert len(monitoring_data["eeg"][0]) >= 8
 
     finally:
         coordinator.dispatch(control_message.terminate_message())
+        monitoring_endpoint.stop()
 
     # To ensure termination is happened.
     time.sleep(0.5)
