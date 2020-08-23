@@ -28,7 +28,7 @@ class WebcamStreaming(Device):
         self._record = False
         self._camera_no = camera_no
 
-    def run(self):
+    def _run(self):
         self._video_capture = cv2.VideoCapture(self._camera_no)
         self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
         print("fps ***********************", self._fps)
