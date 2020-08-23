@@ -1,4 +1,3 @@
-
 # This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
 # Copyright © Zahra Saffaryazdi 2020
 #
@@ -21,7 +20,9 @@ from octopus_sensing.devices.device import Device
 
 SAMPLING_RATE = 44100  # Sample rate
 
-# The sounddevice library is not working with multiprocessing
+# FIXME: The sounddevice library is not working with multiprocessing
+
+
 class AudioStreaming(Device):
     def __init__(self):
         super().__init__()
@@ -30,7 +31,7 @@ class AudioStreaming(Device):
         self._record = False
         sd._initialize()
 
-    def run(self):
+    def _run(self):
         threading.Thread(target=self._stream_loop).start()
         while True:
             message = self.message_queue.get()

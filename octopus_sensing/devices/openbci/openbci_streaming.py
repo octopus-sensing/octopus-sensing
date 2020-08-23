@@ -18,30 +18,37 @@ import csv
 import datetime
 import pyOpenBCI
 import numpy as np
-from octopus_sensing.common.message_creators import MessageType
 
-from octopus_sensing.devices.device import Device
+from octopus_sensing.common.message_creators import MessageType
+from octopus_sensing.devices.monitored_device import MonitoredDevice
 
 CONTINIOUS_SAVING_MODE = 0
 SEPARATED_SAVING_MODE = 1
 
 uVolts_per_count = (4500000)/24/(2**23-1)
-accel_G_per_count = 0.002 / (2**4) #G/count
+accel_G_per_count = 0.002 / (2**4)  # G/count
 
-class OpenBCIStreaming(Device):
+
+class OpenBCIStreaming(MonitoredDevice):
     def __init__(self,
                  daisy=True,
                  channels_order=None,
-                 saving_mode=CONTINIOUS_SAVING_MODE):
-        super().__init__()
+                 saving_mode=CONTINIOUS_SAVING_MODE,
+                 **kwargs):
+        super().__init__(**kwargs)
+
         self._saving_mode = saving_mode
         self._stream_data = []
         self._board = pyOpenBCI.OpenBCICyton(daisy=daisy)
         self._trigger = None
+
+        self.output_path = os.path.join(self.output_path, "eeg")
+        os.makedirs(self.output_path, exist_ok=True)
+
         if channels_order is None:
             if daisy is True:
                 self.channels_order = \
-                    ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7", "ch8","ch9",
+                    ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7", "ch8", "ch9",
                      "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16"]
             else:
                 self.channels_order = \
@@ -55,8 +62,9 @@ class OpenBCIStreaming(Device):
                 if len(self.channels_order) != 8:
                     raise "The number of channels in channels_order should be 8"
 
-    def run(self):
+    def _run(self):
         threading.Thread(target=self._stream_loop).start()
+
         while True:
             message = self.message_queue.get()
             if message is None:
@@ -66,19 +74,19 @@ class OpenBCIStreaming(Device):
             elif message.type == MessageType.STOP:
                 if self._saving_mode == CONTINIOUS_SAVING_MODE:
                     file_name = \
-                        "{0}/eeg/{1}-{2}.csv".format(self.output_path,
-                                                     self.device_name,
-                                                     message.experiment_id)
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.device_name,
+                                                 message.experiment_id)
                     self._save_to_file(file_name)
                 else:
                     self.__set_trigger(message)
-            elif message.type == "terminate":
+            elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == CONTINIOUS_SAVING_MODE:
                     file_name = \
-                        "{0}/eeg/{1}-{2}-{3}.csv".format(self.output_path,
-                                                         self.device_name,
-                                                         message.experiment_id,
-                                                         message.stimulus_id)
+                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                     self.device_name,
+                                                     message.experiment_id,
+                                                     message.stimulus_id)
                     self._save_to_file(file_name)
                 break
 
@@ -94,7 +102,6 @@ class OpenBCIStreaming(Device):
             "{0}-{1}-{2}".format(message.type,
                                  message.experiment_id,
                                  message.stimulus_id)
-
 
     def _stream_loop(self):
         self._board.start_stream(self._stream_callback)
@@ -126,3 +133,7 @@ class OpenBCIStreaming(Device):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+
+    def _get_monitoring_data(self, requested_records):
+        '''Returns latest collected data for monitoring/visualizing purposes.'''
+        return self._stream_data[-1 * requested_records:]
