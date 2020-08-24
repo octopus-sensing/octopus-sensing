@@ -34,16 +34,17 @@ class AudioStreaming(Device):
         self._record = False
         self.output_path = os.path.join(self.output_path, "audio")
         os.makedirs(self.output_path, exist_ok=True)
-        self.__audio_recorder = pyaudio.PyAudio()
+        self.__audio_recorder = None
+        self.__stream = None
 
+    def _run(self):
+        self.__audio_recorder = pyaudio.PyAudio()
         self.__stream = \
             self.__audio_recorder.open(format=FORMAT,
                                        channels=CHANNELS,
                                        rate=SAMPLING_RATE,
                                        input=True,
                                        frames_per_buffer=CHUNK)
-
-    def _run(self):
         threading.Thread(target=self._stream_loop).start()
         while True:
             message = self.message_queue.get()
