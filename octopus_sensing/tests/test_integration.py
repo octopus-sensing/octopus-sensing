@@ -38,7 +38,7 @@ class MockSample:
 
 
 class MockedOpenBCICyton:
-    def __init__(self, daisy):
+    def __init__(self, daisy=True):
         self._channels = 16
         if daisy is False:
             self._channels = 8

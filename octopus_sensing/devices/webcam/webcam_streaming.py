@@ -26,10 +26,13 @@ class WebcamStreaming(Device):
         self._record = False
         self.output_path = os.path.join(self.output_path, "video")
         os.makedirs(self.output_path, exist_ok=True)
-        self._video_capture = cv2.VideoCapture(camera_no)
-        self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
+        self._camera_number = camera_no
+        self._video_capture = None
+        self._fps = None
 
     def _run(self):
+        self._video_capture = cv2.VideoCapture(self._camera_number)
+        self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
         threading.Thread(target=self._stream_loop, daemon=True).start()
         while True:
             message = self.message_queue.get()
