@@ -14,7 +14,7 @@ repository = "https://github.com/nastaran62/octopus-sensing"
 keywords = ["sensors", "eeg", "gsr", "recorder"]
 
 [tool.poetry.dependencies]
-python = ">=3.6,<4.0"
+python = ">=3.7,<4.0"
 sounddevice = "^0.4.0"
 scipy = "^1.5.2"
 opencv-python = "^4.4.0"
@@ -32,6 +32,7 @@ pyaudio = "^0.2.11"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
+mypy = "^0.782"
 
 [tool.autopep8]
 max_line_length = 100

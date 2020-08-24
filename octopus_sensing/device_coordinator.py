@@ -18,8 +18,13 @@ import traceback
 import multiprocessing
 import queue
 import pickle
+from typing import List, Any, Tuple, Dict
 
+from octopus_sensing.devices.device import Device
 from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.common.message import Message
+
+QueueType = multiprocessing.queues.Queue
 
 
 class MonitoringCache:
@@ -28,13 +33,13 @@ class MonitoringCache:
         self._last_requested_records = 0
         self._cached_data = []
 
-    def get_cache(self, requested_records):
+    def get_cache(self, requested_records: int):
         '''Returns None if cache is not available or expired'''
         if requested_records != self._last_requested_records and time.time() - self._time > 100:
             return None
         return self._last_requested_records
 
-    def cache(self, requested_records, data):
+    def cache(self, requested_records: int, data: List[Any]):
         self._last_requested_records = requested_records
         self._cached_data = data
         self._time = time.time()
@@ -47,12 +52,13 @@ class DeviceCoordinator:
 
     def __init__(self):
         self.__devices = {}
-        self.__queues = []
-        self.__device_counter = 0
-        self.__monitoring_queues = []
+        self.__queues: List[QueueType] = []
+        self.__device_counter: int = 0
+        self.__monitoring_queues: List[Tuple[QueueType, QueueType, Device]] = [
+        ]
         self.__monitoring_cache = MonitoringCache()
 
-    def __get_device_id(self):
+    def __get_device_id(self) -> str:
         '''
         Generate an ID for devices that do not have name
 
@@ -63,7 +69,7 @@ class DeviceCoordinator:
         device_id = "device_{0}".format(self.__device_counter)
         return device_id
 
-    def add_device(self, device):
+    def add_device(self, device: Device) -> None:
         '''
         Adds new device to the coordinator and starts it
 
@@ -71,13 +77,15 @@ class DeviceCoordinator:
 
         @keyword str name: The name of device
         '''
+        assert isinstance(device, Device)
+
         if device.device_name is None:
             device.device_name = self.__get_device_id()
         if device.device_name in self.__devices.keys():
-            raise "This device already has been added"
+            raise RuntimeError("This device already has been added")
 
         self.__devices[device.device_name] = device
-        msg_queue = multiprocessing.Queue()
+        msg_queue: QueueType = multiprocessing.Queue()
         device.set_queue(msg_queue)
         self.__queues.append(msg_queue)
 
@@ -85,7 +93,7 @@ class DeviceCoordinator:
 
         device.start()
 
-    def add_devices(self, devices):
+    def add_devices(self, devices: List[Device]) -> None:
         '''
         Adds new devices to the coordinator
 
@@ -95,7 +103,7 @@ class DeviceCoordinator:
         for device in devices:
             self.add_device(device)
 
-    def dispatch(self, message):
+    def dispatch(self, message: Message) -> None:
         '''
         dispatch new message to all devices
 
@@ -109,7 +117,7 @@ class DeviceCoordinator:
         for item in self.__devices.values():
             item.join()
 
-    def get_monitoring_data(self, requested_records):
+    def get_monitoring_data(self, requested_records: int) -> List[Dict[str, Any]]:
         '''
         Returns latest collected data from all devices.
         Device's data can be anything, depending on the device itself.
@@ -148,9 +156,9 @@ class DeviceCoordinator:
         self.__monitoring_cache.cache(requested_records, result)
         return result
 
-    def __set_monitoring_queues(self, device):
+    def __set_monitoring_queues(self, device: Device) -> None:
         if isinstance(device, MonitoredDevice):
-            in_q = multiprocessing.Queue()
-            out_q = multiprocessing.Queue()
+            in_q: QueueType = multiprocessing.Queue()
+            out_q: QueueType = multiprocessing.Queue()
             device.set_monitoring_queues(in_q, out_q)
             self.__monitoring_queues.append((in_q, out_q, device))
