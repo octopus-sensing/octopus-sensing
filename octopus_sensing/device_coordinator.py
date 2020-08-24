@@ -1,5 +1,5 @@
 # This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
-# Copyright © Zahra Saffaryazdi 2020
+# Copyright © Nastaran Saffaryazdi 2020
 #
 # Octopus Sensing is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software Foundation,
@@ -103,6 +103,11 @@ class DeviceCoordinator:
         '''
         for message_queue in self.__queues:
             message_queue.put(message)
+
+    def terminate(self, message):
+        self.dispatch(message)
+        for item in self.__devices.values():
+            item.join()
 
     def get_monitoring_data(self, requested_records):
         '''

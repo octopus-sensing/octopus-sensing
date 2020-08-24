@@ -1,5 +1,5 @@
 # This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
-# Copyright © Zahra Saffaryazdi 2020
+# Copyright © Nastaran Saffaryazdi 2020
 #
 # Octopus Sensing is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software Foundation,
@@ -12,44 +12,44 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import time
-import datetime
+import os
 import threading
 import cv2
-
-
 from octopus_sensing.devices.device import Device
+from octopus_sensing.common.message_creators import MessageType
 
 
 class WebcamStreaming(Device):
-    def __init__(self, camera_no):
-        super().__init__()
+    def __init__(self, camera_no, **kwargs):
+        super().__init__(**kwargs)
         self._stream_data = []
         self._record = False
-        self._camera_no = camera_no
+        self.output_path = os.path.join(self.output_path, "video")
+        os.makedirs(self.output_path, exist_ok=True)
+        self._video_capture = cv2.VideoCapture(camera_no)
+        self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
 
     def _run(self):
-        self._video_capture = cv2.VideoCapture(self._camera_no)
-        self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
-        print("fps ***********************", self._fps)
-        threading.Thread(target=self._stream_loop).start()
+        threading.Thread(target=self._stream_loop, daemon=True).start()
         while True:
             message = self.message_queue.get()
-            if message is not None:
-                self.subject_id = message.subject_id
-                self.stimulus_id = message.stimulus_id
-            if message.type == "terminate":
-                break
-            elif message.type == "stop_record":
-                self._record = False
-                self._end = datetime.datetime.now()
-                print("End video *************************", self._end)
-                self._save_to_file()
-            else:
-                # Command is the file name
-                self._start = datetime.datetime.now()
+            print(message)
+            if message is None:
+                continue
+            if message.type == MessageType.START:
                 self._stream_data = []
                 self._record = True
+            elif message.type == MessageType.STOP:
+                self._record = False
+                file_name = \
+                    "{0}/{1}-{2}-{3}.avi".format(self.output_path,
+                                                 self.device_name,
+                                                 message.experiment_id,
+                                                 message.stimulus_id)
+                self._save_to_file(file_name)
+            elif message.type == MessageType.TERMINATE:
+                break
+        print("terminated")
         self._video_capture.release()
 
     def _stream_loop(self):
@@ -66,19 +66,11 @@ class WebcamStreaming(Device):
         except Exception as error:
             print(error)
 
-    def _save_to_file(self):
-        file_name = \
-            "{0}/video/{1}-{2}-{3}.avi".format(self.output_path,
-                                               self.device_name,
-                                               self.subject_id,
-                                               self.stimulus_id)
-        sec = (self._end-self._start).seconds
-        fps = len(self._stream_data)/sec
-        print("video recording")
+    def _save_to_file(self, file_name):
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         out = cv2.VideoWriter(file_name,
                               fourcc,
-                              fps,
+                              self._fps,
                               (640, 480))
         print(len(self._stream_data))
         for frame in self._stream_data:
