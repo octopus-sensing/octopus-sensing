@@ -1,5 +1,5 @@
 # This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
-# Copyright © Zahra Saffaryazdi 2020
+# Copyright © Nastaran Saffaryazdi 2020
 #
 # Octopus Sensing is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software Foundation,
@@ -72,7 +72,7 @@ class OpenBCIStreaming(MonitoredDevice):
             if message.type == MessageType.START:
                 self.__set_trigger(message)
             elif message.type == MessageType.STOP:
-                if self._saving_mode == CONTINIOUS_SAVING_MODE:
+                if self._saving_mode == SEPARATED_SAVING_MODE:
                     file_name = \
                         "{0}/{1}-{2}.csv".format(self.output_path,
                                                  self.device_name,
