@@ -75,7 +75,7 @@ class OpenBCIStreaming(MonitoredDevice):
                 if self._saving_mode == SEPARATED_SAVING_MODE:
                     file_name = \
                         "{0}/{1}-{2}.csv".format(self.output_path,
-                                                 self.device_name,
+                                                 self.name,
                                                  message.experiment_id)
                     self._save_to_file(file_name)
                 else:
@@ -84,7 +84,7 @@ class OpenBCIStreaming(MonitoredDevice):
                 if self._saving_mode == CONTINIOUS_SAVING_MODE:
                     file_name = \
                         "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                     self.device_name,
+                                                     self.name,
                                                      message.experiment_id,
                                                      message.stimulus_id)
                     self._save_to_file(file_name)

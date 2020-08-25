@@ -77,12 +77,12 @@ class DeviceCoordinator:
         '''
         assert isinstance(device, Device)
 
-        if device.device_name is None:
-            device.device_name = self.__get_device_id()
-        if device.device_name in self.__devices.keys():
+        if device.name is None:
+            device.name = self.__get_device_id()
+        if device.name in self.__devices.keys():
             raise RuntimeError("This device already has been added")
 
-        self.__devices[device.device_name] = device
+        self.__devices[device.name] = device
         msg_queue: QueueType = multiprocessing.Queue()
         device.set_queue(msg_queue)
         self.__queues.append(msg_queue)
@@ -115,7 +115,7 @@ class DeviceCoordinator:
         for item in self.__devices.values():
             item.join()
 
-    def get_monitoring_data(self) -> List[Dict[str, Any]]:
+    def get_monitoring_data(self) -> Dict[str, List[Any]]:
         '''
         Returns latest collected data from all devices.
         Device's data can be anything, depending on the device itself.
@@ -141,7 +141,8 @@ class DeviceCoordinator:
         for _, out_q, device in self.__monitoring_queues:
             try:
                 records = pickle.loads(out_q.get(timeout=0.1))
-                result[device.name] = records
+                # We ensured device has a name in the add_device, ignoring it here.
+                result[device.name] = records  # type: ignore
             except (queue.Empty, pickle.PickleError):
                 print("Could not read monitoring data from {0} device".format(
                     device.name), file=sys.stderr)
