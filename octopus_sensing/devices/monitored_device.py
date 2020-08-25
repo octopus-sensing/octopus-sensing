@@ -57,13 +57,15 @@ class MonitoredDevice(Device):
 
     def _monitor_loop(self) -> None:
         while True:
-            requested_records = self._monitor_in_q.get()
+            # We don't use the data from the queue. It's just a signal.
+            self._monitor_in_q.get()
+
             try:
                 # Only 10ms timeout, because we don't want to take cpu time from the
                 # main thread (data collector)
                 self._monitor_out_q.put(
                     pickle.dumps(
-                        self._get_monitoring_data(requested_records),
+                        self._get_monitoring_data(),
                         protocol=pickle.HIGHEST_PROTOCOL),
                     timeout=0.01)
 
@@ -74,7 +76,7 @@ class MonitoredDevice(Device):
                 self._monitor_out_q(pickle.dumps(
                     [], protocol=pickle.HIGHEST_PROTOCOL))
 
-    def _get_monitoring_data(self, requested_records: int) -> List[Any]:
+    def _get_monitoring_data(self) -> List[Any]:
         '''Subclasses must implmenet this method. It should return
         a list of latest collected records.
         This method will be called in a separate thread, and should

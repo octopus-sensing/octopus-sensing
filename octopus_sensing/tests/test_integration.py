@@ -47,7 +47,8 @@ class MockedOpenBCICyton:
         pass
 
     def start_stream(self, callback):
-        for _ in range(128):
+        # Four seconds of data
+        for _ in range(4 * 128):
             callback(MockSample(self._channels))
             # Sample rate: 128 per second
             time.sleep(1 / 128)
@@ -95,7 +96,8 @@ def test_system_health(mocked):
     try:
         control_message = ControlMessage("int_test", "stimulus_1")
         coordinator.dispatch(control_message.start_message())
-        time.sleep(1)
+        # Allowing data collection for five seconds
+        time.sleep(5)
         coordinator.dispatch(control_message.stop_message())
 
         http_client = http.client.HTTPConnection("127.0.0.1:9330")
@@ -105,8 +107,10 @@ def test_system_health(mocked):
         monitoring_data = msgpack.unpackb(response.read())
         assert isinstance(monitoring_data, dict)
         assert isinstance(monitoring_data["eeg"], list)
-        assert len(monitoring_data["eeg"]) == 3
+        # three seconds * data rate
+        assert len(monitoring_data["eeg"]) == 3 * 128
         assert len(monitoring_data["eeg"][0]) >= 8
+        assert len(monitoring_data["eeg"][-1]) >= 8
 
     finally:
         coordinator.dispatch(control_message.terminate_message())
