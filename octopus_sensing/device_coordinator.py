@@ -30,17 +30,15 @@ QueueType = multiprocessing.queues.Queue
 class MonitoringCache:
     def __init__(self):
         self._time = time.time()
-        self._last_requested_records = 0
         self._cached_data = []
 
-    def get_cache(self, requested_records: int):
+    def get_cache(self):
         '''Returns None if cache is not available or expired'''
-        if requested_records != self._last_requested_records and time.time() - self._time > 100:
+        if time.time() - self._time > 100:
             return None
-        return self._last_requested_records
+        return self._cached_data
 
-    def cache(self, requested_records: int, data: List[Any]):
-        self._last_requested_records = requested_records
+    def cache(self, data: List[Any]):
         self._cached_data = data
         self._time = time.time()
 
@@ -117,27 +115,23 @@ class DeviceCoordinator:
         for item in self.__devices.values():
             item.join()
 
-    def get_monitoring_data(self, requested_records: int) -> List[Dict[str, Any]]:
+    def get_monitoring_data(self) -> List[Dict[str, Any]]:
         '''
         Returns latest collected data from all devices.
         Device's data can be anything, depending on the device itself.
 
-        @param: requested_records: Number of records to fetch from each device.
-        @type requested_records: int
-
         @return: Dict of device name to the collected data.
         @rtype: Dict[device_name, List[Any]]
         '''
-        assert isinstance(requested_records, int)
-
-        cached = self.__monitoring_cache.get_cache(requested_records)
+        cached = self.__monitoring_cache.get_cache()
         if cached:
             return cached
 
         # Putting request for all devices, then collecting them all, for performance reasons.
         for in_q, _, device in self.__monitoring_queues:
             try:
-                in_q.put(requested_records, timeout=0.1)
+                # The sub-process won't use the data we put in the queue. It's just a signal.
+                in_q.put(b'0', timeout=0.1)
             except queue.Full:
                 print("Could not put monitoring request for {0} device.".format(
                     device.name), file=sys.stderr)
@@ -153,7 +147,7 @@ class DeviceCoordinator:
                     device.name), file=sys.stderr)
                 traceback.print_exc()
 
-        self.__monitoring_cache.cache(requested_records, result)
+        self.__monitoring_cache.cache(result)
         return result
 
     def __set_monitoring_queues(self, device: Device) -> None:
