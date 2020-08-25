@@ -24,7 +24,7 @@ def make_handler(device_coordinator):
     class Handler(http.server.BaseHTTPRequestHandler):
 
         def do_GET(self):
-            data = device_coordinator.get_monitoring_data(3)
+            data = device_coordinator.get_monitoring_data()
 
             self.send_response(200)
             self.end_headers()

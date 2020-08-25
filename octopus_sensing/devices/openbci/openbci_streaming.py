@@ -134,6 +134,8 @@ class OpenBCIStreaming(MonitoredDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_monitoring_data(self, requested_records):
+    def _get_monitoring_data(self):
         '''Returns latest collected data for monitoring/visualizing purposes.'''
-        return self._stream_data[-1 * requested_records:]
+        # Last three seconds
+        # FIXME: hard-coded data collection rate
+        return self._stream_data[-1 * 3 * 128:]
