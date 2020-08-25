@@ -46,7 +46,7 @@ class WebcamStreaming(Device):
                 self._record = False
                 file_name = \
                     "{0}/{1}-{2}-{3}.avi".format(self.output_path,
-                                                 self.device_name,
+                                                 self.name,
                                                  message.experiment_id,
                                                  message.stimulus_id)
                 self._save_to_file(file_name)

@@ -20,13 +20,11 @@ class Device(multiprocessing.Process):
     '''All devices should inherit from Device class.'''
 
     def __init__(self, name: Optional[str] = None, output_path: str = "output"):
-        super().__init__()
-        self.device_name = name
+        super().__init__(name=name)
         self.message_queue: Optional[multiprocessing.queues.Queue] = None
         self.subject_id: Optional[str] = None
         self.stimulus_id: Optional[str] = None
         self.output_path: str = output_path
-        self.name: Optional[str] = name
 
     def run(self) -> None:
         self._run()
