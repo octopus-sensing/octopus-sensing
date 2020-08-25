@@ -1,0 +1,12 @@
+[run]
+source = octopus_sensing
+# Tests mock the multiprocessing module.
+# concurrency = multiprocessing
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+show_missing = True
+skip_empty = True
+sort = Cover
