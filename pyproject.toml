@@ -33,6 +33,7 @@ pyaudio = "^0.2.11"
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 mypy = "^0.782"
+coverage = "^5.2.1"
 
 [tool.autopep8]
 max_line_length = 100
