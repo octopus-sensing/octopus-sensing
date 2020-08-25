@@ -3,6 +3,11 @@ python:
     - "3.7"
     - "3.8"
 
+addons:
+  apt:
+    packages:
+      - portaudio19-dev
+
 install:
     - pip install poetry coveralls
     - poetry install -v
