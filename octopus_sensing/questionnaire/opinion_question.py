@@ -14,6 +14,7 @@
 import gi
 gi.require_version('Gtk', '3.0')  # nopep8
 from gi.repository import Gtk  # nopep8
+from typing import List
 
 from octopus_sensing.questionnaire.question import Question
 
@@ -22,7 +23,7 @@ FONT_STYLE = "<span font_desc='Tahoma 16'>{}</span>"
 
 class OpinionQuestion(Question):
     def __init__(self, id: str, text: str, data_range: int,
-                 image_path: str = None, default_answer: str = None):
+                 image_path: str = None, default_answer: int = 0):
         super().__init__(id, text)
         self._data_range = data_range
         self._image_path = image_path
@@ -60,16 +61,16 @@ class OpinionQuestion(Question):
 
         # Options box
         options_box = Gtk.Box(spacing=120)
-        option_buttons = []
+        option_buttons: List[Gtk.RadioButton] = []
         i = 0
         while i < self._data_range:
             if i == 0:
                 option_button = \
-                    Gtk.RadioButton.new_with_label_from_widget(None, str(i))
+                    Gtk.RadioButton.new_with_label_from_widget(None, i)
             else:
                 option_button = \
                     Gtk.RadioButton.new_with_label_from_widget(option_buttons[0],
-                                                               str(i))
+                                                               i)
             option_button.connect("toggled",
                                   self.__on_option_button_toggled,
                                   str(i))
@@ -86,11 +87,11 @@ class OpinionQuestion(Question):
         if button.get_active():
             self.answer = name
 
-    def get_answer(self) -> str:
+    def get_answer(self) -> int:
         '''
         Gets selected answer
 
-        @rtype: str
+        @rtype: int
         @return: answer
         '''
         return self.answer

@@ -25,7 +25,7 @@ from octopus_sensing.questionnaire.question import Question  # nopep8
 
 class Questionnaire(Gtk.Window):
     def __init__(self, name: str, experiment_id: str, stimulus_id: str,
-                 title: str, width: str = 400, height: str = 200):
+                 title: str, width: int = 400, height: int = 200):
         '''
         @param str name: Questionnaire name
         @param str experiment_id: experiment ID
@@ -41,7 +41,7 @@ class Questionnaire(Gtk.Window):
         self.set_border_width(10)
         self.set_default_size(width, height)
         self._name = name
-        self._questions = []
+        self._questions: List[Question] = []
         self._experiment_id = experiment_id
         self.stimulus_id = stimulus_id
         self._output_path = "output/self_report"
@@ -52,7 +52,8 @@ class Questionnaire(Gtk.Window):
         @param Question questions: a questions
         '''
         if question.id in self._questions:
-            raise "This question ID exists in the questionnaire"
+            raise RuntimeError(
+                "The question ID {0} already exists in the questionnaire".format(question.id))
         self._questions.append(question)
 
     def add_questions(self, questions: List[Question]) -> None:
