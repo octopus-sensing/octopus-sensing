@@ -6,10 +6,11 @@ environment:
           WHEEL_PLATFORM: win_amd64
 
 install:
-    - "%PYTHON%\\python.exe -m pip install wheel poetry"
+    - set "PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%"
+    - python -m pip install wheel poetry
 
 build: off
 
 test_script:
-    - "%PYTHON%\\python.exe -m poetry install -v"
-    - "%PYTHON%\\python.exe -m poetry pytest --full-trace --showlocals"
+    - python -m poetry install -v
+    - python -m poetry pytest --full-trace --showlocals
