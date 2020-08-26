@@ -1,7 +1,9 @@
 environment:
     matrix:
         - PYTHON: "C:\\Python37-x64"
+          WHEEL_PLATFORM: win_amd64
         - PYTHON: "C:\\Python38-x64"
+          WHEEL_PLATFORM: win_amd64
 
 install:
     - "%PYTHON%\\python.exe -m pip install wheel poetry"
