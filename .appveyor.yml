@@ -1,0 +1,13 @@
+environment:
+    matrix:
+        - PYTHON: "C:\\Python37-x64"
+        - PYTHON: "C:\\Python38-x64"
+
+install:
+    - "%PYTHON%\\python.exe -m pip install wheel poetry"
+
+build:
+    - "build.cmd %PYTHON%\\python.exe -m poetry install -v"
+
+test_script:
+    - "build.cmd %PYTHON%\\python.exe -m poetry pytest --full-trace --showlocals"
