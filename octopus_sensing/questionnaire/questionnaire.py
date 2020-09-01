@@ -45,12 +45,15 @@ class Questionnaire(Gtk.Window):
         self._experiment_id = experiment_id
         self.stimulus_id = stimulus_id
         self._output_path = "output/self_report"
+        if not os.path.exists(self._output_path):
+            os.mkdir(self._output_path)
 
     def add_question(self, question: Question) -> None:
         '''
         Adds a question to the questionnaire
         @param Question questions: a questions
         '''
+        assert isinstance(question, Question)
         if question.id in self._questions:
             raise RuntimeError(
                 "The question ID {0} already exists in the questionnaire".format(question.id))
