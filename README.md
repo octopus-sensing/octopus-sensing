@@ -1,44 +1,99 @@
-# EmotionDataCollection, Octopus-Sensing
+Octopus Sensing
+===============
 
-This software is for recording data synchronously from different sources including OpenBCI EEG headset, Shimmer sensor (GSR and PPG), Video and Audio. For other modalities that we want to add in the future, we should define a new process similar to others.
+A tool to help you run scientific experiments that involves recording data synchronously from
+multiple sources. You write steps of an experiment scenario, for example showing a stimuli and then
+a questionnaire, and the tool takes care of the rest.
 
-For running this software:
+It can collect data from devices such as OpenBCI EEG headset, Shimmer sensor (GSR and PPG), Video
+and Audio, etc. Data collection can be start and stop synchronously across all devices, and
+collected data will be tagged with the timestamp of start and stop of the experiment, the ID of the
+experiment, etc.
 
-1- Create the following folders:
+The aim is to make the scripting interface so simple that people with minimum or no software
+development skills can define experience scenarios with no effort.
 
-     created_files/
 
-     created_files/videos
+#### Main features
 
-     created_files/eeg
+* Controls data recording from multiple sources using a simple unified interface
+* Ability to tag an event on all the collected data (such as start of a experiment, and event during
+the experiment, etc)
+* Can show stimulies (images and videos) and questionnaries
+* Monitoring interface that visualizes collected data in real-time
 
-     created_files/gsr
+Getting Strated
+---------------
 
-     created_files/answers
+#### requirements
 
-     created_files/image_index
+You need [Python](https://python.org) installed on your computer (version 3.7 or higher). Refer to
+[this guide](https://realpython.com/installing-python/) if you need help.
 
-2- connect the camera to the second monitor
+#### Quick start Using init script (Linux & Mac)
 
-3- setup the eeg cap and check ampedance using OpenBCI GUI
+Octopus Sensing comes with a script that helps you quickly start a project. It uses
+[Pipenv](https://pipenv.pypa.io/) to create a [virtual
+environment](https://docs.python.org/3/tutorial/venv.html) in order to keep everything clean. It
+will also create a sample application.
 
-3- start eeg streaming through OpenVibe
-   - start openvibe server and connect and play
-   - start the scenario for showing and saving eeg data
 
-4- setup shimmer and turn on it.
+```
+mkdir my-awesome-project
+cd my-awesome-project
+curl... | sudo bash...
+```
 
-5- pair bluetooth and serial port
-   - hcitool scan //show the macaddress of device. for shimmer it is 00:06:66:F0:95:95
-   - vim /etc/bluetooth/rfcomm.conf
-        rfcomm0{
-           bind no;
-           device 00:06:66:F0:95:95;
-           channel 1;
-           comment "serial port"
-        }
-    - sudo rfcomm connect rfcomm0 00:06:66:F0:95:95   // This is for reading bluetooth data from a serial port
+The created `main.py` file is a sample application. To run it:
 
-6- run the following command:
+```
+pipenv run python main.py
+```
 
-     python3 main.py -s = participant_number
+If you don't want to use the script, you can use following methods instead.
+
+#### Installation using pip
+
+You can use `pip` to install `octopus-sensing` as simple as:
+
+```
+pip3 install octopus-sensing
+```
+
+(You might need to replace `pip3` with `pip` depending on your system.)
+
+Then it can be imported like:
+
+```python
+import octopus_sensing
+```
+
+We recommend using a package manager like [Pipenv](https://pipenv.pypa.io/) instead of globally install it using `pip` to prevent package conflicts.
+
+#### Installation from source
+
+If you want to compile it from source for development purposes or to have the un-released features,
+please refer to [Development Guide](docs/Development.md).
+
+Tutorial
+--------
+
+See [Tutorial](docs/Tutorial.md) to learn how to use Octopus Sensing.
+
+Troubleshooting
+---------------
+If the installaion failed, and this error is in the logs:
+
+```fatal error: portaudio.h: No such file or directory```
+
+You need to install `portaudio` package on your system. On a debian-based linux the package called `portaudio19-dev`.
+
+Copyright
+---------
+Copyright © 2020 Nastaran Saffaryazdi
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU
+General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+See [License file](LICENSE) for full terms.
