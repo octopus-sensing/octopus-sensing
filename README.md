@@ -39,7 +39,10 @@ will also create a sample application.
 ```
 mkdir my-awesome-project
 cd my-awesome-project
-curl https://raw.githubusercontent.com/nastaran62/octopus-sensing/master/init_script/init.sh | sudo bash
+curl https://raw.githubusercontent.com/nastaran62/octopus-sensing/master/init_script/init.sh
+# It's a good idea to read any script before executing it.
+sudo bash ./init.sh
+rm ./init.sh
 ```
 
 The created `main.py` file is a sample application. To run it:
