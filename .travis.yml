@@ -13,7 +13,8 @@ install:
     - poetry install -v
 
 script:
-    - poetry run mypy .
+    # Skipping other directories, such as init_script
+    - poetry run mypy octopus_sensing
     - poetry run coverage run -m pytest --full-trace --showlocals
 
 after_success:
