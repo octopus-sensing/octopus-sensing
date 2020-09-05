@@ -1,6 +1,11 @@
 Octopus Sensing
 ===============
 
+![Travis](https://img.shields.io/travis/com/nastaran62/octopus-sensing)
+![Coveralls](https://img.shields.io/coveralls/github/nastaran62/octopus-sensing)
+![PyPI - Version](https://img.shields.io/pypi/v/octopus-sensing)
+![PyPI - License](https://img.shields.io/pypi/l/octopus-sensing)
+
 A tool to help you run scientific experiments that involve recording data synchronously from
 multiple sources. You write steps of an experiment scenario, for example showing a stimulus and then
 a questionnaire. The tool takes care of the rest.
