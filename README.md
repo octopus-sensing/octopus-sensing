@@ -39,7 +39,7 @@ will also create a sample application.
 ```
 mkdir my-awesome-project
 cd my-awesome-project
-curl... | sudo bash...
+curl https://raw.githubusercontent.com/nastaran62/octopus-sensing/master/init_script/init.sh | sudo bash
 ```
 
 The created `main.py` file is a sample application. To run it:
@@ -49,6 +49,29 @@ pipenv run python main.py
 ```
 
 If you don't want to use the script, you can use the following methods instead.
+
+#### Installation using Pipenv
+
+We recommend using a package manager like [Pipenv](https://pipenv.pypa.io/) instead of globally
+installing Octopus Sensing using `pip` to prevent package conflicts. To do so, follow these
+commands. (This is same as what the above script does.)
+
+```bash
+mkdir my-awesome-project
+cd my-awesome-project
+# Or replace it with your python version
+pipenv --python python3.8
+pipenv install octopus-sensing
+```
+
+It installs Octopus Sensing inside the virtual environment created by Pipenv. You need to use
+`pipenv` to run your code. For example:
+
+```bash
+pipenv run python main.py
+```
+
+Refer to [Pipenv website](https://pipenv.pypa.io/) for more info.
 
 #### Installation using pip
 
@@ -65,9 +88,6 @@ Then it can be imported like:
 ```python
 import octopus_sensing
 ```
-
-We recommend using a package manager like [Pipenv](https://pipenv.pypa.io/) instead of globally
-install it using `pip` to prevent package conflicts.
 
 #### Installation from source
 
