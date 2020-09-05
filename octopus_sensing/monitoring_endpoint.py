@@ -15,6 +15,8 @@
 import sys
 import traceback
 import threading
+import pickle
+import json
 import http.server
 
 import msgpack
@@ -26,9 +28,23 @@ def make_handler(device_coordinator):
         def do_GET(self):
             data = device_coordinator.get_monitoring_data()
 
+            encoding_type = self.headers.get("Accept")
+            if encoding_type is None or "pickle" in encoding_type:
+                serialized_data = pickle.dumps(data)
+            elif "json" in encoding_type:
+                serialized_data = json.dumps(data)
+            elif "msgpack" in encoding_type:
+                serialized_data = msgpack.packb(data)
+            else:
+                self.send_error(
+                    400,
+                    message="Unknown content type. Should be one of 'json', 'msgpack', or 'pickle'")
+                self.end_headers()
+                return
+
             self.send_response(200)
             self.end_headers()
-            self.wfile.write(msgpack.packb(data))
+            self.wfile.write(serialized_data)
 
     return Handler
 
