@@ -18,6 +18,7 @@ import queue
 import random
 import time
 import tempfile
+import pickle
 import http.client
 import multiprocessing
 import multiprocessing.dummy
@@ -25,14 +26,13 @@ import multiprocessing.queues
 
 import pytest
 import pyOpenBCI
-import msgpack
 
 
 class MockSample:
     def __init__(self, channels):
         self.channels_data = [round(random.uniform(
-            0.01, 0.9)) for _ in range(channels)]
-        self.aux_data = [round(random.uniform(0.01, 0.9))
+            0.01, 0.9), 5) for _ in range(channels)]
+        self.aux_data = [round(random.uniform(0.01, 0.9), 5)
                          for _ in range(channels)]
         self.id = random.randrange(1, 200)
 
@@ -104,7 +104,7 @@ def test_system_health(mocked):
         http_client.request("GET", "/")
         response = http_client.getresponse()
         assert response.status == 200
-        monitoring_data = msgpack.unpackb(response.read())
+        monitoring_data = pickle.loads(response.read())
         assert isinstance(monitoring_data, dict)
         assert isinstance(monitoring_data["eeg"], list)
         # three seconds * data rate
