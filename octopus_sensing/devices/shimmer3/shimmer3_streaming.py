@@ -19,7 +19,7 @@ import csv
 import math
 import struct
 import serial
-from octopus_sensing.devices.device import Device
+from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message_creators import MessageType
 
 
@@ -27,7 +27,7 @@ CONTINIOUS_SAVING_MODE = 0
 SEPARATED_SAVING_MODE = 1
 
 
-class Shimmer3Streaming(Device):
+class Shimmer3Streaming(MonitoredDevice):
     '''
     Manages Shimmer3 streaming
     '''
@@ -262,3 +262,9 @@ class Shimmer3Streaming(Device):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+
+    def _get_monitoring_data(self):
+        '''Returns latest collected data for monitoring/visualizing purposes.'''
+        # Last three seconds
+        # FIXME: hard-coded data collection rate
+        return self._stream_data[-1 * 3 * 128:]
