@@ -39,6 +39,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._stream_data = []
         self._inintialize_connection()
         self._trigger = []
+        self._break_loop = False
 
         self.output_path = os.path.join(self.output_path, "gsr")
         os.makedirs(self.output_path, exist_ok=True)
@@ -47,7 +48,9 @@ class Shimmer3Streaming(MonitoredDevice):
         '''
         Listening to the message queue and manage messages
         '''
-        threading.Thread(target=self._stream_loop).start()
+        loop_thread = threading.Thread(target=self._stream_loop)
+        loop_thread.start()
+
         while True:
             message = self.message_queue.get()
             if message is None:
@@ -73,7 +76,8 @@ class Shimmer3Streaming(MonitoredDevice):
                     self._save_to_file(file_name)
                 break
 
-        self._serial.close()
+        self._break_loop = True
+        loop_thread.join()
 
     def _inintialize_connection(self):
         '''
@@ -178,6 +182,12 @@ class Shimmer3Streaming(MonitoredDevice):
                 while numbytes < framesize:
                     ddata += self._serial.read(framesize)
                     numbytes = len(ddata)
+                    if self._break_loop:
+                        break
+
+                if self._break_loop:
+                    self._stop_shimmer()
+                    break
 
                 data = ddata[0:framesize]
                 ddata = ddata[framesize:]
@@ -234,15 +244,17 @@ class Shimmer3Streaming(MonitoredDevice):
                 self._stream_data.append(row)
 
         except KeyboardInterrupt:
-            # send stop streaming command
-            self._serial.write(struct.pack('B', 0x20))
+            self._stop_shimmer()
 
-            print("stop command sent, waiting for ACK_COMMAND")
-            self._wait_for_ack()
-            print("ACK_COMMAND received.")
-            # close serial port
-            self._serial.close()
-            print("All done")
+    def _stop_shimmer(self):
+        # send stop streaming command
+        self._serial.write(struct.pack('B', 0x20))
+
+        print("stop command sent, waiting for ACK_COMMAND")
+        self._wait_for_ack()
+        print("ACK_COMMAND received.")
+        self._serial.close()
+        print("All done")
 
     def _save_to_file(self, file_name):
         if not os.path.exists(file_name):
