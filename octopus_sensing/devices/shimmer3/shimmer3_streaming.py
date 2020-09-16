@@ -34,10 +34,14 @@ class Shimmer3Streaming(Device):
 
     def __init__(self, saving_mode=CONTINIOUS_SAVING_MODE, **kwargs):
         super().__init__(**kwargs)
+
         self._saving_mode = saving_mode
         self._stream_data = []
         self._inintialize_connection()
         self._trigger = []
+
+        self.output_path = os.path.join(self.output_path, "gsr")
+        os.makedirs(self.output_path, exist_ok=True)
 
     def _run(self):
         '''
@@ -53,19 +57,19 @@ class Shimmer3Streaming(Device):
             elif message.type == MessageType.STOP:
                 if self._saving_mode == SEPARATED_SAVING_MODE:
                     file_name = \
-                        "{0}/gsr/{1}-{2}.csv".format(self.output_path,
-                                                     self.name,
-                                                     message.experiment_id)
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 message.experiment_id)
                     self._save_to_file(file_name)
                 else:
                     self.__set_trigger(message)
-            elif message.type == "terminate":
+            elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == CONTINIOUS_SAVING_MODE:
                     file_name = \
-                        "{0}/gsr/{1}-{2}-{3}.csv".format(self.output_path,
-                                                         self.name,
-                                                         message.experiment_id,
-                                                         message.stimulus_id)
+                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                     self.name,
+                                                     message.experiment_id,
+                                                     message.stimulus_id)
                     self._save_to_file(file_name)
                 break
 
