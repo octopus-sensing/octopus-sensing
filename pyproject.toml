@@ -34,6 +34,7 @@ pyaudio = "^0.2.11"
 pytest = "^5.2"
 mypy = "^0.782"
 coverage = "^5.2.1"
+mkdocs = "^1.1.2"
 
 [tool.autopep8]
 max_line_length = 100
