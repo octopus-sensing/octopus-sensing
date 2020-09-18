@@ -6,6 +6,7 @@ env
 .coverage
 dist/
 octopus_sensing.egg-info/
+docs_build/
 *.pyc
 *.avi
 *.jpg

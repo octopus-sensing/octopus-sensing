@@ -1,8 +1,8 @@
 Octopus Sensing
 ===============
 
-![Travis](https://img.shields.io/travis/com/nastaran62/octopus-sensing)
-![Coveralls](https://img.shields.io/coveralls/github/nastaran62/octopus-sensing)
+![Travis status](https://img.shields.io/travis/com/nastaran62/octopus-sensing)
+![Coveralls status](https://img.shields.io/coveralls/github/nastaran62/octopus-sensing)
 ![PyPI - Version](https://img.shields.io/pypi/v/octopus-sensing)
 ![PyPI - License](https://img.shields.io/pypi/l/octopus-sensing)
 
@@ -85,7 +85,7 @@ Refer to [Pipenv website](https://pipenv.pypa.io/) for more info.
 
 You can use `pip` to install `octopus-sensing` as simple as:
 
-```
+```bash
 pip3 install octopus-sensing
 ```
 
@@ -100,12 +100,12 @@ import octopus_sensing
 #### Installation from source
 
 If you want to compile it from source for development purposes or to have the un-released features,
-please refer to [Development Guide](docs/Development.md).
+please refer to [Development Guide](https://octopus-sensing.nastaran-saffar.me/development).
 
 Tutorial
 --------
 
-See [Tutorial](docs/Tutorial.md) to learn how to use Octopus Sensing.
+See [Tutorial](https://octopus-sensing.nastaran-saffar.me/tutorial) to learn how to use Octopus Sensing.
 
 Troubleshooting
 ---------------
@@ -124,4 +124,4 @@ This program is free software: you can redistribute it and/or modify it under th
 General Public License as published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
-See [License file](LICENSE) for full terms.
+See [License file](https://github.com/nastaran62/octopus-sensing/blob/master/LICENSE) for full terms.
