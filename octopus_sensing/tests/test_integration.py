@@ -19,6 +19,7 @@ import random
 import time
 import tempfile
 import pickle
+import struct
 import http.client
 import multiprocessing
 import multiprocessing.dummy
@@ -26,6 +27,7 @@ import multiprocessing.queues
 
 import pytest
 import pyOpenBCI
+import serial
 
 
 class MockSample:
@@ -54,6 +56,41 @@ class MockedOpenBCICyton:
             time.sleep(1 / 128)
 
 
+class MockedSerial:
+    def __init__(self, port, speed):
+        pass
+
+    def flushInput(self):
+        pass
+
+    def write(self, data):
+        pass
+
+    def close(self):
+        pass
+
+    def read(self, size):
+        if size == 1:
+            # Asking for ack
+            return struct.pack('B', 0xff)
+        elif size == 9:
+            # Enquiry configurations
+            # Only byte 7 (number of channels) and byte 8 (buffer size) is used by the app.
+            return b"\x00\x00\x00\x00\x00\x00\x00\x05\xff"
+        elif size == 5:
+            # Channels
+            return b"\x65\x66\x67\x68\x69"
+        elif size == 14:
+            # One frame of data
+            frame = []
+            for _ in range(14):
+                # 48 to 57 are numbers 0 to 9
+                frame.append(random.randint(48, 57))
+            # Sample rate: 128 per second
+            time.sleep(1 / 128)
+            return bytes(frame)
+
+
 @pytest.fixture(scope="module")
 def mocked():
     # Preventing processes from creating a new process
@@ -67,28 +104,38 @@ def mocked():
     original_openbcicyton = pyOpenBCI.OpenBCICyton
     pyOpenBCI.OpenBCICyton = MockedOpenBCICyton
 
+    original_serial = serial.Serial
+    serial.Serial = MockedSerial
+
     yield None
 
     multiprocessing.Process = original_process
     multiprocessing.queues.Queue = original_queue
     multiprocessing.Queue = original_queue_method
     pyOpenBCI.OpenBCICyton = original_openbcicyton
+    serial.Serial = original_serial
 
 
 def test_system_health(mocked):
     '''Runs the whole system to roughly check everything is working together.'''
     # To ensure mocks are applied, we import these modules here.
     import octopus_sensing.devices.openbci.openbci_streaming as openbci_streaming
+    import octopus_sensing.devices.shimmer3.shimmer3_streaming as shimmer3_streaming
     from octopus_sensing.device_coordinator import DeviceCoordinator
     from octopus_sensing.common.message_creators import ControlMessage
     from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
 
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
 
+    coordinator = DeviceCoordinator()
+
     openbci = openbci_streaming.OpenBCIStreaming(
         name="eeg", output_path=output_dir)
-    coordinator = DeviceCoordinator()
     coordinator.add_device(openbci)
+
+    shimmer = shimmer3_streaming.Shimmer3Streaming(
+        name="gsr", output_path=output_dir)
+    coordinator.add_device(shimmer)
 
     monitoring_endpoint = MonitoringEndpoint(coordinator)
     monitoring_endpoint.start()
@@ -106,11 +153,17 @@ def test_system_health(mocked):
         assert response.status == 200
         monitoring_data = pickle.loads(response.read())
         assert isinstance(monitoring_data, dict)
+
         assert isinstance(monitoring_data["eeg"], list)
         # three seconds * data rate
         assert len(monitoring_data["eeg"]) == 3 * 128
-        assert len(monitoring_data["eeg"][0]) >= 8
-        assert len(monitoring_data["eeg"][-1]) >= 8
+        assert len(monitoring_data["eeg"][0]) in (34, 35)
+        assert len(monitoring_data["eeg"][-1]) in (34, 35)
+
+        assert isinstance(monitoring_data["gsr"], list)
+        assert len(monitoring_data["gsr"]) == 3 * 128
+        assert len(monitoring_data["gsr"][0]) in (8, 9)
+        assert len(monitoring_data["gsr"][-1]) in (8, 9)
 
     finally:
         coordinator.dispatch(control_message.terminate_message())
@@ -121,5 +174,10 @@ def test_system_health(mocked):
 
     eeg_output = os.path.join(output_dir, "eeg")
     assert os.path.exists(eeg_output)
-    assert len(os.listdir(eeg_output)) == 1, \
-        "More than one file created by eeg"
+    assert len(os.listdir(eeg_output)) == 1
+    assert os.listdir(eeg_output)[0] == "eeg-int_test-stimulus_1.csv"
+
+    gsr_output = os.path.join(output_dir, "gsr")
+    assert os.path.exists(gsr_output)
+    assert len(os.listdir(gsr_output)) == 1
+    assert os.listdir(gsr_output)[0] == "gsr-int_test-stimulus_1.csv"

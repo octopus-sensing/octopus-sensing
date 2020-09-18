@@ -1,14 +1,17 @@
 from octopus_sensing.common.message import Message
 
+
 class MessageType():
     START = "START"
     STOP = "STOP"
     TERMINATE = "TERMINATE"
 
+
 class ControlMessage():
     '''
     Managing control messages
     '''
+
     def __init__(self, experiment_id, stimulus_id):
         self.experiment_id = experiment_id
         self.stimulus_id = stimulus_id
@@ -26,7 +29,6 @@ class ControlMessage():
                     experiment_id=self.experiment_id,
                     stimulus_id=self.stimulus_id)
         return start_message
-
 
     def stop_message(self):
         '''
@@ -51,5 +53,7 @@ class ControlMessage():
         '''
         terminate_message = \
             Message(MessageType.TERMINATE,
-                    None)
+                    None,
+                    experiment_id=self.experiment_id,
+                    stimulus_id=self.stimulus_id)
         return terminate_message

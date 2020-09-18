@@ -19,7 +19,7 @@ import csv
 import math
 import struct
 import serial
-from octopus_sensing.devices.device import Device
+from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message_creators import MessageType
 
 
@@ -27,23 +27,30 @@ CONTINIOUS_SAVING_MODE = 0
 SEPARATED_SAVING_MODE = 1
 
 
-class Shimmer3Streaming(Device):
+class Shimmer3Streaming(MonitoredDevice):
     '''
     Manages Shimmer3 streaming
     '''
 
     def __init__(self, saving_mode=CONTINIOUS_SAVING_MODE, **kwargs):
         super().__init__(**kwargs)
+
         self._saving_mode = saving_mode
         self._stream_data = []
         self._inintialize_connection()
         self._trigger = []
+        self._break_loop = False
+
+        self.output_path = os.path.join(self.output_path, "gsr")
+        os.makedirs(self.output_path, exist_ok=True)
 
     def _run(self):
         '''
         Listening to the message queue and manage messages
         '''
-        threading.Thread(target=self._stream_loop).start()
+        loop_thread = threading.Thread(target=self._stream_loop)
+        loop_thread.start()
+
         while True:
             message = self.message_queue.get()
             if message is None:
@@ -53,23 +60,24 @@ class Shimmer3Streaming(Device):
             elif message.type == MessageType.STOP:
                 if self._saving_mode == SEPARATED_SAVING_MODE:
                     file_name = \
-                        "{0}/gsr/{1}-{2}.csv".format(self.output_path,
-                                                     self.name,
-                                                     message.experiment_id)
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 message.experiment_id)
                     self._save_to_file(file_name)
                 else:
                     self.__set_trigger(message)
-            elif message.type == "terminate":
+            elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == CONTINIOUS_SAVING_MODE:
                     file_name = \
-                        "{0}/gsr/{1}-{2}-{3}.csv".format(self.output_path,
-                                                         self.name,
-                                                         message.experiment_id,
-                                                         message.stimulus_id)
+                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                     self.name,
+                                                     message.experiment_id,
+                                                     message.stimulus_id)
                     self._save_to_file(file_name)
                 break
 
-        self._serial.close()
+        self._break_loop = True
+        loop_thread.join()
 
     def _inintialize_connection(self):
         '''
@@ -174,6 +182,12 @@ class Shimmer3Streaming(Device):
                 while numbytes < framesize:
                     ddata += self._serial.read(framesize)
                     numbytes = len(ddata)
+                    if self._break_loop:
+                        break
+
+                if self._break_loop:
+                    self._stop_shimmer()
+                    break
 
                 data = ddata[0:framesize]
                 ddata = ddata[framesize:]
@@ -230,15 +244,17 @@ class Shimmer3Streaming(Device):
                 self._stream_data.append(row)
 
         except KeyboardInterrupt:
-            # send stop streaming command
-            self._serial.write(struct.pack('B', 0x20))
+            self._stop_shimmer()
 
-            print("stop command sent, waiting for ACK_COMMAND")
-            self._wait_for_ack()
-            print("ACK_COMMAND received.")
-            # close serial port
-            self._serial.close()
-            print("All done")
+    def _stop_shimmer(self):
+        # send stop streaming command
+        self._serial.write(struct.pack('B', 0x20))
+
+        print("stop command sent, waiting for ACK_COMMAND")
+        self._wait_for_ack()
+        print("ACK_COMMAND received.")
+        self._serial.close()
+        print("All done")
 
     def _save_to_file(self, file_name):
         if not os.path.exists(file_name):
@@ -258,3 +274,9 @@ class Shimmer3Streaming(Device):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+
+    def _get_monitoring_data(self):
+        '''Returns latest collected data for monitoring/visualizing purposes.'''
+        # Last three seconds
+        # FIXME: hard-coded data collection rate
+        return self._stream_data[-1 * 3 * 128:]
