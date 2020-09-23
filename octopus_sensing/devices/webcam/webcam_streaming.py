@@ -12,14 +12,18 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
+from typing import List, Any
+
 import os
 import threading
+
 import cv2
-from octopus_sensing.devices.device import Device
+
+from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message_creators import MessageType
 
 
-class WebcamStreaming(Device):
+class WebcamStreaming(MonitoredDevice):
     def __init__(self, camera_no, **kwargs):
         super().__init__(**kwargs)
         self._stream_data = []
@@ -79,3 +83,7 @@ class WebcamStreaming(Device):
         for frame in self._stream_data:
             out.write(frame)
         out.release()
+
+    def _get_monitoring_data(self) -> List[Any]:
+        # Last recorded framen
+        return self._stream_data[-1]
