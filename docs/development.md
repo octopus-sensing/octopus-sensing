@@ -6,7 +6,7 @@ Installing from source
 
 you need `poetry`:
 
-```
+```bash
 pip3 install poetry
 ```
 
@@ -14,7 +14,7 @@ pip3 install poetry
 
 Then `cd` to where the source code located and run:
 
-```
+```bash
 poetry install
 poetry build
 ```
