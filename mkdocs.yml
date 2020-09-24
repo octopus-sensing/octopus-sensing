@@ -1,0 +1,19 @@
+site_name: Octopus Sensing
+repo_url: https://github.com/nastaran62/octopus-sensing/
+edit_uri: ""
+site_author: "Nastaran Saffaryazdi"
+site_description: ""
+site_dir: docs_build/
+
+theme:
+  name: readthedocs
+  prev_next_buttons_location: none
+
+markdown_extensions:
+  - toc:
+      permalink: True
+
+nav:
+  - Home: index.md
+  - Tutorial: tutorial.md
+  - Development: development.md
