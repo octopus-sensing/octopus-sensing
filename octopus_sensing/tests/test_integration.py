@@ -134,7 +134,7 @@ def test_system_health(mocked):
     coordinator.add_device(openbci)
 
     shimmer = shimmer3_streaming.Shimmer3Streaming(
-        name="gsr", output_path=output_dir)
+        name="shimmer", output_path=output_dir)
     coordinator.add_device(shimmer)
 
     monitoring_endpoint = MonitoringEndpoint(coordinator)
@@ -160,10 +160,10 @@ def test_system_health(mocked):
         assert len(monitoring_data["eeg"][0]) in (34, 35)
         assert len(monitoring_data["eeg"][-1]) in (34, 35)
 
-        assert isinstance(monitoring_data["gsr"], list)
-        assert len(monitoring_data["gsr"]) == 3 * 128
-        assert len(monitoring_data["gsr"][0]) in (8, 9)
-        assert len(monitoring_data["gsr"][-1]) in (8, 9)
+        assert isinstance(monitoring_data["shimmer"], list)
+        assert len(monitoring_data["shimmer"]) == 3 * 128
+        assert len(monitoring_data["shimmer"][0]) in (8, 9)
+        assert len(monitoring_data["shimmer"][-1]) in (8, 9)
 
     finally:
         coordinator.dispatch(control_message.terminate_message())
@@ -177,7 +177,7 @@ def test_system_health(mocked):
     assert len(os.listdir(eeg_output)) == 1
     assert os.listdir(eeg_output)[0] == "eeg-int_test-stimulus_1.csv"
 
-    gsr_output = os.path.join(output_dir, "gsr")
-    assert os.path.exists(gsr_output)
-    assert len(os.listdir(gsr_output)) == 1
-    assert os.listdir(gsr_output)[0] == "gsr-int_test-stimulus_1.csv"
+    shimmer_output = os.path.join(output_dir, "shimmer")
+    assert os.path.exists(shimmer_output)
+    assert len(os.listdir(shimmer_output)) == 1
+    assert os.listdir(shimmer_output)[0] == "shimmer-int_test-stimulus_1.csv"

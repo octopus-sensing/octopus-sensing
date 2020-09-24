@@ -41,7 +41,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._trigger = []
         self._break_loop = False
 
-        self.output_path = os.path.join(self.output_path, "gsr")
+        self.output_path = os.path.join(self.output_path, "shimmer")
         os.makedirs(self.output_path, exist_ok=True)
 
     def _run(self):
