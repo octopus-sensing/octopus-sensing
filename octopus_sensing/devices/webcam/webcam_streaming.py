@@ -29,42 +29,45 @@ class WebcamStreaming(Device):
         self._camera_number = camera_no
         self._video_capture = None
         self._fps = None
+        self._terminate = False
 
     def _run(self):
+        self._recording_event = threading.Event()
+        self._recording_event.clear()
         self._video_capture = cv2.VideoCapture(self._camera_number)
         self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
         threading.Thread(target=self._stream_loop, daemon=True).start()
         while True:
             message = self.message_queue.get()
-            print(message)
             if message is None:
                 continue
             if message.type == MessageType.START:
                 self._stream_data = []
-                self._record = True
+                self._recording_event.set()
             elif message.type == MessageType.STOP:
-                self._record = False
+                self._recording_event.clear()
                 file_name = \
                     "{0}/{1}-{2}-{3}.avi".format(self.output_path,
                                                  self.name,
                                                  message.experiment_id,
-                                                 message.stimulus_id)
+                                                 str(message.stimulus_id).zfill(2))
                 self._save_to_file(file_name)
             elif message.type == MessageType.TERMINATE:
+                self._terminate = True
                 break
-        print("terminated")
+        print("video terminated")
         self._video_capture.release()
 
     def _stream_loop(self):
         self._video_capture.read()
         try:
             while self._video_capture.isOpened:
-                if self._record is False:
-                    continue
-                ret, frame = self._video_capture.read()
-                if ret:
-                    frame = cv2.flip(frame, 180)
-                    self._stream_data.append(frame)
+                if self._terminate is True:
+                    break
+                if self._recording_event.wait(timeout=0.5):
+                    ret, frame = self._video_capture.read()
+                    if ret:
+                        self._stream_data.append(frame)
 
         except Exception as error:
             print(error)

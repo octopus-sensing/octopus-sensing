@@ -14,6 +14,7 @@
 
 from typing import Optional
 import multiprocessing
+import multiprocessing.queues
 
 
 class Device(multiprocessing.Process):

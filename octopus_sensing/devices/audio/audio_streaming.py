@@ -36,41 +36,50 @@ class AudioStreaming(Device):
         os.makedirs(self.output_path, exist_ok=True)
         self.__audio_recorder = None
         self.__stream = None
+        self._terminate = False
 
     def _run(self):
+
+        self._recording_event = threading.Event()
+        self._recording_event.clear()
         self.__audio_recorder = pyaudio.PyAudio()
         self.__stream = \
             self.__audio_recorder.open(format=FORMAT,
                                        channels=CHANNELS,
                                        rate=SAMPLING_RATE,
                                        input=True,
-                                       frames_per_buffer=CHUNK)
+                                       frames_per_buffer=CHUNK,
+                                       start=False)
         threading.Thread(target=self._stream_loop).start()
         while True:
             message = self.message_queue.get()
             if message is None:
                 continue
             if message.type == MessageType.START:
+                self.__stream.start_stream()
                 self._stream_data = []
-                self._record = True
+                self._recording_event.set()
             elif message.type == MessageType.STOP:
-                self._record = False
+                self.__stream.stop_stream()
+                self._recording_event.clear()
                 file_name = \
                     "{0}/{1}-{2}-{3}.wav".format(self.output_path,
                                                  self.name,
                                                  message.experiment_id,
-                                                 message.stimulus_id)
+                                                 str(message.stimulus_id).zfill(2))
                 self._save_to_file(file_name)
             elif message.type == MessageType.TERMINATE:
+                self._terminate = True
                 break
 
-        self.__stream.stop_stream()
         self.__stream.close()
         self.__audio_recorder.terminate()
 
     def _stream_loop(self):
         while True:
-            if self._record is True:
+            if self._terminate is True:
+                break
+            if self._recording_event.wait(timeout=0.5):
                 data = self.__stream.read(CHUNK)
                 self._stream_data.append(data)
 

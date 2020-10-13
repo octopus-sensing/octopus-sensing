@@ -14,18 +14,41 @@
 import gi
 gi.require_version('Gtk', '3.0')  # nopep8
 from gi.repository import Gtk  # nopep8
-from typing import List
+from typing import List, Union
 
 from octopus_sensing.questionnaire.question import Question
 
 FONT_STYLE = "<span font_desc='Tahoma 16'>{}</span>"
 
 
+class Option():
+    def __init__(self, id, label=None, value=None):
+        self.id = id
+        self.label = label
+        if self.label is None:
+            self.label = id
+        self.value = value
+        if self.value is None:
+            self.value = id
+
+
 class OpinionQuestion(Question):
-    def __init__(self, id: str, text: str, data_range: int,
+    def __init__(self, id: str, text: str, options: Union[dict, int],
                  image_path: str = None, default_answer: int = 0):
         super().__init__(id, text)
-        self._data_range = data_range
+
+        self._options = []
+        if isinstance(options, int):
+            for i in range(options):
+                option = Option(i, label=str(i), value=i)
+                self._options.append(option)
+        else:
+            i = 0
+            for key, value in options.items():
+                option = Option(i, label=key, value=value)
+                self._options.append(option)
+                i += 1
+
         self._image_path = image_path
         self.answer = default_answer
 
@@ -62,23 +85,22 @@ class OpinionQuestion(Question):
         # Options box
         options_box = Gtk.Box(spacing=120)
         option_buttons: List[Gtk.RadioButton] = []
-        i = 0
-        while i < self._data_range:
+        for i, option in enumerate(self._options):
             if i == 0:
                 option_button = \
-                    Gtk.RadioButton.new_with_label_from_widget(None, i)
+                    Gtk.RadioButton.new_with_label_from_widget(None, str(option.id))
             else:
                 option_button = \
                     Gtk.RadioButton.new_with_label_from_widget(option_buttons[0],
-                                                               i)
+                                                               str(option.id))
             option_button.connect("toggled",
                                   self.__on_option_button_toggled,
-                                  str(i))
+                                  option.value)
+            option_button.get_child().set_markup(FONT_STYLE.format(option.label))
             option_buttons.append(option_button)
-            options_box.pack_start(option_buttons[i], False, False, 0)
-            if i == self.answer:
+            options_box.pack_start(option_button, False, False, 0)
+            if option.value == self.answer:
                 option_button.set_active(True)
-            i += 1
         grid.attach(options_box, 0, row_counter, 1, 1)
         row_counter += 1
         return row_counter

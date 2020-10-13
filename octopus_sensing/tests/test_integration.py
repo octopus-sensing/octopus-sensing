@@ -122,7 +122,7 @@ def test_system_health(mocked):
     import octopus_sensing.devices.openbci.openbci_streaming as openbci_streaming
     import octopus_sensing.devices.shimmer3.shimmer3_streaming as shimmer3_streaming
     from octopus_sensing.device_coordinator import DeviceCoordinator
-    from octopus_sensing.common.message_creators import ControlMessage
+    from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
     from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
 
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
@@ -141,11 +141,10 @@ def test_system_health(mocked):
     monitoring_endpoint.start()
 
     try:
-        control_message = ControlMessage("int_test", "stimulus_1")
-        coordinator.dispatch(control_message.start_message())
+        coordinator.dispatch(start_message("int_test", "stimulus_1"))
         # Allowing data collection for five seconds
         time.sleep(5)
-        coordinator.dispatch(control_message.stop_message())
+        coordinator.dispatch(stop_message("int_test", "stimulus_1"))
 
         http_client = http.client.HTTPConnection("127.0.0.1:9330")
         http_client.request("GET", "/")
@@ -166,7 +165,7 @@ def test_system_health(mocked):
         assert len(monitoring_data["shimmer"][-1]) in (8, 9)
 
     finally:
-        coordinator.dispatch(control_message.terminate_message())
+        coordinator.dispatch(terminate_message())
         monitoring_endpoint.stop()
 
     # To ensure termination is happened.
@@ -175,9 +174,9 @@ def test_system_health(mocked):
     eeg_output = os.path.join(output_dir, "eeg")
     assert os.path.exists(eeg_output)
     assert len(os.listdir(eeg_output)) == 1
-    assert os.listdir(eeg_output)[0] == "eeg-int_test-stimulus_1.csv"
+    assert os.listdir(eeg_output)[0] == "eeg-int_test.csv"
 
     shimmer_output = os.path.join(output_dir, "shimmer")
     assert os.path.exists(shimmer_output)
     assert len(os.listdir(shimmer_output)) == 1
-    assert os.listdir(shimmer_output)[0] == "shimmer-int_test-stimulus_1.csv"
+    assert os.listdir(shimmer_output)[0] == "shimmer-int_test.csv"
