@@ -174,9 +174,9 @@ def test_system_health(mocked):
     eeg_output = os.path.join(output_dir, "eeg")
     assert os.path.exists(eeg_output)
     assert len(os.listdir(eeg_output)) == 1
-    assert os.listdir(eeg_output)[0] == "eeg-int_test-stimulus_1.csv"
+    assert os.listdir(eeg_output)[0] == "eeg-int_test.csv"
 
     shimmer_output = os.path.join(output_dir, "shimmer")
     assert os.path.exists(shimmer_output)
     assert len(os.listdir(shimmer_output)) == 1
-    assert os.listdir(shimmer_output)[0] == "shimmer-int_test-stimulus_1.csv"
+    assert os.listdir(shimmer_output)[0] == "shimmer-int_test.csv"

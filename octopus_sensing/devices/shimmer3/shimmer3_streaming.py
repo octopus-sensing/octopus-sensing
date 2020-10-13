@@ -56,23 +56,26 @@ class Shimmer3Streaming(MonitoredDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
+                self._experiment_id = message.experiment_id
                 self.__set_trigger(message)
             elif message.type == MessageType.STOP:
                 if self._saving_mode == SEPARATED_SAVING_MODE:
+                    self._experiment_id = message.experiment_id
                     file_name = \
-                        "{0}/{1}-{2}.csv".format(self.output_path,
-                                                 self.name,
-                                                 message.experiment_id)
+                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                     self.name,
+                                                     self._experiment_id,
+                                                     message.stimulus_id)
                     self._save_to_file(file_name)
                 else:
+                    self._experiment_id = message.experiment_id
                     self.__set_trigger(message)
             elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == CONTINIOUS_SAVING_MODE:
                     file_name = \
-                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                     self.name,
-                                                     message.experiment_id,
-                                                     message.stimulus_id)
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
                     self._save_to_file(file_name)
                 break
 
