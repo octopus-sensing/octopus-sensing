@@ -7,53 +7,52 @@ class MessageType():
     TERMINATE = "TERMINATE"
 
 
-class ControlMessage():
+def start_message(experiment_id: str, stimulus_id: int, payload=None):
     '''
-    Managing control messages
+    Creates a message to inform device of starting the stimulus
+
+    @param str experiment_id: experiment ID
+    @param int stimulus_id: stimulus ID
+
+    @kwargs payload: Some meta data related to starting the stimulus
+
+    @rtype: Message
+    @return: a start message
     '''
+    message = \
+        Message(MessageType.START,
+                payload,
+                experiment_id=experiment_id,
+                stimulus_id=stimulus_id)
+    return message
 
-    def __init__(self, experiment_id, stimulus_id):
-        self.experiment_id = experiment_id
-        self.stimulus_id = stimulus_id
 
-    def start_message(self, payload=None):
-        '''
-        Creates a message to inform device from starting the stimulus
+def stop_message(experiment_id: str, stimulus_id: int):
+    '''
+    Creates a message to inform device of stopping the stimulus
 
-        @rtype: Message
-        @return: a start message
-        '''
-        start_message = \
-            Message(MessageType.START,
-                    payload,
-                    experiment_id=self.experiment_id,
-                    stimulus_id=self.stimulus_id)
-        return start_message
+    @param str experiment_id: experiment ID
+    @param int stimulus_id: stimulus ID
 
-    def stop_message(self):
-        '''
-        Creates a message to inform device of stopping the stimulus
+    @rtype: Message
+    @return: a stop message
+    '''
+    message = \
+        Message(MessageType.STOP,
+                None,
+                experiment_id=experiment_id,
+                stimulus_id=stimulus_id)
+    return message
 
-        @rtype: Message
-        @return: a stop message
-        '''
-        stop_message = \
-            Message(MessageType.STOP,
-                    None,
-                    experiment_id=self.experiment_id,
-                    stimulus_id=self.stimulus_id)
-        return stop_message
 
-    def terminate_message(self):
-        '''
-        Creates a message to inform device of terminating the program
+def terminate_message():
+    '''
+    Creates a message to inform device of terminating the program
 
-        @rtype: Message
-        @return: a terminate message
-        '''
-        terminate_message = \
-            Message(MessageType.TERMINATE,
-                    None,
-                    experiment_id=self.experiment_id,
-                    stimulus_id=self.stimulus_id)
-        return terminate_message
+    @rtype: Message
+    @return: a terminate message
+    '''
+    message = \
+        Message(MessageType.TERMINATE,
+                None)
+    return message

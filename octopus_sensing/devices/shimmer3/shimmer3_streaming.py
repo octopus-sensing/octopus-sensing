@@ -165,7 +165,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._trigger = \
             "{0}-{1}-{2}".format(message.type,
                                  message.experiment_id,
-                                 message.stimulus_id)
+                                 str(message.stimulus_id).zfill(2))
 
     def _stream_loop(self):
         '''
