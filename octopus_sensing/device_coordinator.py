@@ -23,6 +23,7 @@ from typing import List, Any, Tuple, Dict
 from octopus_sensing.devices.device import Device
 from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message import Message
+from octopus_sensing.common.message_creators import terminate_message
 
 QueueType = multiprocessing.queues.Queue
 
@@ -110,8 +111,8 @@ class DeviceCoordinator:
         for message_queue in self.__queues:
             message_queue.put(message)
 
-    def terminate(self, message):
-        self.dispatch(message)
+    def terminate(self):
+        self.dispatch(terminate_message())
         for item in self.__devices.values():
             item.join()
 
