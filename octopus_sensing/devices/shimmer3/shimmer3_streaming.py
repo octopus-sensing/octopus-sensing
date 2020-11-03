@@ -38,7 +38,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._saving_mode = saving_mode
         self._stream_data = []
         self._inintialize_connection()
-        self._trigger = []
+        self._trigger = None
         self._break_loop = False
 
         self.output_path = os.path.join(self.output_path, "shimmer")
@@ -56,6 +56,7 @@ class Shimmer3Streaming(MonitoredDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
+                print("Shimmer start")
                 self._experiment_id = message.experiment_id
                 self.__set_trigger(message)
             elif message.type == MessageType.STOP:
@@ -68,6 +69,7 @@ class Shimmer3Streaming(MonitoredDevice):
                                                      message.stimulus_id)
                     self._save_to_file(file_name)
                 else:
+                    print("Shimmer stop")
                     self._experiment_id = message.experiment_id
                     self.__set_trigger(message)
             elif message.type == MessageType.TERMINATE:
@@ -228,7 +230,8 @@ class Shimmer3Streaming(MonitoredDevice):
 
                 #print([packettype[0], timestamp, GSR_ohm, PPG_mv] + self._trigger)
 
-                if self._trigger != []:
+                if self._trigger is not None:
+                    print("Shimmer trigger")
                     row = [packettype[0],
                            timestamp,
                            x, y, z,
@@ -236,7 +239,7 @@ class Shimmer3Streaming(MonitoredDevice):
                            PPG_mv,
                            record_time,
                            self._trigger]
-                    self._trigger = []
+                    self._trigger = None
                 else:
                     row = [packettype[0],
                            timestamp,
