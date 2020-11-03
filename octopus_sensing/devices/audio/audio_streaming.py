@@ -24,7 +24,6 @@ SAMPLING_RATE = 44100  # Sample rate
 CHUNK = 1024
 FORMAT = pyaudio.paInt32
 CHANNELS = 2
-RECORD_SECONDS = 5
 
 
 class AudioStreaming(Device):
@@ -46,7 +45,8 @@ class AudioStreaming(Device):
                                        rate=SAMPLING_RATE,
                                        input=True,
                                        frames_per_buffer=CHUNK,
-                                       start=True)
+                                       start=False)
+
         threading.Thread(target=self._stream_loop).start()
 
         while True:
@@ -69,6 +69,7 @@ class AudioStreaming(Device):
                 break
 
     def _stream_loop(self):
+        self.__stream.start_stream()
         while True:
             if self._terminate:
                 self.__stream.stop_stream()
