@@ -13,8 +13,11 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import time
+import pytest
 
-from octopus_sensing.device_coordinator import MonitoringCache
+from octopus_sensing.device_coordinator import MonitoringCache, DeviceCoordinator
+from octopus_sensing.devices.device import Device
+
 
 def test_monitoring_cache():
     cache = MonitoringCache()
@@ -28,3 +31,21 @@ def test_monitoring_cache():
 
     time.sleep(0.05)
     assert cache.get_cache() is None
+
+
+def test_should_auto_assign_device_id():
+    test_device = Device()
+    test_device._run = lambda: None
+    coordinator = DeviceCoordinator()
+    coordinator.add_device(test_device)
+    assert isinstance(test_device.name, str)
+    assert len(test_device.name) > 0
+
+
+def test_should_not_add_duplicated_deivces():
+    test_device = Device(name="device1")
+    test_device._run = lambda: None
+    coordinator = DeviceCoordinator()
+    coordinator.add_device(test_device)
+    with pytest.raises(RuntimeError):
+        coordinator.add_device(test_device)
