@@ -24,11 +24,13 @@ pyOpenBCI = "^0.13"
 pyserial = "^3.4"
 requests = "^2.24.0"
 xmltodict = "^0.12.0"
-bluepy = "^1.3.0"
+# bluepy is not needed by pyOpenBCI on Windows platform (bluepy doesn't support windows)
+bluepy = { version = "^1.3.0", markers = "os_name != 'nt'" }
 bitstring = "^3.1.7"
 # End of pyOpenBCI dependencies.
 msgpack = "^1.0.0"
-pyaudio = "^0.2.11"
+# pyaudio doesn't support windows
+pyaudio = { version = "^0.2.11", markers = "os_name != 'nt'" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
