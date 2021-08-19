@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import sys  # nopep8
+sys.path.append('../octopus-sensing/')  # nopep8
 import time
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
@@ -25,9 +27,9 @@ def server():
     socket_device = SocketNetworkDevice("localhost", 5002)
     device_coordinator.add_devices([socket_device])
 
-    input("Press enter to start sending markers")
 
-    time.sleep(5)
+    time.sleep(2)
+    input("Press enter to start sending marker")
     message = start_message("test", "00")
     device_coordinator.dispatch(message)
     
