@@ -9,11 +9,7 @@ octopus_sensing.egg-info/
 docs_build/
 *.pyc
 *.avi
-*.jpg
-*.jpeg
-*.png
-*.mp4
 *.edf
 *.log
 *.wav
-*.csv
+

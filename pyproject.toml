@@ -36,6 +36,7 @@ mne = "^0.23.0"
 heartpy = "^1.2.7"
 pycairo = "^1.20.1"
 PyGObject = "^3.40.1"
+screeninfo = "^0.7"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
