@@ -12,4 +12,8 @@ docs_build/
 *.edf
 *.log
 *.wav
-
+*.csv
+*.jpg
+*.jpeg
+*.mp4
+*.png
