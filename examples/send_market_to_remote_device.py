@@ -24,7 +24,7 @@ def server():
     Starts a server and sends several messages and terminates
     '''
     device_coordinator = DeviceCoordinator()
-    socket_device = SocketNetworkDevice("localhost", 5002)
+    socket_device = SocketNetworkDevice("0.0.0.0", 5002)
     device_coordinator.add_devices([socket_device])
 
 

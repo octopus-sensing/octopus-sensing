@@ -76,7 +76,7 @@ class SocketNetworkDevice(Device):
                 self.__set_trigger(message)
                 for connection in self.__connections:
                     threading.Thread(target=self.__send_message, args=(connection,)).start()
-            
+
             elif message.type == MessageType.TERMINATE:
                 print("terminate")
                 self._trigger = "terminate"
@@ -94,6 +94,7 @@ class SocketNetworkDevice(Device):
         @param socket.socket connection: a socket connection
         '''
         print("send message", self._trigger)
+        self._trigger += "\n"
         connection.send(self._trigger.encode())
 
     def __set_trigger(self, message: Message):
@@ -106,6 +107,3 @@ class SocketNetworkDevice(Device):
             "{0}-{1}-{2}".format(message.type,
                                  message.experiment_id,
                                  str(message.stimulus_id).zfill(2))
-
-
-
