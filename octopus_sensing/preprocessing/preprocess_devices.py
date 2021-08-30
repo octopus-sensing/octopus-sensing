@@ -74,3 +74,60 @@ def preprocess_devices(device_coordinator: DeviceCoordinator, output_path: str,
                                     sampling_rate=shimmer3_sampling_rate,
                                     signal_preprocess=signal_preprocess)
     print("Preprocessing done")
+
+
+def preprocess_devices_by_path(devices_path, output_path: str,
+                       openbci_sampling_rate: int = 128,
+                       shimmer3_sampling_rate: int = 128,
+                       signal_preprocess: bool = True):
+    '''
+    Preprocees recorded files for all devices that are added to device_coordinator,
+    Some devices do not have any preprocessing, so this function will ignore them
+
+    @param DeviceCoordinator device_coordinator: an instance of DeviceCoordinator
+    @param str output_path: Path for preprocessed Files
+    @param int openbci_sampling_rate: New sampling rate for openbci resampling
+    @param int shimmer3_sampling_rate: New sampling rate for shimmer3 resampling
+    '''
+    print("Start preprocessing ....")
+    for device, input_path in devices_path.items():
+        print(device, input_path)
+        if device == "openbci":
+            device_output_path = os.path.join(output_path, "openbci")
+            print("device_output_path", device_output_path)
+            if not os.path.exists(device_output_path):
+                pathlib.Path(device_output_path).mkdir(parents=True, exist_ok=True)
+
+            # This is the path that device saves recording data
+            print("input_path", input_path)
+            file_names = os.listdir(input_path)
+            file_names.sort()
+            if not os.path.exists(device_output_path):
+                os.mkdir(device_output_path)
+            channels = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
+                        "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"]
+            for file_name in file_names:
+                print(file_name, device_output_path)
+                openbci_preprocess(input_path, file_name, device_output_path,
+                                   channels,
+                                   sampling_rate=openbci_sampling_rate,
+                                   signal_preprocess=signal_preprocess)
+        elif device == "shimmer3":
+            device_output_path = output_path
+            print("device_output_path", device_output_path)
+            if not os.path.exists(device_output_path):
+                pathlib.Path(device_output_path).mkdir(parents=True, exist_ok=True)
+
+            # This is the path that device saves recording data
+            print("input_path", input_path)
+            if not os.path.exists(device_output_path):
+                pathlib.Path(device_output_path).mkdir(parents=True, exist_ok=True)
+            file_names = os.listdir(input_path)
+            file_names.sort()
+            print("preprocess shimmer input_path", input_path)
+            print("preprocess shimmer device_output_path", device_output_path)
+            for file_name in file_names:
+                shimmer3_preprocess(input_path, file_name, device_output_path,
+                                    sampling_rate=shimmer3_sampling_rate,
+                                    signal_preprocess=signal_preprocess)
+    print("Preprocessing done")

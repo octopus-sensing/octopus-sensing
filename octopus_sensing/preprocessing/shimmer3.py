@@ -16,6 +16,7 @@ import os
 import heartpy as hp
 from scipy import signal
 import numpy as np
+import pathlib
 
 from octopus_sensing.preprocessing.utils import load_all_trials, resample, load_all_samples
 from octopus_sensing.devices.common import SavingModeEnum
@@ -58,16 +59,22 @@ def shimmer3_preprocess(input_path: str, file_name: str, output_path: str,
             cleaned_gsr = resampled_data[:, 0]
             cleaned_ppg = resampled_data[:, 1]
 
+        gsr_output_path = os.path.join(output_path, "gsr")
+        if not os.path.exists(gsr_output_path):
+            pathlib.Path(gsr_output_path).mkdir(parents=True, exist_ok=True)
         gsr_file_path = \
-            "{0}/gsr{1}.csv".format(output_path, file_name[7:])
+            "{0}/gsr{1}.csv".format(gsr_output_path, file_name[7:])
+        
+        ppg_output_path = os.path.join(output_path, "ppg")
+        if not os.path.exists(ppg_output_path):
+            pathlib.Path(ppg_output_path).mkdir(parents=True, exist_ok=True)
         ppg_file_path = \
-            "{0}/ppg{1}.csv".format(output_path, file_name[7:])
+            "{0}/ppg{1}.csv".format(ppg_output_path, file_name[7:])
         np.savetxt(gsr_file_path, cleaned_gsr)
         np.savetxt(ppg_file_path, cleaned_ppg)
 
     elif saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
         print("shimmer input_path", input_path)
-        print("output_path", output_path)
         # First data needs to be splitted based on markers
         trials_data, trials_times, triger_list = \
             load_all_trials(os.path.join(input_path, file_name),  # File path
@@ -78,13 +85,19 @@ def shimmer3_preprocess(input_path: str, file_name: str, output_path: str,
 
         i = 0
         for trial in trials_data:
+            gsr_output_path = os.path.join(output_path, "gsr")
+            if not os.path.exists(gsr_output_path):
+                pathlib.Path(gsr_output_path).mkdir(parents=True, exist_ok=True)
             gsr_file_path = \
-                "{0}/gsr{1}-{2}.csv".format(output_path,
+                "{0}/gsr{1}-{2}.csv".format(gsr_output_path,
                                             # Removing .csv and shimmer from file_name
                                             file_name[7:-4],
                                             str(triger_list[i]).zfill(2))
+            ppg_output_path = os.path.join(output_path, "ppg")
+            if not os.path.exists(ppg_output_path):
+                pathlib.Path(ppg_output_path).mkdir(parents=True, exist_ok=True)
             ppg_file_path = \
-                "{0}/ppg{1}-{2}.csv".format(output_path,
+                "{0}/ppg{1}-{2}.csv".format(ppg_output_path,
                                             # Removing .csv and shimmer from file_name
                                             file_name[7:-4],
                                             str(triger_list[i]).zfill(2))
