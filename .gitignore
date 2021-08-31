@@ -12,7 +12,7 @@ docs_build/
 *.edf
 *.log
 *.wav
-#*.csv
+*.csv
 *.jpg
 *.jpeg
 *.mp4
