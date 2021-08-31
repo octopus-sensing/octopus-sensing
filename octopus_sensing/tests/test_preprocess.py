@@ -99,8 +99,14 @@ def test_preprocess_continuous_saving_mode():
 
     expected_shimmer_path = \
         os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                     "data/preprocess_expected/Shimmer_continuous")
-    preprocess_shimmer_path = "/tmp/preprocess/Shimmer_continuous"
+                     "data/preprocess_expected/Shimmer_continuous/gsr")
+    preprocess_shimmer_path = "/tmp/preprocess/Shimmer_continuous/gsr"
+    check_files(preprocess_shimmer_path, expected_shimmer_path)
+
+    expected_shimmer_path = \
+        os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                     "data/preprocess_expected/Shimmer_continuous/ppg")
+    preprocess_shimmer_path = "/tmp/preprocess/Shimmer_continuous/ppg"
     check_files(preprocess_shimmer_path, expected_shimmer_path)
 
 
@@ -147,10 +153,18 @@ def test_preprocess_seperated_saving_mode():
     preprocess_openbci8_path = "/tmp/preprocess/OpenBCI_8_sep"
     check_files(preprocess_openbci8_path, expected_openbci8_path)
 
+    # For GSR
     expected_shimmer_path = \
         os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                     "data/preprocess_expected/Shimmer_sep")
-    preprocess_shimmer_path = "/tmp/preprocess/Shimmer_sep"
+                     "data/preprocess_expected/Shimmer_sep/gsr")
+    preprocess_shimmer_path = "/tmp/preprocess/Shimmer_sep/gsr"
+    check_files(preprocess_shimmer_path, expected_shimmer_path)
+
+    #For PPG
+    expected_shimmer_path = \
+        os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                     "data/preprocess_expected/Shimmer_sep/ppg")
+    preprocess_shimmer_path = "/tmp/preprocess/Shimmer_sep/ppg"
     check_files(preprocess_shimmer_path, expected_shimmer_path)
 
 

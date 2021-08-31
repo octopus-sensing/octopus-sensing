@@ -59,15 +59,15 @@ def test_client_socket():
 
 
     data = client_socket.recv(1024).decode()  # receive response
-    assert data == "START-test-00"
+    assert data == "START-test-00\n"
     data = client_socket.recv(1024).decode()  # receive response
-    assert data == "STOP-test-00"
+    assert data == "STOP-test-00\n"
     data = client_socket.recv(1024).decode()  # receive response
-    assert data == "START-test-01"
+    assert data == "START-test-01\n"
     data = client_socket.recv(1024).decode()  # receive response
-    assert data == "STOP-test-01"
+    assert data == "STOP-test-01\n"
 
     data = client_socket.recv(1024).decode()  # receive response
-    assert data == "terminate"
+    assert data == "terminate\n"
 
     client_socket.close()  # close the connection
