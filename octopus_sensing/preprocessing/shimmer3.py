@@ -63,13 +63,13 @@ def shimmer3_preprocess(input_path: str, file_name: str, output_path: str,
         if not os.path.exists(gsr_output_path):
             pathlib.Path(gsr_output_path).mkdir(parents=True, exist_ok=True)
         gsr_file_path = \
-            "{0}/gsr{1}.csv".format(gsr_output_path, file_name[7:])
+            "{0}/gsr{1}".format(gsr_output_path, file_name[7:])
         
         ppg_output_path = os.path.join(output_path, "ppg")
         if not os.path.exists(ppg_output_path):
             pathlib.Path(ppg_output_path).mkdir(parents=True, exist_ok=True)
         ppg_file_path = \
-            "{0}/ppg{1}.csv".format(ppg_output_path, file_name[7:])
+            "{0}/ppg{1}".format(ppg_output_path, file_name[7:])
         np.savetxt(gsr_file_path, cleaned_gsr)
         np.savetxt(ppg_file_path, cleaned_ppg)
 
