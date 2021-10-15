@@ -1,18 +1,18 @@
 import time
 import random
-from octopus_sensing.devices.openbci_streaming import OpenBCIStreaming
+from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message
 
 def add_sensors():
     # Creating an instance of sensor
-    my_openbci = OpenBCIStreaming(name="OpenBCI_sensor", output_path="./output")
+    my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
 
     # Creating an instance of device coordinator
     device_coordinator = DeviceCoordinator()
 
     # Adding sensor to device coordinator
-    device_coordinator.add_devices([my_openbci])
+    device_coordinator.add_devices([my_shimmer])
 
     experiment_id = "p01"
     stimuli_id = "S00"

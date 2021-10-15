@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import threading
 from screeninfo import get_monitors
 from gi.repository import Gtk, GdkPixbuf, GLib, Gst
 import gi
@@ -19,20 +20,21 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
 
-monitors = get_monitors()
-image_width = monitors[0].width
-image_height = monitors[0].height
+
 
 Gst.init(None)
 Gst.init_check(None)
 
 
 class ImageWindow(Gtk.Window):
-    def __init__(self, image_path, timeout):
+    def __init__(self, image_path, timeout, monitor_no=0):
         Gtk.Window.__init__(self, title="")
 
         self._timeout = timeout
         image_box = Gtk.Box()
+        monitors = get_monitors()
+        image_width = monitors[monitor_no].width
+        image_height = monitors[monitor_no].height
         pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
             image_path, image_width, image_height, False)
         image = Gtk.Image()
@@ -49,3 +51,16 @@ class ImageWindow(Gtk.Window):
     def show_window(self):
         GLib.timeout_add_seconds(self._timeout, self.destroy)
         self.show()
+
+def show_image_standalone(image_path, timeout, monitor_no=0):
+    '''
+    It may have some miliseconds delay to initialize GTK.
+    If these miliseconds are important, don't use this method to display image
+    '''
+    def gtk_main():
+        image_window = ImageWindow(image_path, timeout, monitor_no=monitor_no)
+        image_window.show_window()
+        image_window.connect("destroy", Gtk.main_quit)
+        Gtk.main()
+
+    threading.Thread(target=gtk_main).start()

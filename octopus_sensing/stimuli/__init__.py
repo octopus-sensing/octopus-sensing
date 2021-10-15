@@ -1,6 +1,7 @@
 import os
 import random
 import csv
+from octopus_sensing.windows.image_window import ImageWindow
 
 
 class Stimulus():
@@ -25,6 +26,7 @@ class ImageStimulus(Stimulus):
     def __init__(self, id, path, show_time):
         super().__init__(id, path)
         self._show_time = show_time
+        self.image = ImageWindow(path, show_time)
 
     def show(self):
-        pass
+        self.image.show_window()

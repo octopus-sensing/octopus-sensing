@@ -1,6 +1,4 @@
 
-from windows.message_window import MessageWindow
-from windows.image_window import ImageWindow
 import argparse
 from screeninfo import get_monitors
 from gi.repository import Gtk, GdkPixbuf, GLib
@@ -8,10 +6,12 @@ import os
 import time
 import datetime
 import sys  # nopep8
-sys.path.append('../octopus-sensing/')  # nopep8
+sys.path.append('../../octopus-sensing/')  # nopep8
 
 from stimuli_loader import load_stimuli
 from questionnaires import get_video_questionnaire
+from octopus_sensing.windows.message_window import MessageWindow
+from octopus_sensing.windows.image_window import ImageWindow
 from octopus_sensing.common.message_creators import start_message, stop_message
 from octopus_sensing.devices.camera_streaming import CameraStreaming
 from octopus_sensing.devices.openbci_streaming import OpenBCIStreaming
@@ -23,7 +23,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 
 
-stimuli_path = "examples/stimuli/"
+stimuli_path = "examples/complex_scenario/stimuli/"
 FIXATION_CROSS_SHOW_TIME = 3
 GAP_TIME = 2
 
