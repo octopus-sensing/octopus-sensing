@@ -77,14 +77,16 @@ def preprocess_devices(device_coordinator: DeviceCoordinator, output_path: str,
 
 
 def preprocess_devices_by_path(devices_path, output_path: str,
+                       openbci_channels: list = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
+                        "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"],
                        openbci_sampling_rate: int = 128,
                        shimmer3_sampling_rate: int = 128,
                        signal_preprocess: bool = True):
     '''
-    Preprocees recorded files for all devices that are added to device_coordinator,
+    Preprocees recorded files from the paths specified in devices_path,
     Some devices do not have any preprocessing, so this function will ignore them
 
-    @param DeviceCoordinator device_coordinator: an instance of DeviceCoordinator
+    @param str device_coordinator: path for raw data
     @param str output_path: Path for preprocessed Files
     @param int openbci_sampling_rate: New sampling rate for openbci resampling
     @param int shimmer3_sampling_rate: New sampling rate for shimmer3 resampling
@@ -104,12 +106,10 @@ def preprocess_devices_by_path(devices_path, output_path: str,
             file_names.sort()
             if not os.path.exists(device_output_path):
                 os.mkdir(device_output_path)
-            channels = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
-                        "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"]
             for file_name in file_names:
                 print(file_name, device_output_path)
                 openbci_preprocess(input_path, file_name, device_output_path,
-                                   channels,
+                                   openbci_channels,
                                    sampling_rate=openbci_sampling_rate,
                                    signal_preprocess=signal_preprocess)
         elif device == "shimmer3":
