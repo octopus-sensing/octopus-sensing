@@ -5,7 +5,7 @@
 
 In this tutorial, we'll show how to design a simple scenario with octopus-sensing step by step.
 
-The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happen, and stop data recording by finishing the event. 
+The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happen, and stop data recording by finishing the event.
 
 #### By designing these examples, we learn how to:
 
@@ -88,8 +88,8 @@ Keep in your mind, before running the code, turn on the Shimmer3 sensor and pair
 
 For example in linux you can do it as follow:
 1- hcitool scan   //It shows the macaddress of device. for shimmer it is 00:06:66:F0:95:95
-2- vim /etc/bluetooth/rfcomm.conf write the below line in it: 
-rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" } 
+2- vim /etc/bluetooth/rfcomm.conf write the below line in it:
+rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" }
 3- sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading bluetooth data from a serial port
 
 ### Adding more sensors and synchronize data collection
@@ -104,7 +104,7 @@ device_coordinator.dispatch(stop_message(experiment_id, stimuli_id))
 device_coordinator.terminate()
 ```
 
-We can have several cameras, an audio recorder, and several Shimmer3 sensor and OpenBCI sensors. 
+We can have several cameras, an audio recorder, and several Shimmer3 sensor and OpenBCI sensors. To learn more about available sensors, see [Devices](https://octopus-sensing.nastaran-saffar.me/devices).
 
 ### Displaying some images consequently as stimuli and data recording
 In this example, we learn how to record data in parallel with displaying image stimuli.
@@ -139,7 +139,7 @@ def simple_scenario(stimuli_path):
 
     # The time for displaying each image stimulus
     display_time = 5
-    
+
     print("initializing")
     # Creating an instance of sensor
     my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor",
@@ -155,7 +155,7 @@ def simple_scenario(stimuli_path):
 
     # A delay to be sure initialing devices have finished
     time.delay(3)
- 
+
     input("\nPress a key to run the scenario")
 
     for stimuli_id, stmulus_name in stimuli.items():
@@ -173,10 +173,10 @@ def simple_scenario(stimuli_path):
     device_coordinator.terminate()
 ```
 
-Since the default saving mode is continuous, Octopus-Sensing will record all data in one file. For each stimulus, it records two trigger with stimuli ID in the file, one for start and one for the end of displaying stimulus. 
+Since the default saving mode is continuous, Octopus-Sensing will record all data in one file. For each stimulus, it records two trigger with stimuli ID in the file, one for start and one for the end of displaying stimulus.
 
 ### Preparing data for processing
-If you used continuous `saving_mode` and want to split them into several files for processing, Octopus-Sensing provides this feature by adding only one line to the end of the previous example. 
+If you used continuous `saving_mode` and want to split them into several files for processing, Octopus-Sensing provides this feature by adding only one line to the end of the previous example.
 
 ```python
 from octopus_sensing.preprocessing.preprocess_devices import preprocess_devices
