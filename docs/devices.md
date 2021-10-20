@@ -1,3 +1,4 @@
+# Supported Devices
 
 #### Shimmer3 sensor
 Shimmer3 works similar to OpenBCI with similar saving modes and extra column in data for triggers.

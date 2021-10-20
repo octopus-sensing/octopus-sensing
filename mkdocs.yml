@@ -13,7 +13,12 @@ markdown_extensions:
   - toc:
       permalink: True
 
+plugins:
+- mkdocstrings:
+    default_handler: python
+
 nav:
   - Home: index.md
   - Tutorial: tutorial.md
+  - API Reference: api-reference.md
   - Development: development.md
