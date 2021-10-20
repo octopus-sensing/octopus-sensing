@@ -62,9 +62,12 @@ class DeviceCoordinator:
         '''
         Generate an ID for devices that do not have name
 
-        @rtype: str
-        @return device_id
+        Returns
+        -----------
+        str
+            an ID for device
         '''
+
         self.__device_counter += 1
         device_id = "device_{0}".format(self.__device_counter)
         return device_id
@@ -73,18 +76,34 @@ class DeviceCoordinator:
         '''
         Return a list of added devices
 
-        @rtype: list(device)
-        @return a list of added devices
+        Returns
+        -----------
+        list of Device
+            a list of devices
         '''
+
         return list(self.__devices.values())
 
     def add_device(self, device: Device) -> None:
         '''
-        Adds new device to the coordinator and starts it
+        Add new device to the coordinator and starts it
 
-        @param Device device: a device object
+        Parameters
+        ----------
+        device : Device
+                 a device object
+        
+        name : str, optional
+               The name of device
+        
+        Examples
+        -----------
+        >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
+        >>> device_coordinator.add_device(my_shimmer)
 
-        @keyword str name: The name of device
+        See Also
+        -----------
+        add_devices: Add a list of new devices to the coordinator and starts them
         '''
         assert isinstance(device, Device)
 
@@ -104,10 +123,22 @@ class DeviceCoordinator:
 
     def add_devices(self, devices: List[Device]) -> None:
         '''
-        Adds new devices to the coordinator
+        Add a list of new devices to the coordinator and starts them
 
-        @param list devices: a list of device object
-        @type devices: list(Device)
+        Parameters
+        ----------
+        devices : list of Device
+                a list of device objects
+    
+        Examples
+        ----------
+        >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor",
+                                           output_path="./output")
+        >>> device_coordinator.add_devices([my_shimmer])
+
+        See Also
+        -----------
+        add_device: Add new device to the coordinator and starts it
         '''
         for device in devices:
             self.add_device(device)
@@ -116,12 +147,24 @@ class DeviceCoordinator:
         '''
         dispatch new message to all devices
 
-        @param Message message: a message object object
+        Parameters
+        ----------
+        message : Message
+                a message object
+        
+        Examples
+        ----------      
+        >>> device_coordinator.dispatch(start_message(experiment_id,
+                                                      stimuli_id))
         '''
+
         for message_queue in self.__queues:
             message_queue.put(message)
 
     def terminate(self):
+        '''
+        send terminate message to all devices and terminate all processes 
+        '''
         self.dispatch(terminate_message())
         for item in self.__devices.values():
             item.join()
@@ -131,8 +174,15 @@ class DeviceCoordinator:
         Returns latest collected data from all devices.
         Device's data can be anything, depending on the device itself.
 
-        @return: Dict of device name to the collected data.
-        @rtype: Dict[device_name, List[Any]]
+        Returns
+        ---------
+        data : dict[str, list[any]]
+               The keys are device names and values are collected data from the device
+        
+        Note
+        ---------
+        This method is being used for real-time monitoring
+
         '''
         cached = self.__monitoring_cache.get_cache()
         if cached:

@@ -13,6 +13,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
+import platform
 import threading
 import datetime
 import csv
@@ -27,9 +28,45 @@ from octopus_sensing.devices.common import SavingModeEnum
 class Shimmer3Streaming(MonitoredDevice):
     '''
     Manages Shimmer3 streaming
+    
+    Data will berecorded in a csv file with the following column order:
+    type, time stamp, Acc_x, Acc_y, Acc_z, GSR_ohm, PPG_mv, time, trigger
+
+    Attributes
+    -----------
+    saving_mode: int, optional, default = 0
+        The way of saving data: saving continiously in a file or save data related to
+        each stimulus in a separate file. 
+        SavingModeEnum: CONTINIOUS_SAVING_MODE = 0
+                        SEPARATED_SAVING_MODE = 1
+    sampling_frequency: int, optional, default = 128
+        The sampling frequency for acquiring data from the device
+    
+    **kwargs : dict, optional
+               Extra optional arguments
+    
+    Methods
+    -----------
+    get_output_path: Return the path that use for data recording
+    get_saving_mode: Return saving mode
+
+    See Also
+    -----------
+    DeviceCoordinator
+        DeviceCoordinator is managing data streaming by sending messages to this class 
+
+    Note
+    -----------
+    This class for Shimmer3 data streaming is based on 
+    https://github.com/nastaran62/ShimmerReader which is an extended version 
+    of LogAndStream python firmware for Shimmer3 data streaming
+    
+    LogAndStream for Shimmer3 document:
+    http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf
     '''
 
-    def __init__(self, saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE, **kwargs):
+    def __init__(self, saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 sampling_frequency=128, **kwargs):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
@@ -38,6 +75,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._trigger = None
         self._break_loop = False
         self.output_path = self._make_output_path()
+        self._sampling_frequency = sampling_frequency
 
     def _make_output_path(self):
         output_path = os.path.join(self.output_path, "shimmer")
@@ -48,7 +86,11 @@ class Shimmer3Streaming(MonitoredDevice):
         '''
         Initializing connection with Simmer3 device
         '''
-        self._serial = serial.Serial("/dev/rfcomm0", 115200)
+        os_type = platform.system()
+        if os_type == "Windows":
+            self._serial = serial.Serial("Com12", 115200)
+        else:
+            self._serial = serial.Serial("/dev/rfcomm0", 115200)
         self._serial.flushInput()
         print("port opening, done.")
         # send the set sensors command
@@ -71,8 +113,7 @@ class Shimmer3Streaming(MonitoredDevice):
         sampling_freq = 32768 / clock_wait = X Hz
         2 << 14 = 32768
         '''
-        sampling_freq = 128
-        clock_wait = math.ceil((2 << 14) / sampling_freq)
+        clock_wait = math.ceil((2 << 14) / self._sampling_frequency)
 
         self._serial.write(struct.pack('<BH', 0x05, clock_wait))
         self._wait_for_ack()
@@ -165,7 +206,10 @@ class Shimmer3Streaming(MonitoredDevice):
         '''
         Takes a message and set the trigger using its data
 
-        @param Message message: a message object
+        Parameters
+        -----------
+        message: Message
+                 a message object
         '''
         self._trigger = \
             "{0}-{1}-{2}".format(message.type,
@@ -285,10 +329,29 @@ class Shimmer3Streaming(MonitoredDevice):
         '''Returns latest collected data for monitoring/visualizing purposes.'''
         # Last three seconds
         # FIXME: hard-coded data collection rate
-        return self._stream_data[-1 * 3 * 128:]
+        return self._stream_data[-1 * 3 * self._sampling_frequency:]
 
     def get_saving_mode(self):
+        '''
+        Return saving mode
+        
+        Returns
+        -----------
+        int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum: CONTINIOUS_SAVING_MODE = 0
+                            SEPARATED_SAVING_MODE = 1
+        '''
         return self._saving_mode
 
     def get_output_path(self):
+        '''
+        Return the path that use for data recording
+
+        Returns
+        -----------
+        str
+           The output path that use for data recording
+        '''
         return self.output_path
