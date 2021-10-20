@@ -5,7 +5,7 @@
 
 In this tutorial, we'll show how to design a simple scenario with octopus-sensing step by step.
 
-The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happen, and stop data recording by finishing the event.
+The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happen, and stop data recording by finishing the event. 
 
 #### By designing these examples, we learn how to:
 
@@ -88,8 +88,10 @@ Keep in your mind, before running the code, turn on the Shimmer3 sensor and pair
 
 For example in linux you can do it as follow:
 1- hcitool scan   //It shows the macaddress of device. for shimmer it is 00:06:66:F0:95:95
-2- vim /etc/bluetooth/rfcomm.conf write the below line in it:
-rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" }
+
+2- vim /etc/bluetooth/rfcomm.conf write the below line in it: 
+rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" } 
+
 3- sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading bluetooth data from a serial port
 
 ### Adding more sensors and synchronize data collection
@@ -173,7 +175,7 @@ def simple_scenario(stimuli_path):
     device_coordinator.terminate()
 ```
 
-Since the default saving mode is continuous, Octopus-Sensing will record all data in one file. For each stimulus, it records two trigger with stimuli ID in the file, one for start and one for the end of displaying stimulus.
+Since the default saving mode is continuous, Shimmer3 will record all data in one file. For each stimulus, it records two trigger with stimuli ID in the file, one for start and one for the end of displaying stimulus.
 
 ### Preparing data for processing
 If you used continuous `saving_mode` and want to split them into several files for processing, Octopus-Sensing provides this feature by adding only one line to the end of the previous example.
