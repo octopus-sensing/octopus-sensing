@@ -15,9 +15,6 @@
 import os
 import threading
 import csv
-import datetime
-import pyOpenBCI
-import brainflow
 import numpy as np
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
@@ -27,21 +24,52 @@ from octopus_sensing.devices.common import SavingModeEnum
 
 
 class BrainFlowStreaming(MonitoredDevice):
+    '''
+    Manage brainflow streaming
+
+    Attributes
+    -----------
+    device_id: str
+        Device ID. 
+        Brainflow support a list of devices, to see supported device IDs go to:
+        https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
+    
+    sampling_rate: int
+        the sampling rate for recording data
+    
+    brain_flow_input_params: BrainFlowInputParams
+        Each supported board in brainflow gets some parameters, to see the list
+        of parameters for each board go to:
+        https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
+
+    saving_mode: int, optional, default = SavingModeEnum.CONTINIOUS_SAVING_MODE
+        The way of saving data. I saves data continiously in a file 
+        or saves data which are related to various stimulus in separate files. 
+        SavingModeEnum: CONTINIOUS_SAVING_MODE
+                        SEPARATED_SAVING_MODE
+
+    **kwargs : dict, optional
+            Extra optional arguments
+    
+    See Also
+    -----------
+    DeviceCoordinator
+        DeviceCoordinator is managing data recording by sending messages to this class 
+        
+    '''
     def __init__(self,
-                 device_id,
-                 header=None,
-                 serial_port="/dev/ttyUSB0",
-                 saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 device_id: str,
+                 sampling_rate: int,
+                 brain_flow_input_params: BrainFlowInputParams,
+                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
                  **kwargs):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
         self._stream_data = []
-        params = BrainFlowInputParams()
-        params.serial_port = serial_port
-        self.header = header
+        self.sampling_rate = sampling_rate
 
-        self._board = BoardShim(device_id, params)
+        self._board = BoardShim(device_id, brain_flow_input_params)
         self._board.set_log_level(0)
         self._board.prepare_session()
         self._terminate = False
@@ -108,8 +136,11 @@ class BrainFlowStreaming(MonitoredDevice):
     def __set_trigger(self, message):
         '''
         Takes a message and set the trigger using its data
-
-        @param Message message: a message object
+        
+        Parameters
+        ----------
+        message: Message
+            a message object
         '''
         self._trigger = \
             "{0}-{1}-{2}".format(message.type,
@@ -136,4 +167,4 @@ class BrainFlowStreaming(MonitoredDevice):
         '''Returns latest collected data for monitoring/visualizing purposes.'''
         # Last three seconds
         # FIXME: hard-coded data collection rate
-        return self._stream_data[-1 * 3 * 128:]
+        return self._stream_data[-1 * 3 * self.sampling_rate:]

@@ -24,12 +24,11 @@ from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.devices.common import SavingModeEnum
 
-
 class Shimmer3Streaming(MonitoredDevice):
     '''
     Manages Shimmer3 streaming
     
-    Data will berecorded in a csv file with the following column order:
+    Data will be recorded in a csv file with the following column order:
     type, time stamp, Acc_x, Acc_y, Acc_z, GSR_ohm, PPG_mv, time, trigger
 
     Attributes
@@ -53,7 +52,7 @@ class Shimmer3Streaming(MonitoredDevice):
     See Also
     -----------
     DeviceCoordinator
-        DeviceCoordinator is managing data streaming by sending messages to this class 
+        DeviceCoordinator is managing data recording by sending messages to this class 
 
     Note
     -----------
