@@ -22,23 +22,32 @@ import struct
 import serial
 from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message_creators import MessageType
+from octopus_sensing.common.message import Message
 from octopus_sensing.devices.common import SavingModeEnum
 
 class Shimmer3Streaming(MonitoredDevice):
     '''
     Manages Shimmer3 streaming
     
-    Data will be recorded in a csv file with the following column order:
+    Data will be recorded in a csv file/files with the following column order:
     type, time stamp, Acc_x, Acc_y, Acc_z, GSR_ohm, PPG_mv, time, trigger
 
     Attributes
     -----------
+    name: str, optional, default = None
+          Device name. 
+          This name will be used in the output path to identify each device's data
+    
+    output_path: str, optional, default = output
+                 The path for recording files.
+                 Audio files will be recorded in folder {output_path}/{name}
+
     saving_mode: int, optional, default = 0
         The way of saving data: saving continiously in a file or save data related to
         each stimulus in a separate file. 
         SavingModeEnum: CONTINIOUS_SAVING_MODE = 0
                         SEPARATED_SAVING_MODE = 1
-    sampling_frequency: int, optional, default = 128
+    sampling_rate: int, optional, default = 128
         The sampling frequency for acquiring data from the device
     
     **kwargs : dict, optional
@@ -54,6 +63,13 @@ class Shimmer3Streaming(MonitoredDevice):
     DeviceCoordinator
         DeviceCoordinator is managing data recording by sending messages to this class 
 
+
+    Examples
+    -----------
+    >>> my_shimmer = \
+            Shimmer3Streaming(name="shimmer",
+                              saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                              output_path="./output")
     Note
     -----------
     This class for Shimmer3 data streaming is based on 
@@ -64,8 +80,10 @@ class Shimmer3Streaming(MonitoredDevice):
     http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf
     '''
 
-    def __init__(self, saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
-                 sampling_frequency=128, **kwargs):
+    def __init__(self,
+                 sampling_rate: int=128,
+                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 **kwargs):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
@@ -74,10 +92,10 @@ class Shimmer3Streaming(MonitoredDevice):
         self._trigger = None
         self._break_loop = False
         self.output_path = self._make_output_path()
-        self._sampling_frequency = sampling_frequency
+        self._sampling_rate = sampling_rate
 
     def _make_output_path(self):
-        output_path = os.path.join(self.output_path, "shimmer")
+        output_path = os.path.join(self.output_path, self.name)
         os.makedirs(output_path, exist_ok=True)
         return output_path
 
@@ -112,7 +130,7 @@ class Shimmer3Streaming(MonitoredDevice):
         sampling_freq = 32768 / clock_wait = X Hz
         2 << 14 = 32768
         '''
-        clock_wait = math.ceil((2 << 14) / self._sampling_frequency)
+        clock_wait = math.ceil((2 << 14) / self._sampling_rate)
 
         self._serial.write(struct.pack('<BH', 0x05, clock_wait))
         self._wait_for_ack()
@@ -201,7 +219,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._break_loop = True
         loop_thread.join()
 
-    def __set_trigger(self, message):
+    def __set_trigger(self, message: Message):
         '''
         Takes a message and set the trigger using its data
 
@@ -327,8 +345,7 @@ class Shimmer3Streaming(MonitoredDevice):
     def _get_monitoring_data(self):
         '''Returns latest collected data for monitoring/visualizing purposes.'''
         # Last three seconds
-        # FIXME: hard-coded data collection rate
-        return self._stream_data[-1 * 3 * self._sampling_frequency:]
+        return self._stream_data[-1 * 3 * self._sampling_rate:]
 
     def get_saving_mode(self):
         '''

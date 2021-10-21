@@ -25,8 +25,9 @@ QueueType = multiprocessing.queues.Queue
 
 
 class MonitoredDevice(Device):
-    '''Provides functionalities for monitoring a device's data. For example,
-    using a visualizer.
+    '''
+    Provides functionalities for monitoring a device's data. 
+    For example, visualizing data in real time.
     '''
 
     def __init__(self, *args, **kwargs):

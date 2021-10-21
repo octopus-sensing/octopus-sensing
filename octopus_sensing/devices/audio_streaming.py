@@ -12,42 +12,84 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import threading
 import os
-import wave
-import pyaudio
+import array
+import miniaudio
 
 from octopus_sensing.devices.device import Device
 from octopus_sensing.common.message_creators import MessageType
 
-SAMPLING_RATE = 44100  # Sample rate
-CHUNK = 1024
-FORMAT = pyaudio.paInt32
-CHANNELS = 2
-
-
 class AudioStreaming(Device):
-    def __init__(self, **kwargs):
+    '''
+    Stream and Record audio
+
+    Attributes
+    ----------
+    device_id: int
+               The audio recorder ID
+    
+    name: str, optional
+          device name
+          This name will be used in the output path to identify each device's data
+    
+    output_path: str, optional
+                 The path for recording files.
+                 Audio files will be recorded in folder {output_path}/{name}
+
+    Note
+    --------
+    If you want to know what is your audio recorder's ID run the following code:
+    >>> import miniaudio
+    >>> devices = miniaudio.Devices()
+    >>> captures = devices.get_captures()
+    >>> for d in enumerate(captures):
+    >>>     print("{num} = {name}".format(num=d[0], name=d[1]['name']))
+
+    Examples
+    -----------
+    >>> audio_recorder = \
+            AudioStreaming(1,
+                           name="Audio_monitoring",
+                           output_path="./output")
+
+    See Also
+    -----------
+    Device
+        The base class
+
+    DeviceCoordinator
+        DeviceCoordinator is managing data recording by sending messages to this class
+
+    '''
+    def __init__(self, device_id:int, **kwargs):
         super().__init__(**kwargs)
-        self.output_path = os.path.join(self.output_path, "audio")
+        self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
+
+        self._device_id = device_id
+        
         self._stream_data = []
         self._record = False
-        self.__audio_recorder = None
-        self.__stream = None
         self._terminate = False
 
-    def _run(self):
-        self.__audio_recorder = pyaudio.PyAudio()
-        self.__stream = \
-            self.__audio_recorder.open(format=FORMAT,
-                                       channels=CHANNELS,
-                                       rate=SAMPLING_RATE,
-                                       input=True,
-                                       frames_per_buffer=CHUNK,
-                                       start=True)
+    def __record_to_buffer(self):
+        _ = yield
+        while True:
+            data = yield
+            print(".", end="", flush=True)
+            self._stream_data.append(data)
 
-        threading.Thread(target=self._stream_loop).start()
+    def _run(self):
+        devices = miniaudio.Devices()
+        captures = devices.get_captures()
+        selected_device = captures[self._device_id]
+        capture = \
+            miniaudio.CaptureDevice(buffersize_msec=1000,
+                                    sample_rate=44100,
+                                    device_id=selected_device["id"])
+
+        recorder = self.__record_to_buffer()
+        next(recorder)
 
         while True:
             message = self.message_queue.get()
@@ -55,41 +97,28 @@ class AudioStreaming(Device):
                 continue
             if message.type == MessageType.START:
                 self._stream_data = []
+                capture.start(recorder)
                 self._record = True
             elif message.type == MessageType.STOP:
+                capture.stop()
                 self._record = False
                 file_name = \
                     "{0}/{1}-{2}-{3}.wav".format(self.output_path,
                                                  self.name,
                                                  message.experiment_id,
                                                  str(message.stimulus_id).zfill(2))
-                self._save_to_file(file_name)
+                self._save_to_file(file_name, capture)
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 break
 
-    def _stream_loop(self):
-        # self.__stream.start_stream()
-        while True:
-            if self._terminate:
-                self.__stream.stop_stream()
-                self.__stream.close()
-                self.__audio_recorder.terminate()
-                break
-            if self.__stream.is_active():
-                if self._record:
-                    data = self.__stream.read(CHUNK, exception_on_overflow=False)
-                    self._stream_data.append(data)
-                else:
-                    # pyaudio is streaming and fill its buffer even while we
-                    # don't need its data, so we read the buffer always and throw
-                    # them away when we don't want to record
-                    self.__stream.read(CHUNK, exception_on_overflow=False)
-
-    def _save_to_file(self, file_name):
-        wave_file = wave.open(file_name, 'wb')
-        wave_file.setnchannels(CHANNELS)
-        wave_file.setsampwidth(self.__audio_recorder.get_sample_size(FORMAT))
-        wave_file.setframerate(SAMPLING_RATE)
-        wave_file.writeframes(b''.join(self._stream_data))
-        wave_file.close()
+    def _save_to_file(self, file_name:str, capture:miniaudio.CaptureDevice):
+        buffer = b"".join(self._stream_data)
+        samples = array.array('h')
+        samples.frombytes(buffer)
+        sound = miniaudio.DecodedSoundFile('capture',
+                                           capture.nchannels,
+                                           capture.sample_rate,
+                                           capture.format,
+                                           samples)
+        miniaudio.wav_write_file(file_name, sound)

@@ -20,8 +20,19 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
     Manages OpenBCI streaming
 
+    Data will be recorded in a csv file/files with the following column order:
+    channels, Acc_x, Acc_y, Acc_z, sample_id, time_stamp, trigger
+
     Attributes
     -----------
+    name: str, optional
+        device name
+        This name will be used in the output path to identify each device's data
+    
+    output_path: str, optional
+                 The path for recording files.
+                 Audio files will be recorded in folder {output_path}/{name}
+    
     saving_mode: int, optional, default = SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data: saving continiously in a file or save data related to
         each stimulus in a separate file. 
@@ -44,7 +55,9 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     Examples
     -----------
     >>> my_openbci = \
-            BrainFlowOpenBCIStreaming(board_type="cyton-daisy",
+            BrainFlowOpenBCIStreaming(name="OpenBCI",
+                                      output_path="./output",
+                                      board_type="cyton-daisy",
                                       saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
                                       channels_order=["Fp1", "Fp2", "F7", "F3", 
                                                       "F4", "F8", "T3", "C3",
@@ -62,8 +75,8 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
 
     def __init__(self,
-                 channels_order=None,
-                 borad_type="cyton-daisy",
+                 channels_order: list[str]=None,
+                 borad_type:str ="cyton-daisy",
                  **kwargs):
         self.channels = channels_order
         
@@ -75,21 +88,21 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                     ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7", "ch8", "ch9",
                     "ch10", "ch11", "ch12", "ch13", "ch14", "ch15", "ch16"]
             if len(self.channels) != 16:
-                raise "The number of channels in channels_order should be 16"
+                raise RuntimeError("The number of channels in channels_order should be 16")
         elif borad_type == "cyton":
             device_id = 0
             sampling_rate = 250
             self.channels = \
                 ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6", "ch7", "ch8"]
             if len(self.channels) != 8:
-                raise "The number of channels in channels_order should be 8"
+                raise RuntimeError("The number of channels in channels_order should be 8")
         elif borad_type == "Ganglion":
             device_id = 1
             sampling_rate = 200
             self.channels = \
                 ["ch1", "ch2", "ch3", "ch4"]
             if len(self.channels) != 4:
-                raise "The number of channels in channels_order should be 4"
+                raise RuntimeError("The number of channels in channels_order should be 4")
         else:
             raise RuntimeError("Use BrainflowStreaming fr other boards")
 

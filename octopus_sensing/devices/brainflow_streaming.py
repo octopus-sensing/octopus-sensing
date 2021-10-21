@@ -41,6 +41,14 @@ class BrainFlowStreaming(MonitoredDevice):
         Each supported board in brainflow gets some parameters, to see the list
         of parameters for each board go to:
         https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
+    
+    name: str, optional
+        device name
+        This name will be used in the output path to identify each device's data
+    
+    output_path: str, optional
+                 The path for recording files.
+                 Audio files will be recorded in folder {output_path}/{name}
 
     saving_mode: int, optional, default = SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data. I saves data continiously in a file 
@@ -51,6 +59,18 @@ class BrainFlowStreaming(MonitoredDevice):
     **kwargs : dict, optional
             Extra optional arguments
     
+    Examples
+    -----------
+    >>> params = BrainFlowInputParams()
+    >>> params.serial_port = "/dev/ttyUSB0"
+    >>> my_brainflow = \
+            BrainFlowStreaming(2,
+                               125,
+                               brain_flow_input_params=params,
+                               name="cyton_daisy",
+                               output_path="./output",
+                               saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE)
+    
     See Also
     -----------
     DeviceCoordinator
@@ -58,7 +78,7 @@ class BrainFlowStreaming(MonitoredDevice):
         
     '''
     def __init__(self,
-                 device_id: str,
+                 device_id: int,
                  sampling_rate: int,
                  brain_flow_input_params: BrainFlowInputParams,
                  saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
@@ -166,5 +186,4 @@ class BrainFlowStreaming(MonitoredDevice):
     def _get_monitoring_data(self):
         '''Returns latest collected data for monitoring/visualizing purposes.'''
         # Last three seconds
-        # FIXME: hard-coded data collection rate
         return self._stream_data[-1 * 3 * self.sampling_rate:]
