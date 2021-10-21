@@ -13,8 +13,9 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import platform
-from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
+from typing import List
 from brainflow.board_shim import BrainFlowInputParams
+from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
 
 class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
@@ -75,7 +76,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
 
     def __init__(self,
-                 channels_order: list[str]=None,
+                 channels_order: List[str]=None,
                  borad_type:str ="cyton-daisy",
                  **kwargs):
         self.channels = channels_order

@@ -16,6 +16,7 @@ import os
 import threading
 import csv
 import numpy as np
+from typing import List
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
 from octopus_sensing.common.message_creators import MessageType
@@ -86,7 +87,7 @@ class BrainFlowStreaming(MonitoredDevice):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
-        self._stream_data = []
+        self._stream_data: List[float] = []
         self.sampling_rate = sampling_rate
 
         self._board = BoardShim(device_id, brain_flow_input_params)

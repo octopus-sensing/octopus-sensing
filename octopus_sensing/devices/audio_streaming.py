@@ -14,6 +14,7 @@
 
 import os
 import array
+from typing import List
 import miniaudio
 
 from octopus_sensing.devices.device import Device
@@ -68,7 +69,7 @@ class AudioStreaming(Device):
 
         self._device_id = device_id
         
-        self._stream_data = []
+        self._stream_data: List[bytes] = []
         self._record = False
         self._terminate = False
 

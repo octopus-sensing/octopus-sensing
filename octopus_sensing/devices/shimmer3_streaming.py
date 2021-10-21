@@ -20,6 +20,8 @@ import csv
 import math
 import struct
 import serial
+from typing import List, Optional
+
 from octopus_sensing.devices.monitored_device import MonitoredDevice
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
@@ -87,9 +89,9 @@ class Shimmer3Streaming(MonitoredDevice):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
-        self._stream_data = []
+        self._stream_data: List[float] = []
         self._inintialize_connection()
-        self._trigger = None
+        self._trigger: Optional[str] = None
         self._break_loop = False
         self.output_path = self._make_output_path()
         self._sampling_rate = sampling_rate
