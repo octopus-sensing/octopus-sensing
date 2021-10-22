@@ -19,16 +19,65 @@ import cv2
 from octopus_sensing.devices.device import Device
 from octopus_sensing.common.message_creators import MessageType
 import time
-import csv
-import datetime
-
 
 class CameraStreaming(Device):
-    def __init__(self, camera_no: Optional[int] = None, camera_path: Optional[str] = None, image_width: int = 1280, image_height: int = 720, **kwargs):
+    '''
+    Stream and Record video
+
+    Attributes
+    ----------
+    camera_no: int, optional, default = 0
+               The camera number
+    
+    camera_path: str, optional, default = None
+          The physical path of camera device
+          For Example in linux it can be something like this:
+          `/dev/v4l/by-id/usb-046d_081b_97E6A7D0-video-index0`
+    
+    image_width: int, optional, default = 1280
+        The width of recorded frame/frames
+
+    image_height: int, optional, default = 720
+        The height of recorded frame/frames
+
+    Note
+    --------
+    Only one of camera_no or camera_path should have value
+
+    There is no guarantee that we can set the camera resolution. 
+    Because camera may not be able to support these resolution and it will change it
+    based on its settings
+    
+    output_path: str, optional
+                 The path for recording files.
+                 Video files will be recorded in folder {output_path}/{name}
+
+
+    Examples
+    -----------
+    >>> camera = \
+            CameraStreaming(camera_no=0,
+                            name="camera",
+                            output_path="./output")
+
+    See Also
+    -----------
+    Device
+        The base class
+
+    DeviceCoordinator
+        DeviceCoordinator is managing data recording by sending messages to this class
+
+    '''
+    def __init__(self, camera_no: Optional[int] = None,
+                 camera_path: Optional[str] = None,
+                 image_width: int = 1280,
+                 image_height: int = 720,
+                 **kwargs):
         assert (camera_no is not None) ^ (camera_path is not None), \
             "Only one of camera_no or camera_path should have value"
         super().__init__(**kwargs)
-        self.output_path = os.path.join(self.output_path, "video")
+        self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
         if camera_no is not None:
             self._camera_number = camera_no
@@ -41,6 +90,7 @@ class CameraStreaming(Device):
         self._video_capture: Any = None
         self._fps: int = 30
         self._capture_times: list = []
+        self._frames: list = []
         self._counter = 0
 
     def _run(self):
@@ -56,7 +106,6 @@ class CameraStreaming(Device):
 
         # There's no guarantee that we can set the camera resolution. So, we
         # re-read the settings again from the camera.
-        self._fps = self._video_capture.get(cv2.CAP_PROP_FPS)
         self._video_size = (int(self._video_capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
                             int(self._video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         self._video_capture.read()
@@ -64,13 +113,14 @@ class CameraStreaming(Device):
         recording_thread = None
         recording_event = None
 
-        print(f"Initialized video device [{self.name}]: {self._video_size} fps: {self._fps}")
+        print(f"Initialized video device [{self.name}]: {self._video_size}")
 
         while True:
             message = self.message_queue.get()
             if message is None:
                 continue
             if message.type == MessageType.START:
+                self._frames = []
                 self._capture_times = []
                 if recording_thread is not None:
                     raise RuntimeError(
@@ -86,11 +136,9 @@ class CameraStreaming(Device):
                 recording_event.set()
                 recording_thread = threading.Thread(
                     target=self._stream_loop, args=(file_name, recording_event), daemon=True)
-                print("after thread", time.time())
                 recording_thread.start()
 
             elif message.type == MessageType.STOP:
-                self._save_frame_times(file_name)
                 if recording_event is not None:
                     recording_event.clear()
                 recording_thread = None
@@ -107,22 +155,26 @@ class CameraStreaming(Device):
         self._video_capture.release()
 
     def _stream_loop(self, file_name: str, event: threading.Event):
-        coded = cv2.VideoWriter_fourcc(*'XVID')
-        print(file_name, "frame_per_second", self._fps, "**********************")
-        writer = cv2.VideoWriter(file_name,
-                                 coded,
-                                 self._fps,
-                                 self._video_size)
-
+        codec = cv2.VideoWriter_fourcc(*'XVID')
         try:
             while self._video_capture.isOpened:
                 if event.is_set():
                     ret, frame = self._video_capture.read()
                     if ret:
                         self._counter += 1
-                        self._capture_times.append(datetime.datetime.now())
-                        writer.write(frame)
+                        self._capture_times.append(time.time())
+                        self._frames.append(frame)
                 else:
+                    time_diff = self._capture_times[-1]-self._capture_times[0]
+                    fps = \
+                        int(len(self._frames)/(time_diff))
+                    print("Recording frame per second", fps)
+                    writer = cv2.VideoWriter(file_name,
+                            codec,
+                            fps,
+                            self._video_size)
+                    for frame in self._frames:
+                        writer.write(frame)
                     writer.release()
                     break
 
@@ -147,12 +199,3 @@ class CameraStreaming(Device):
         except Exception as error:
             print("Error while recording video. Device: {0}".format(self.name))
             print(error)
-
-    def _save_frame_times(self, file_name):
-        print(len(self._capture_times))
-        csv_file_name = file_name[:-3] + "csv"
-        with open(csv_file_name, 'a') as csv_file:
-            for item in self._capture_times:
-                writer = csv.writer(csv_file)
-                writer.writerow([item])
-                csv_file.flush()
