@@ -12,60 +12,15 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import sys
-import traceback
-import threading
-import pickle
-import json
-import http.server
-
-import msgpack
+from octopus_sensing.common.endpoint_base import EndpointBase
 
 
-def make_handler(device_coordinator):
-    class Handler(http.server.BaseHTTPRequestHandler):
-
-        def do_GET(self):
-            data = device_coordinator.get_monitoring_data()
-
-            encoding_type = self.headers.get("Accept")
-            if encoding_type is None or "pickle" in encoding_type:
-                serialized_data = pickle.dumps(data)
-            elif "json" in encoding_type:
-                serialized_data = json.dumps(data)
-            elif "msgpack" in encoding_type:
-                serialized_data = msgpack.packb(data)
-            else:
-                self.send_error(
-                    400,
-                    message="Unknown content type. Should be one of 'json', 'msgpack', or 'pickle'")
-                self.end_headers()
-                return
-
-            self.send_response(200)
-            self.end_headers()
-            self.wfile.write(serialized_data)
-
-    return Handler
-
-
-class MonitoringEndpoint(threading.Thread):
+class MonitoringEndpoint(EndpointBase):
 
     def __init__(self, device_coordinator):
-        super().__init__(daemon=True, name="MonitoringEndpoint-Thread")
+        super().__init__(endpoint_name="MonitoringEndpoint-Thread",
+                         port=9330, get_callback=self._get_handler)
         self._device_coordinator = device_coordinator
-        self._server = None
 
-    def run(self):
-        try:
-            self._server = http.server.ThreadingHTTPServer(
-                ('0.0.0.0', 9330), make_handler(self._device_coordinator))
-            self._server.serve_forever()
-        except Exception as ex:
-            print("Error in MonitoringEndpoint", file=sys.stderr)
-            traceback.print_exc()
-
-    def stop(self):
-        if self._server is not None:
-            self._server.shutdown()
-            self._server = None
+    def _get_handler(self, request_reader):
+        return self._device_coordinator.get_monitoring_data()
