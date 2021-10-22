@@ -90,11 +90,12 @@ class Shimmer3Streaming(MonitoredDevice):
 
         self._saving_mode = saving_mode
         self._stream_data: List[float] = []
+        self._sampling_rate = sampling_rate
         self._inintialize_connection()
         self._trigger: Optional[str] = None
         self._break_loop = False
         self.output_path = self._make_output_path()
-        self._sampling_rate = sampling_rate
+        
 
     def _make_output_path(self):
         output_path = os.path.join(self.output_path, self.name)

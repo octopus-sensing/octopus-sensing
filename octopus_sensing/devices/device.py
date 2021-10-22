@@ -18,7 +18,30 @@ from multiprocessing.queues import Queue
 
 
 class Device(multiprocessing.Process):
-    '''All devices should inherit from Device class.'''
+    '''
+    All devices should inherit from Device class.
+    
+    Attributes
+    -----------
+    name: str, optional, default = None:
+          The name of device
+    
+    output_path: str, optional, default = output
+                The path for recording files.
+                Audio files will be recorded in folder {output_path}/{name}
+    
+    Methods
+    --------
+    run
+        Starts the device's process
+    
+    set_queue
+        Sets message queue for the device
+    
+    get_name
+        Returns device name
+    
+    '''
 
     def __init__(self, name: Optional[str] = None, output_path: str = "output"):
         super().__init__(name=name)
@@ -38,12 +61,20 @@ class Device(multiprocessing.Process):
         '''
         Sets message queue for the device
 
-        @param queue: a queue that will be used for message passing
+        Parameters
+        -----------
+        queue: Queue
+             a queue that will be used for message passing
         '''
         self.message_queue = queue
 
     def get_name(self) -> str:
         '''
         Returns device name
+
+        Returns
+        --------
+        str
+            The name of device
         '''
         return self.name

@@ -29,6 +29,58 @@ accel_G_per_count = 0.002 / (2**4)  # G/count
 
 
 class OpenBCIStreaming(MonitoredDevice):
+    '''
+    Manages OpenBCI streaming
+    It uses pyOpenBCI library which is not supporting by OpenBCI anymore.
+    We recommend to use BrainFlowOpenBCIStreaming instead.
+
+    Data will be recorded in a csv file/files with the following column order:
+    channels, Acc_x, Acc_y, Acc_z, sample_id, time_stamp, trigger
+
+    Attributes
+    -----------
+    name: str, optional
+        device name
+        This name will be used in the output path to identify each device's data
+    
+    output_path: str, optional
+                 The path for recording files.
+                 Audio files will be recorded in folder {output_path}/{name}
+    
+    saving_mode: int, optional, default = SavingModeEnum.CONTINIOUS_SAVING_MODE
+        The way of saving data: saving continiously in a file or save data related to
+        each stimulus in a separate file. 
+        SavingModeEnum: CONTINIOUS_SAVING_MODE
+                        SEPARATED_SAVING_MODE
+    
+    daisy: bool, optional, default = True
+           If it is True, it means we use cyton-daisy board,
+           otherwise we use cyton board
+
+    channels_order: list of str, default = None
+        A list of channel names which specify the order and names of channels
+
+    Examples
+    -----------
+    >>> my_openbci = \
+            OpenBCIStreaming(name="OpenBCI",
+                             output_path="./output",
+                             daisy=True,
+                             saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                             channels_order=["Fp1", "Fp2", "F7", "F3", 
+                                             "F4", "F8", "T3", "C3",
+                                             "C4", "T4", "T5", "P3", 
+                                             "P4", "T6", "O1", "O2"])
+
+    See Also
+    -----------
+    BrainFlowOpenBCIStreaming
+        It is managing data streaming through OpenBCI using brainflow
+ 
+    DeviceCoordinator
+        DeviceCoordinator is managing data recording by sending messages to this class 
+
+    '''
     def __init__(self,
                  daisy=True,
                  channels_order=None,
