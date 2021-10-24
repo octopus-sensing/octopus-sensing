@@ -29,7 +29,7 @@ class EndpointClientError(Exception):
     pass
 
 
-def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], post_callback: Optional[Callable[[io.BufferedIOBase], Any]]):
+def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], post_callback: Optional[Callable[[Any], Any]]):
     class Handler(http.server.BaseHTTPRequestHandler):
 
         def do_GET(self):
@@ -118,7 +118,7 @@ def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], pos
 
 class EndpointBase(threading.Thread):
 
-    def __init__(self, endpoint_name: str, port: int, get_callback: Optional[Callable[[io.BufferedIOBase], Any]] = None, post_callback: Optional[Callable[[io.BufferedIOBase], Any]] = None):
+    def __init__(self, endpoint_name: str, port: int, get_callback: Optional[Callable[[io.BufferedIOBase], Any]] = None, post_callback: Optional[Callable[[Any], Any]] = None):
         '''
         This class shouldn't be used directly. Use one of the implementations instead.
 
