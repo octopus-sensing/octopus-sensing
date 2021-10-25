@@ -39,6 +39,7 @@ PyGObject = "^3.40.1"
 screeninfo = "^0.7"
 mkdocstrings = "^0.16.2"
 miniaudio = "^1.45"
+brainflow = "^4.6.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
