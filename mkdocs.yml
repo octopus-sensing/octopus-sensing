@@ -16,6 +16,16 @@ markdown_extensions:
 plugins:
 - mkdocstrings:
     default_handler: python
+    handlers:
+      python:
+        selection:
+          docstring_style: numpy
+          filters:
+            - "!^_"  # exlude all members starting with _
+        rendering:
+          show_root_heading: yes
+          show_if_no_docstring: yes
+          members_order: source
 
 nav:
   - Home: index.md
