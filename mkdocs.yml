@@ -26,6 +26,7 @@ plugins:
           show_root_heading: yes
           show_if_no_docstring: yes
           members_order: source
+          show_source: True
 
 nav:
   - Home: index.md

@@ -60,7 +60,7 @@ class OpenBCIStreaming(MonitoredDevice):
     channels_order: list of str, default = None
         A list of channel names which specify the order and names of channels
 
-    Examples
+    Example
     -----------
     >>> my_openbci = \
             OpenBCIStreaming(name="OpenBCI",

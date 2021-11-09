@@ -35,7 +35,7 @@ pandas = "^1.2.4"
 mne = "^0.23.0"
 heartpy = "^1.2.7"
 pycairo = "^1.20.1"
-PyGObject = "^3.40.1"
+PyGObject = "3.40.1"
 screeninfo = "^0.7"
 miniaudio = "^1.45"
 brainflow = "^4.6.1"
@@ -46,7 +46,7 @@ mypy = "^0.782"
 coverage = "^5.2.1"
 mkdocstrings = "^0.16.0"
 mkdocs = "^1.2.3"
-pytkdocs = {version = "0.12.0", extras = ["numpy-style"]}
+pytkdocs = {version = "^0.12.0", extras = ["numpy-style"]}
 
 [tool.autopep8]
 max_line_length = 100
