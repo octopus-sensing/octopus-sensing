@@ -26,39 +26,40 @@ class CameraStreaming(Device):
 
     Attributes
     ----------
-    camera_no: int, optional, default = 0
-               The camera number
+    camera_no
+        The camera number. Default is 0
     
-    camera_path: str, optional, default = None
-          The physical path of camera device
-          For Example in linux it can be something like this:
-          `/dev/v4l/by-id/usb-046d_081b_97E6A7D0-video-index0`
+    camera_path
+        The physical path of camera device
+        default value is None.
+        For Example in linux it can be something like this:
+        `/dev/v4l/by-id/usb-046d_081b_97E6A7D0-video-index0`
     
-    image_width: int, optional, default = 1280
-        The width of recorded frame/frames
+    image_width
+        The width of recorded frame/frames. Default is 1280
 
-    image_height: int, optional, default = 720
-        The height of recorded frame/frames
+    image_height
+        The height of recorded frame/frames. Default is 720
 
-    Note
-    --------
+    Notes
+    -----
     Only one of camera_no or camera_path should have value
 
     There is no guarantee that we can set the camera resolution. 
     Because camera may not be able to support these resolution and it will change it
     based on its settings
     
-    output_path: str, optional
+    output_path
                  The path for recording files.
                  Video files will be recorded in folder {output_path}/{name}
 
 
-    Examples
+    Example
     -----------
     >>> camera = \
-            CameraStreaming(camera_no=0,
-                            name="camera",
-                            output_path="./output")
+    >>>    CameraStreaming(camera_no=0,
+    >>>                     name="camera",
+    >>>                     output_path="./output")
 
     See Also
     -----------

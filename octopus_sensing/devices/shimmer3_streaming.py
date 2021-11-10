@@ -66,7 +66,7 @@ class Shimmer3Streaming(MonitoredDevice):
         DeviceCoordinator is managing data recording by sending messages to this class 
 
 
-    Examples
+    Example
     -----------
     >>> my_shimmer = \
             Shimmer3Streaming(name="shimmer",

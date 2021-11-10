@@ -90,19 +90,16 @@ class DeviceCoordinator:
 
         Parameters
         ----------
-        device : Device
-                 a device object
-        
-        name : str, optional
-               The name of device
+        device
+            a device object
         
         Examples
-        -----------
+        --------
         >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
         >>> device_coordinator.add_device(my_shimmer)
 
         See Also
-        -----------
+        ---------
         add_devices: Add a list of new devices to the coordinator and starts them
         '''
         assert isinstance(device, Device)
@@ -127,11 +124,11 @@ class DeviceCoordinator:
 
         Parameters
         ----------
-        devices : list of Device
-                a list of device objects
+        devices
+            a list of device objects
     
         Examples
-        ----------
+        --------
         >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor",
                                            output_path="./output")
         >>> device_coordinator.add_devices([my_shimmer])
@@ -149,11 +146,11 @@ class DeviceCoordinator:
 
         Parameters
         ----------
-        message : Message
-                a message object
+        message
+            a message object
         
         Examples
-        ----------      
+        --------     
         >>> device_coordinator.dispatch(start_message(experiment_id,
                                                       stimuli_id))
         '''

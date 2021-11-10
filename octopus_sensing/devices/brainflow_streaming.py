@@ -29,53 +29,54 @@ class BrainFlowStreaming(MonitoredDevice):
     Manage brainflow streaming
 
     Attributes
-    -----------
-    device_id: str
+    ----------
+    device_id
         Device ID. 
         Brainflow support a list of devices, to see supported device IDs go to:
         https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
     
-    sampling_rate: int
+    sampling_rate
         the sampling rate for recording data
     
-    brain_flow_input_params: BrainFlowInputParams
+    brain_flow_input_params
         Each supported board in brainflow gets some parameters, to see the list
         of parameters for each board go to:
         https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
     
-    name: str, optional
+    name
         device name
         This name will be used in the output path to identify each device's data
     
-    output_path: str, optional
+    output_path
                  The path for recording files.
                  Audio files will be recorded in folder {output_path}/{name}
 
-    saving_mode: int, optional, default = SavingModeEnum.CONTINIOUS_SAVING_MODE
-        The way of saving data. I saves data continiously in a file 
+    saving_mode
+        The way of saving data. It saves data continiously in a file 
         or saves data which are related to various stimulus in separate files. 
-        SavingModeEnum: CONTINIOUS_SAVING_MODE
-                        SEPARATED_SAVING_MODE
-
-    **kwargs : dict, optional
-            Extra optional arguments
+        default is SavingModeEnum.CONTINIOUS_SAVING_MODE
+        SavingModeEnum is [CONTINIOUS_SAVING_MODE, SEPARATED_SAVING_MODE]
+    ** kwargs:
+       Extra optional arguments according to the board type
+    
+    See Also
+    --------
+    DeviceCoordinator
+        DeviceCoordinator is managing data recording by sending messages to this class 
     
     Examples
-    -----------
+    ---------
+    Here is an example of using brainflow for reading cyton_daisy board data
+
     >>> params = BrainFlowInputParams()
     >>> params.serial_port = "/dev/ttyUSB0"
     >>> my_brainflow = \
-            BrainFlowStreaming(2,
-                               125,
-                               brain_flow_input_params=params,
-                               name="cyton_daisy",
-                               output_path="./output",
-                               saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE)
-    
-    See Also
-    -----------
-    DeviceCoordinator
-        DeviceCoordinator is managing data recording by sending messages to this class 
+    >>>       BrainFlowStreaming(2,
+    >>>                          125,
+    >>>                          brain_flow_input_params=params,
+    >>>                          name="cyton_daisy",
+    >>>                          output_path="./output",
+    >>>                          saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE)
         
     '''
     def __init__(self,
@@ -141,7 +142,7 @@ class BrainFlowStreaming(MonitoredDevice):
             if self._terminate is True:
                 break
             data = self._board.get_board_data()
-            if np.array(data).shape[1] is not 0:
+            if np.array(data).shape[1] != 0:
                 self._stream_data.extend(list(np.transpose(data)))
                 if self._trigger is not None:
                     last_record = self._stream_data.pop()

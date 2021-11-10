@@ -46,7 +46,7 @@ class AudioStreaming(Device):
     >>> for d in enumerate(captures):
     >>>     print("{num} = {name}".format(num=d[0], name=d[1]['name']))
 
-    Examples
+    Example
     -----------
     >>> audio_recorder = \
             AudioStreaming(1,
@@ -73,7 +73,7 @@ class AudioStreaming(Device):
         self._record = False
         self._terminate = False
 
-    def __record_to_buffer(self):
+    def __stream_loop(self):
         _ = yield
         while True:
             data = yield
@@ -89,7 +89,7 @@ class AudioStreaming(Device):
                                     sample_rate=44100,
                                     device_id=selected_device["id"])
 
-        recorder = self.__record_to_buffer()
+        recorder = self.__stream_loop()
         next(recorder)
 
         while True:
