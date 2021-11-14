@@ -13,12 +13,44 @@
 # If not, see <https://www.gnu.org/licenses/>.
 import threading
 import socket
-import time
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
 from octopus_sensing.devices.device import Device
 
 class SocketNetworkDevice(Device):
+    '''
+    This class is being used for sending triggers to other softwares using TCP-IP socket.
+    It works as a server socket, which sends triggers (when an event happen) to the connected clients.
+
+    For example if we have a device that record data through matlab, through this server socket, we can 
+    send the trigger to the matlab application to mark the recorded data.
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    host: str
+        host IP address
+
+    port: str
+        port number
+
+    Example
+    -------
+    Creating a SocketNetworkDevice in the local machine and adding it to the device_coordinator.
+    By adding it to the DeviceCoordinator, it starts listening
+
+    >>> device_coordinator = DeviceCoordinator()
+    >>> socket_device = SocketNetworkDevice("0.0.0.0", 5002)
+    >>> device_coordinator.add_devices([socket_device])
+
+    Note
+    -----
+    Look at Examples/send_trigger_to_remote_device.py (server code), 
+    Examples/matlabRecorder.m or examples/client.py (client codes)
+
+    '''
     def __init__(self,
                  host: str,
                  port: str,
@@ -89,9 +121,12 @@ class SocketNetworkDevice(Device):
 
     def __send_message(self, connection: socket.socket):
         '''
-        Get a connection and send the trigger to it
+        Gets a connection and sends the trigger to it
 
-        @param socket.socket connection: a socket connection
+        Parameters
+        ----------
+        connection: socket.socket
+            a socket connection
         '''
         print("send message", self._trigger)
         self._trigger += "\n"
@@ -101,7 +136,10 @@ class SocketNetworkDevice(Device):
         '''
         Takes a message and set the trigger using its data
 
-        @param Message message: a message object
+        Parameters
+        ----------
+        message: Message
+            a message object
         '''
         self._trigger = \
             "{0}-{1}-{2}".format(message.type,

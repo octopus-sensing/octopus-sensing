@@ -60,9 +60,9 @@ class BrainFlowStreaming(MonitoredDevice):
        Extra optional arguments according to the board type
     
     See Also
-    --------
-    DeviceCoordinator
-        DeviceCoordinator is managing data recording by sending messages to this class 
+    -----------
+    :class:`octopus_sensing.device_coordinator`
+    :class:`octopus_sensing.devices.device`
     
     Examples
     ---------
@@ -70,13 +70,13 @@ class BrainFlowStreaming(MonitoredDevice):
 
     >>> params = BrainFlowInputParams()
     >>> params.serial_port = "/dev/ttyUSB0"
-    >>> my_brainflow = \
-    >>>       BrainFlowStreaming(2,
-    >>>                          125,
-    >>>                          brain_flow_input_params=params,
-    >>>                          name="cyton_daisy",
-    >>>                          output_path="./output",
-    >>>                          saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE)
+    >>> my_brainflow = 
+    ...       BrainFlowStreaming(2,
+    ...                          125,
+    ...                          brain_flow_input_params=params,
+    ...                          name="cyton_daisy",
+    ...                          output_path="./output",
+    ...                          saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE)
         
     '''
     def __init__(self,

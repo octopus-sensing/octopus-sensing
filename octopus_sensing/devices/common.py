@@ -14,5 +14,17 @@
 
 
 class SavingModeEnum():
+    '''
+    In CONTINIOUS_SAVING_MODE all data will be saved in one file, and some markers
+    will be used to specify an event. In SEPARATED_SAVING_MODE, the data related to different events
+    will be saved in separate files. 
+    For example, if stimuli is a list of videos, in CONTINIOUS_SAVING_MODE, the data recorded
+    during displaying all videos, will be recorded in a file and two markers one for start 
+    and one for the stop of each video will be recorded in the data. In SEPARATED_SAVING_MODE for 
+    each video stimuli, the data recorded while displaying each video will be recorded in 
+    a separated file.
+
+
+    '''
     CONTINIOUS_SAVING_MODE = 0
     SEPARATED_SAVING_MODE = 1

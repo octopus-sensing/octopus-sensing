@@ -32,53 +32,72 @@ class OpenBCIStreaming(MonitoredDevice):
     '''
     Manages OpenBCI streaming
     It uses pyOpenBCI library which is not supporting by OpenBCI anymore.
-    We recommend to use BrainFlowOpenBCIStreaming instead.
+    We recommend to use 
+    :class:`octopus_sensing.devices.brainflow_openbci_streaming` instead.
 
     Data will be recorded in a csv file/files with the following column order:
     channels, Acc_x, Acc_y, Acc_z, sample_id, time_stamp, trigger
 
     Attributes
     -----------
-    name: str, optional
-        device name
-        This name will be used in the output path to identify each device's data
+
+    Parameters
+    ----------
+    name: str, default: None
+        Device name. This name will be used in the output path to identify 
+        each device's data.
+
+    output_path: str,  default: output
+        The path for recording files.
+        Audio files will be recorded in folder {output_path}/{name}
     
-    output_path: str, optional
-                 The path for recording files.
-                 Audio files will be recorded in folder {output_path}/{name}
-    
-    saving_mode: int, optional, default = SavingModeEnum.CONTINIOUS_SAVING_MODE
+    saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data: saving continiously in a file or save data related to
         each stimulus in a separate file. 
-        SavingModeEnum: CONTINIOUS_SAVING_MODE
-                        SEPARATED_SAVING_MODE
+        SavingModeEnum is:
+
+            0. CONTINIOUS_SAVING_MODE
+            1. SEPARATED_SAVING_MODE
     
-    daisy: bool, optional, default = True
+    daisy: bool, default: True
            If it is True, it means we use cyton-daisy board,
            otherwise we use cyton board
 
-    channels_order: list of str, default = None
+    channels_order: list of str, default: None
         A list of channel names which specify the order and names of channels
 
     Example
-    -----------
-    >>> my_openbci = \
-            OpenBCIStreaming(name="OpenBCI",
-                             output_path="./output",
-                             daisy=True,
-                             saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
-                             channels_order=["Fp1", "Fp2", "F7", "F3", 
-                                             "F4", "F8", "T3", "C3",
-                                             "C4", "T4", "T5", "P3", 
-                                             "P4", "T6", "O1", "O2"])
+    --------
+    Creating an instance of OpenBCI board with USB dongle using 
+    `pyOpenBCI <https://github.com/andreaortuno/pyOpenBCI>`_,
+    and adding it to the device coordinator. Device coordinator is responsible
+    for triggerng the OpenBCI to start or stop recording  or to add markers to
+    recorded data.
+    In this example, since the saving mode is continuous, all recorded data 
+    will be saved in a file. But, when an event happens, device coordinator will send
+    a trigger message to the device and recorded data will be marked with the trigger
+
+    >>> my_openbci = 
+    ...     OpenBCIStreaming(name="OpenBCI",
+    ...                      output_path="./output",
+    ...                      daisy=True,
+    ...                      saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+    ...                      channels_order=["Fp1", "Fp2", "F7", "F3", 
+    ...                                      "F4", "F8", "T3", "C3",
+    ...                                      "C4", "T4", "T5", "P3", 
+    ...                                      "P4", "T6", "O1", "O2"])
+    >>> device_coordinator.add_device(my_openbci)
+
+    Note
+    -----
+    Before running the code, turn on the OpenBCI, connect the dongle and make sure its port is free.
+
 
     See Also
-    -----------
-    BrainFlowOpenBCIStreaming
-        It is managing data streaming through OpenBCI using brainflow
- 
-    DeviceCoordinator
-        DeviceCoordinator is managing data recording by sending messages to this class 
+    --------
+    :class:`octopus_sensing.device_coordinator`
+    :class:`octopus_sensing.devices.device`,
+    :class:`octopus_sensing.devices.brainflow_openbci_streaming`
 
     '''
     def __init__(self,
@@ -203,10 +222,38 @@ class OpenBCIStreaming(MonitoredDevice):
         return self._stream_data[-1 * 3 * 128:]
 
     def get_saving_mode(self):
+        '''
+        Gets saving mode
+        
+        Returns
+        -----------
+        saving_mode: int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
+        '''
         return self._saving_mode
 
-    def get_channels(self):
-        return self.channels
-
     def get_output_path(self):
+        '''
+        Gets the path that is used for data recording
+
+        Returns
+        -----------
+        output_path: str
+           The output path that use for data recording
+        '''
         return self.output_path
+
+    def get_channels(self):
+        '''
+        Gets the list of channels
+
+        Returns
+        -------
+
+        channels_name: List[str]
+            The list of channels' name
+
+        '''
+        return self.channels

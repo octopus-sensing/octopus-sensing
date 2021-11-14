@@ -32,3 +32,13 @@ test-coverage: ## Runs tests and reports coverage
 #	tag
 #	push tag
 #	poetry publish
+
+# You can set these variables from the command line, and also
+# from the environment for the first two.
+SPHINXOPTS    ?=
+SPHINXBUILD   ?= sphinx-build
+SOURCEDIR     = sphinx_docs
+BUILDDIR      = build
+
+sphinx:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

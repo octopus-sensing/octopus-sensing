@@ -26,8 +26,12 @@ class AudioStreaming(Device):
 
     Attributes
     ----------
+
+    Parameters
+    ----------
+
     device_id: int
-               The audio recorder ID
+        The audio recorder ID. If there is several audio recorder in the system
     
     name: str, optional
           device name
@@ -37,29 +41,31 @@ class AudioStreaming(Device):
                  The path for recording files.
                  Audio files will be recorded in folder {output_path}/{name}
 
-    Note
-    --------
-    If you want to know what is your audio recorder's ID run the following code:
+
+    Example
+    -------
+    If you want to know what is your audio recorder's ID run the following example  from `miniaudio <https://github.com/irmen/pyminiaudio>`_
+
     >>> import miniaudio
     >>> devices = miniaudio.Devices()
     >>> captures = devices.get_captures()
     >>> for d in enumerate(captures):
-    >>>     print("{num} = {name}".format(num=d[0], name=d[1]['name']))
+            print("{num} = {name}".format(num=d[0], name=d[1]['name']))
 
     Example
     -----------
-    >>> audio_recorder = \
-            AudioStreaming(1,
-                           name="Audio_monitoring",
-                           output_path="./output")
+    Creating an instance of audio recorder and adding it to the device coordinator.
+    Device coordinator is responsible for triggerng the audio recorder to start or stop recording
+
+    >>> audio_recorder = AudioStreaming(1,
+    ...                                 name="Audio_monitoring",
+    ...                                 output_path="./output")
+    >>> device_coordinator.add_device(audio_recorder)
 
     See Also
     -----------
-    Device
-        The base class
-
-    DeviceCoordinator
-        DeviceCoordinator is managing data recording by sending messages to this class
+    :class:`octopus_sensing.device_coordinator`
+    :class:`octopus_sensing.devices.device`
 
     '''
     def __init__(self, device_id:int, **kwargs):

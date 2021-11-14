@@ -22,52 +22,61 @@ import time
 
 class CameraStreaming(Device):
     '''
-    Stream and Record video
+    Stream and Record video data. 
+    If we have several stimuli, one vide file will be recorded for each stimuli.
+    Device coordinator is responsible for triggerng the camera to start or stop recording.
+    The content of recorded file is the recorded video between start and stop triggers
 
     Attributes
     ----------
-    camera_no
-        The camera number. Default is 0
+
+    Parameters
+    ----------
+    name: str, default: None:
+        The name of device
     
-    camera_path
-        The physical path of camera device
-        default value is None.
+    output_path: str, default: output
+                The path for recording files.
+                Audio files will be recorded in folder {output_path}/{name}
+
+    camera_no: int, default:0
+        The camera number. Default is 0  which is defaul camera in system
+    
+    camera_path: str, default: None
+        The physical path of camera device. It varies in different platforms.
         For Example in linux it can be something like this:
         `/dev/v4l/by-id/usb-046d_081b_97E6A7D0-video-index0`
     
-    image_width
-        The width of recorded frame/frames. Default is 1280
+    image_width: int, default: 1280
+        The width of recorded frame/frames
 
-    image_height
-        The height of recorded frame/frames. Default is 720
+    image_height: int, default: 720
+        The height of recorded frame/frames.
+    
 
     Notes
     -----
-    Only one of camera_no or camera_path should have value
+    - Only one of camera_no or camera_path should have value.
 
-    There is no guarantee that we can set the camera resolution. 
-    Because camera may not be able to support these resolution and it will change it
-    based on its settings
-    
-    output_path
-                 The path for recording files.
-                 Video files will be recorded in folder {output_path}/{name}
+    - There is no guarantee that we can set the camera resolution. 
+      Because camera may not be able to support these resolution and it will change it
+      based on its settings
 
 
     Example
     -----------
-    >>> camera = \
-    >>>    CameraStreaming(camera_no=0,
-    >>>                     name="camera",
-    >>>                     output_path="./output")
+    Creating an instance of camera and adding it to the device coordinator.
+    Device coordinator is responsible for triggerng the camera to start or stop recording
+
+    >>> camera = CameraStreaming(camera_no=0,
+    ...                          name="camera",
+    ...                          output_path="./output")
+    >>> device_coordinator.add_device(camera)
 
     See Also
     -----------
-    Device
-        The base class
-
-    DeviceCoordinator
-        DeviceCoordinator is managing data recording by sending messages to this class
+    :class:`octopus_sensing.device_coordinator`
+    :class:`octopus_sensing.devices.device`
 
     '''
     def __init__(self, camera_no: Optional[int] = None,

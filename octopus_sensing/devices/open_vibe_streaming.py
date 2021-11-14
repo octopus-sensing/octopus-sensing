@@ -16,16 +16,43 @@ import socket
 import time
 from octopus_sensing.devices.device import Device
 
-HOST = '127.0.0.1'
-PORT = 15361
 
 # transform a value into an array of byte values in little-endian order.
 class OpenVibeStreaming(Device):
-    def __init__(self):
+    '''
+    Sending triggers to OpenVibe data recorders. OpenVibe supports data acquisition through
+    many biosensors. We can record data through OpenVibe and send markers using this class.
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    host: str
+        host IP address
+
+    port: str
+        port number
+
+    Example
+    -------
+    Creating an instance of OpenVibeStreaming in the local machine and adding it to the device_coordinator
+
+    >>> device_coordinator = DeviceCoordinator()
+    >>> openvibe_device = OpenVibeStreaming()
+    >>> device_coordinator.add_devices([openvibe_device])
+
+    Note
+    -----
+    We need a scenario in OpenVibe to record data. OpenVibe should start data recording before sending the triggers.
+    '''
+    def __init__(self,
+                 host: str='127.0.0.1',
+                 port: str=15361):
         super().__init__()
         # connect
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self._socket.connect((HOST, PORT))
+        self._socket.connect((host, port))
 
     def run(self):
         while True:

@@ -5,6 +5,7 @@ env
 .pytest_cache
 .coverage
 dist/
+build/
 octopus_sensing.egg-info/
 docs_build/
 *.pyc
