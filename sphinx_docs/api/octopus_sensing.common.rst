@@ -1,25 +1,17 @@
-octopus\_sensing.common
-===============================
+Common
+=======
 
 
-octopus\_sensing.common.endpoint\_base
----------------------------------------------
-
-.. automodule:: octopus_sensing.common.endpoint_base
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-octopus\_sensing.common.message
---------------------------------------
+Message
+--------
 
 .. automodule:: octopus_sensing.common.message
    :members:
    :undoc-members:
    :show-inheritance:
 
-octopus\_sensing.common.message\_creators
-------------------------------------------------
+Predefined Messages
+-------------------
 
 .. automodule:: octopus_sensing.common.message_creators
    :members:

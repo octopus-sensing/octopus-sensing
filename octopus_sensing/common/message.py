@@ -17,21 +17,44 @@ from typing import Optional, Any
 
 class Message():
     '''
-    Message class
+    Message class. 
+    It is being used for communicating between DeviceCoordinator and various devices.
+    DeviceCoordinator uses message objects to inform devices about an event
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    type: str
+        The type of message
+    
+    payload: Any
+        the message data that can have differnt values
+    
+    experiment_id: str, default: None
+        A unique ID for each participant and task in the study
+    
+    stimulus_id: str, default: None
+        A unique ID for each stimulus
+    
+
+    Example
+    -------
+    We can create a customized message using this class, or use prepared messages in the common/message_creators.
+    In this example, we created an instance of message, which its type is start. When DeviceCoordinator
+    dispath this message, it will be sent to all devices in its list.
+    Using this message we inform all devices that start of `stimulus_00` is happened.
+
+    >>> message = Message("START",
+    ...                   "study_1_p10",
+    ...                   "stimulus_00")
+    >>> device_coordinator.dispatch(message)
     '''
 
     def __init__(self, message_type: str, payload: Any,
                  experiment_id: Optional[str] = None,
                  stimulus_id: Optional[str] = None):
-        '''
-        Initializes the message object
-
-        @param str type: The type of message
-        @param payload: the message data that can have differnt values
-
-        @keyword str experiment_id: experiment's ID
-        @keyword str stimulus_id: stimulus's ID
-        '''
         self.type = message_type
         self.payload = payload
         self.experiment_id = experiment_id

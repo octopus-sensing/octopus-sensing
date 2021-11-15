@@ -1,8 +1,9 @@
 *************
 API Reference
 *************
-octopus\_sensing
-========================
+
+octopus_sensing
+=============================
 
 .. toctree::
    :maxdepth: 4

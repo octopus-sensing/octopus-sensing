@@ -22,6 +22,24 @@ FONT_STYLE = "<span font_desc='Tahoma 16'>{}</span>"
 
 
 class TextQuestion(Question):
+    '''
+    The class for creating text questions using Gtk 3.0
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    id: str
+        A unique ID for the question
+    
+    text: str
+        The text of question
+    
+    default_answer: Union[int, str], default: 0
+        The default answer
+    
+    '''
     def __init__(self, id: str, text: str, default_answer: Union[int, str] = 0):
         super().__init__(id, text)
 
@@ -32,11 +50,36 @@ class TextQuestion(Question):
         '''
         renders a question for adding to a questionnaire
 
-        @param Grid grid: a grid object that this question will add to it
-        @param int grid_row: The row that the question will add
+        Parameters
+        ----------
+        grid: Gtk.Grid
+            a Gtk grid object that this question will be added to it
+            
+        grid_row: int
+            The row number of grid that the question will be added to it
+        
+        Returns
+        -------
+        row_counter: int
+            The grid's row for adding the next object after adding this question
+        
+        Examples
+        --------
+        Creating a text question and adding it to the questionnaire
 
-        @rtype: int
-        @return: the grid's row for adding the next object after adding the question
+        >>> question_1 = TextQuestion("q1",
+        ...                           "1- What emotion did you feel the most?",
+        ...                           default_answer="Happiness")
+        >>> questionnaire = Questionnaire("after_stimuli",
+        ...                               "study01_p10",
+        ...                               "stimuli00",
+        ...                               "After Stimulus Questionnaire")
+        >>> questionnaire.add_question(question_1)
+
+        See Also
+        -----------
+        :class:`octopus_sensing.questionnaire.questionnaire`
+        
         '''
         row_counter = grid_row
 
@@ -58,9 +101,11 @@ class TextQuestion(Question):
 
     def get_answer(self) -> Union[int, str]:
         '''
-        Gets selected answer
+        Gets the answer
 
-        @rtype: str or int
-        @return: answer
+        Returns
+        ----------
+        answer: str or int
+            answer
         '''
         return self.answer_textbox.get_text()

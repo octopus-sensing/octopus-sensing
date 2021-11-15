@@ -1,16 +1,16 @@
-octopus\_sensing.questionnaire
+Questionnaire
 ======================================
 
+Questionnaire
+--------------------------------------------
 
-octopus\_sensing.questionnaire.opinion\_question
--------------------------------------------------------
-
-.. automodule:: octopus_sensing.questionnaire.opinion_question
+.. automodule:: octopus_sensing.questionnaire.questionnaire
    :members:
    :undoc-members:
    :show-inheritance:
 
-octopus\_sensing.questionnaire.question
+
+Base question
 ----------------------------------------------
 
 .. automodule:: octopus_sensing.questionnaire.question
@@ -18,11 +18,23 @@ octopus\_sensing.questionnaire.question
    :undoc-members:
    :show-inheritance:
 
-octopus\_sensing.questionnaire.text\_question
+Text Question
 ----------------------------------------------------
 
 .. automodule:: octopus_sensing.questionnaire.text_question
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+Opinion question
+-------------------------------------------------------
+
+.. automodule:: octopus_sensing.questionnaire.opinion_question
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+
 
