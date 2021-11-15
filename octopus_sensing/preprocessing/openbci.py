@@ -27,18 +27,40 @@ def openbci_preprocess(input_path: str, file_name: str, output_path: str,
                        sampling_rate: int = 128,
                        signal_preprocess: bool = True):
     '''
-    Split openbci recorded files based on markers and resample data to a
-    constant sampling rate
+    Preprocess openbci recorded files to prepare them for visualizing and analysis
+    It applys data cleaning (according to signal_preprocess), resampling (according to sampling_rate),
+    and splits data if data has been recorded continuously.
+    This method uses `mne library <https://mne.tools/stable/index.html>`_ for EEG data processing
 
-    @param str input_path: openbci input file path
-    @param str file_name: openbci input file name
-    @param str output_path: preprocessed file path
-    @param list channels: a list of recorded channels
-    @type channels: list(str)
-    @keyword int sampling_rate : The desired sampling_rate
-    @note: Sometimes recorded data in one second with Openbci are less or more
-           than the specified sampling rate. So, we resample data by replicating
-           the last samples or removing some samples to achieve the desired sampling_rate
+    Parameters
+    ----------
+    input_path: str
+        The path to recorded openbci data
+    
+    file_name: str
+        The file name of recorded openbci data
+    
+    output_path: str
+        preprocessed file path
+    
+    channels: List(str)
+        a list of recorded channels name
+    
+    saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
+        The saving mode of recorded data. If it is CONTINIOUS_SAVING_MODE, data will be splitted
+        according to markers and will be recorded in the separated files
+
+    sampling_rate: int, default: 128
+        The desired sampling_rate. Data will be resampled according to this sampling rate
+    
+    signal_preprocess: bool, default: True
+        If True will apply preliminary preprocessing steps to clean baseline noises
+    
+    Note
+    -----
+    Sometimes recorded data in one second with Openbci are less or more than 
+    the specified sampling rate. So, we resample data by replicating
+    the last samples or removing some samples to achieve the desired sampling_rate
     '''
     if saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
         if len(channels) == 8:
@@ -113,7 +135,22 @@ def openbci_preprocess(input_path: str, file_name: str, output_path: str,
 
 
 class EegPreprocessing():
-    def __init__(self, data, channel_names=None, sampling_rate=128):
+    '''
+    Converts EEG data to mne raw data format for furthur analysis
+
+    Parameters
+    ----------
+    data: numpy.array
+        The channels’ time series (n_samples*n_channels)
+    
+    channel_names: List[str], default: None
+        A list of channels' names
+    
+    sampling_rate: int, default: 128
+        Sampling rate of data
+
+    '''
+    def __init__(self, data: np.array, channel_names: List[str]=None, sampling_rate: int=128):
         if channel_names is None:
             self._channel_names = \
                 ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
@@ -133,25 +170,59 @@ class EegPreprocessing():
         self._mne_raw.load_data()
 
     def get_data(self):
+        '''
+        Gets EEG data as a raw mne data
+
+        Returns
+        --------
+        mne_raw_data: mne.io.RawArray
+            EEG data as a  mne.io.RawArray
+
+        '''
         return self._mne_raw.get_data()
 
-    def filter_data(self, low_frequency=1, high_frequency=45, notch_frequencies=[60]):
+    def filter_data(self, low_frequency: int=1, high_frequency:int =45, notch_frequencies: List[int]=[60]):
         '''
         Apply notch filter, low pass and high pass (bandpass) filter on mne data
+
+        Parameters
+        -----------
+        low_frequency: int, default: 1
+            The low cut frequency for filtering
+        
+        high_frequency: int, default: 45
+            The high cut frequency for filtering
+        
+        notch_frequencies: List[int] default: [60]
+            the frequencies to be used in the notch filter
+
         '''
-        print("Apply filtering")
         # Band pass filter
         self._mne_raw.filter(l_freq=low_frequency, h_freq=high_frequency)
         # Notch filter
         if notch_frequencies not in (None, []):
             self._mne_raw.notch_filter(notch_frequencies)
-        print("end filtering")
 
 
 def clean_eeg(data, channel_names: List[str] = None,
               low_frequency: int = 1,
               high_frequency: int = 45,
               sampling_rate: Optional[int] = 128):
+    '''
+    Cleans EEG data
+
+    Parameters
+    -----------
+    low_frequency: int, default: 1
+        The low cut frequency for filtering
+    
+    high_frequency: int, default: 45
+        The high cut frequency for filtering
+    
+    smpling_rate: int, default: 128
+        sampling rate
+    
+    '''
     if channel_names is None:
         channel_names = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
                          "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"]

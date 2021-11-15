@@ -1,8 +1,8 @@
-octopus\_sensing.preprocessing
+Preprocessing
 ======================================
 
 
-octopus\_sensing.preprocessing.openbci
+OpenBCI
 ---------------------------------------------
 
 .. automodule:: octopus_sensing.preprocessing.openbci
@@ -10,15 +10,7 @@ octopus\_sensing.preprocessing.openbci
    :undoc-members:
    :show-inheritance:
 
-octopus\_sensing.preprocessing.preprocess\_devices
----------------------------------------------------------
-
-.. automodule:: octopus_sensing.preprocessing.preprocess_devices
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-octopus\_sensing.preprocessing.shimmer3
+Shimmer3
 ----------------------------------------------
 
 .. automodule:: octopus_sensing.preprocessing.shimmer3
@@ -26,7 +18,17 @@ octopus\_sensing.preprocessing.shimmer3
    :undoc-members:
    :show-inheritance:
 
-octopus\_sensing.preprocessing.utils
+
+Preprocess Devices
+---------------------------------------------------------
+
+.. automodule:: octopus_sensing.preprocessing.preprocess_devices
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Utils
 -------------------------------------------
 
 .. automodule:: octopus_sensing.preprocessing.utils
