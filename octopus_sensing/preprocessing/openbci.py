@@ -54,7 +54,7 @@ def openbci_preprocess(input_path: str, file_name: str, output_path: str,
         The desired sampling_rate. Data will be resampled according to this sampling rate
     
     signal_preprocess: bool, default: True
-        If True will apply preliminary preprocessing steps to clean baseline noises
+        If True will apply preliminary preprocessing steps to clean line noises
     
     Note
     -----
@@ -181,16 +181,16 @@ class EegPreprocessing():
         '''
         return self._mne_raw.get_data()
 
-    def filter_data(self, low_frequency: int=1, high_frequency:int =45, notch_frequencies: List[int]=[60]):
+    def filter_data(self, low_frequency: float=1, high_frequency:float =45, notch_frequencies: List[int]=[60]):
         '''
         Apply notch filter, low pass and high pass (bandpass) filter on mne data
 
         Parameters
         -----------
-        low_frequency: int, default: 1
+        low_frequency: float, default: 1
             The low cut frequency for filtering
         
-        high_frequency: int, default: 45
+        high_frequency: float, default: 45
             The high cut frequency for filtering
         
         notch_frequencies: List[int] default: [60]
@@ -205,18 +205,18 @@ class EegPreprocessing():
 
 
 def clean_eeg(data, channel_names: List[str] = None,
-              low_frequency: int = 1,
-              high_frequency: int = 45,
+              low_frequency: float = 1,
+              high_frequency: float = 45,
               sampling_rate: Optional[int] = 128):
     '''
     Cleans EEG data
 
     Parameters
     -----------
-    low_frequency: int, default: 1
+    low_frequency: float, default: 1
         The low cut frequency for filtering
     
-    high_frequency: int, default: 45
+    high_frequency: float, default: 45
         The high cut frequency for filtering
     
     smpling_rate: int, default: 128

@@ -1,5 +1,6 @@
-Welcome to Octopus Sensing's documentation!  
+Octopus Sensing 
 ====================================================================================
+Welcome to Octopus Sensing's documentation!
 
 Octopus Sensing is a tool to help you run scientific experiments that involve recording data synchronously from
 multiple sources in human-computer interaction studies. You write steps of an experiment scenario, for example showing a stimulus and then
@@ -48,8 +49,8 @@ See `License file <https://github.com/nastaran62/octopus-sensing/blob/master/LIC
 
 
 
-Index
-======
+Content
+========
 
 .. toctree::
    :maxdepth: 3
@@ -57,4 +58,3 @@ Index
 
    quick_start
    api_reference
-

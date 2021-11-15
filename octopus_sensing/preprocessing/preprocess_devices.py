@@ -14,6 +14,7 @@
 
 import os
 import pathlib
+from typing import List
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.devices.openbci_streaming import OpenBCIStreaming
 from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
@@ -26,13 +27,22 @@ def preprocess_devices(device_coordinator: DeviceCoordinator, output_path: str,
                        shimmer3_sampling_rate: int = 128,
                        signal_preprocess: bool = True):
     '''
-    Preprocees recorded files for all devices that are added to device_coordinator,
-    Some devices do not have any preprocessing, so this function will ignore them
+    Preprocees recorded files for all devices that are added to device_coordinator and has a 
+    preprocessing module. Some devices do not have any preprocessing, so this function will ignore them
 
-    @param DeviceCoordinator device_coordinator: an instance of DeviceCoordinator
-    @param str output_path: Path for preprocessed Files
-    @param int openbci_sampling_rate: New sampling rate for openbci resampling
-    @param int shimmer3_sampling_rate: New sampling rate for shimmer3 resampling
+    Parameters
+    ----------
+    device_coordinator: DeviceCoordinator
+        an instance of DeviceCoordinator
+    
+    output_path: str
+        Path for preprocessed Files
+    
+    openbci_sampling_rate: int
+        New sampling rate for openbci resampling
+    
+    shimmer3_sampling_rate: int
+        New sampling rate for shimmer3 resampling
     '''
     print("Start preprocessing ....")
     devices = device_coordinator.get_devices()
@@ -76,21 +86,35 @@ def preprocess_devices(device_coordinator: DeviceCoordinator, output_path: str,
     print("Preprocessing done")
 
 
-def preprocess_devices_by_path(devices_path, output_path: str,
-                       openbci_channels: list = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
+def preprocess_devices_by_path(devices_path: List[str], output_path: str,
+                       openbci_channels: List[str] = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
                         "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"],
                        openbci_sampling_rate: int = 128,
                        shimmer3_sampling_rate: int = 128,
                        signal_preprocess: bool = True):
     '''
-    Preprocees recorded files from the paths specified in devices_path,
-    Some devices do not have any preprocessing, so this function will ignore them
+    Gets a list of path to the recorded data from different devices and preprocess them if they have  
+    preprocessing module. Some devices do not have any preprocessing, so this function will ignore them
 
-    @param str device_coordinator: path for raw data
-    @param str output_path: Path for preprocessed Files
-    @param int openbci_sampling_rate: New sampling rate for openbci resampling
-    @param int shimmer3_sampling_rate: New sampling rate for shimmer3 resampling
+    Parameters
+    ----------
+    devices_path: List[str]
+        Path to recorded data by different devices
+       
+    output_path: str
+        Path for preprocessed Files
+    
+    openbci_channels: List[str]
+        default is ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3", "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"]
+        A list of OpenBCI channels' names
+    
+    openbci_sampling_rate: int
+        New sampling rate for openbci resampling
+    
+    shimmer3_sampling_rate: int
+        New sampling rate for shimmer3 resampling
     '''
+
     print("Start preprocessing ....")
     for device, input_path in devices_path.items():
         print(device, input_path)

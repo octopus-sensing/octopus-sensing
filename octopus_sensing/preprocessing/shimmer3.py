@@ -27,18 +27,36 @@ def shimmer3_preprocess(input_path: str, file_name: str, output_path: str,
                         sampling_rate: int = 128,
                         signal_preprocess: bool = True):
     '''
-    Split openbci recorded files based on markers and resample data to a
-    constant sampling rate
+    Preprocess shimmer recorded files to prepare them for visualizing and analysis
+    It applys data cleaning (according to signal_preprocess), resampling (according to sampling_rate),
+    and splits data if data has been recorded continuously. It will save PPG and GSR data in separated files
 
-    @param str input_path: openbci input file path
-    @param str file_name: openbci input file name
-    @param str output_path: preprocessed file path
-    @param list channels: a list of recorded channels
-    @type channels: list(str)
-    @keyword int sampling_rate : The desired sampling_rate
-    @note: Sometimes recorded data in one second with Openbci are less or more
-           than the specified sampling rate. So, we resample data by replicating
-           the last samples or removing some samples to achieve the desired sampling_rate
+    Parameters
+    ----------
+    input_path: str
+        The path to recorded shimmer data
+    
+    file_name: str
+        The file name of recorded shimmer data
+    
+    output_path: str
+        preprocessed file path
+    
+    saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
+        The saving mode of recorded data. If it is CONTINIOUS_SAVING_MODE, data will be splitted
+        according to markers and will be recorded in the separated files
+
+    sampling_rate: int, default: 128
+        The desired sampling_rate. Data will be resampled according to this sampling rate
+    
+    signal_preprocess: bool, default: True
+        If True will apply preliminary preprocessing steps to clean line noises
+    
+    Note
+    -----
+    Sometimes recorded data in one second with Shimmer3 are less or more than 
+    the specified sampling rate. So, we resample data by replicating
+    the last samples or removing some samples to achieve the desired sampling_rate
     '''
     if saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
         data, times = \
@@ -124,9 +142,28 @@ def shimmer3_preprocess(input_path: str, file_name: str, output_path: str,
         raise Exception("Saving mode is incorrect")
 
 
-def clean_gsr(data, sampling_rate, low_pass=0.1, high_pass=15):
+def clean_gsr(data, sampling_rate: int, low_pass: float=0.1, high_pass: float=15):
     '''
     Removes high frequency and rapid transient noises
+
+    Parameters
+    -----------
+    data: numpy.array
+        An 1D array of GSR data
+
+    smpling_rate: int, default: 128
+        sampling rate
+
+    low_pass: float, default: 0.7
+        The low cut frequency for filtering
+    
+    high_pass: float, default: 2.5
+        The high cut frequency for filtering
+    
+    Returns
+    -------
+    cleaned_data: numpy.array
+        An 1D array of cleaned GSR data
     '''
     nyqs = sampling_rate * 0.5
     # Removing high frequency noises
@@ -138,9 +175,31 @@ def clean_gsr(data, sampling_rate, low_pass=0.1, high_pass=15):
     return final_output
 
 
-def clean_ppg(data, sampling_rate, low_pass=0.7, high_pass=2.5):
+def clean_ppg(data: np.array, sampling_rate: int, low_pass: float=0.7, high_pass: float=2.5):
     '''
     Removes high frequency noises
+
+    It uses `heartpy <https://github.com/paulvangentcom/heartrate_analysis_python>` library
+
+    Parameters
+    -----------
+    data: numpy.array
+        An 1D array of PPG data
+
+    smpling_rate: int, default: 128
+        sampling rate
+
+    low_pass: float, default: 0.7
+        The low cut frequency for filtering
+    
+    high_pass: float, default: 2.5
+        The high cut frequency for filtering
+    
+    Returns
+    -------
+    cleaned_data: numpy.array
+        An 1D array of cleaned PPG data
+
     '''
     filtered = hp.filter_signal(data,
                                 [low_pass, high_pass],

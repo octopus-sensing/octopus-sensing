@@ -1,4 +1,4 @@
-octopus\_sensing.stimuli
+Stimuli
 ================================
 
 .. automodule:: octopus_sensing.stimuli

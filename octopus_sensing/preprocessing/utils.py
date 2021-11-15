@@ -15,9 +15,42 @@
 import datetime
 import csv
 import numpy as np
+from typing import List, Any
 
 
 def load_all_samples(file_path, channels_cols, time_stamp_col, time_format):
+    '''
+    Reads the recorded data file and separate data according to the START and STOP triggers
+
+    Parameters
+    ----------
+    file_path: str
+        The path of recorded data
+    
+    channels_cols: List[int]
+        The start column and end column number of channels. 
+        For example [1, 16] means column 1 to 16 in the csv file includes channels data
+    
+    time_stamp_col: int
+        The column number of time stamp
+    
+    triger_col: int
+        The column number of trigger
+    
+    time_format: str
+        The format of recorded times
+
+    Returns
+    ---------
+    trial_data, converted_times: tuple(List[Any], List[datetime.datetime])
+
+    trial_data: List[Any]
+        A list of a trial's data
+    
+    converted_times: List[datetime.datetime]
+        A list of trial's time stamps
+
+    '''
     data = []
     times = []
     with open(file_path, 'r') as file:
@@ -34,8 +67,41 @@ def load_all_samples(file_path, channels_cols, time_stamp_col, time_format):
     return data, converted_times
 
 
-def load_all_trials(file_path, channels_cols, time_stamp_col, triger_col, time_format):
+def load_all_trials(file_path: str, channels_cols: List[int], time_stamp_col: int, triger_col: int, time_format: str):
     '''
+    Reads the recorded data files and separate data according to the START and STOP triggers
+
+    Parameters
+    ----------
+    file_path: str
+        The path of recorded data
+    
+    channels_cols: List[int]
+        The start column and end column number of channels. 
+        For example [1, 16] means column 1 to 16 in the csv file includes channels data
+    
+    time_stamp_col: int
+        The column number of time stamp
+    
+    triger_col: int
+        The column number of trigger
+    
+    time_format: str
+        The format of recorded times
+
+    Returns
+    ---------
+    all_trials_data, all_trials_times, trial_numbers: 
+        tuple(List[Any], List[List[datetime.datetime]], List[List[int]])
+
+    all_trials_data: List[Any]
+        A list of all trials data
+    
+    all_trials_times: List[List[datetime.datetime]]
+        A list of all trials time stamps
+    
+    all_trials_times: List[List[int]]
+        A list of all trials IDs
     '''
     all_trials_data = []
     all_trials_times = []
@@ -72,9 +138,22 @@ def load_all_trials(file_path, channels_cols, time_stamp_col, triger_col, time_f
     return all_trials_data, all_trials_times, trial_numbers
 
 
-def str_to_times(times, time_format):
+def str_to_times(times: List[str], time_format: str):
     '''
     Convert a list of str times to datetime
+
+    Parameters
+    ----------
+    times: List[str]
+        A list of times in str format
+    
+    time_format: str:
+        Fomatting time style
+    
+    Returns
+    --------
+    List[datetime.datetime]
+        A list of times
     '''
     converted_times = []
     for item in times:
@@ -89,7 +168,26 @@ def str_to_times(times, time_format):
     return converted_times
 
 
-def resample(data, times, sampling_rate):
+def resample(data: List[Any], times: List[datetime.datetime], sampling_rate: int):
+    '''
+    Resamples data according to time stamps and sampling rate
+
+    Parameters
+    ----------
+    data: List[Any]
+        data to be resampled
+    
+    times: List[datetime.datetime]
+        A list of timestamp. There is a timestamp for each sample of data
+
+    sampling_rate: int
+        Data will be resampled to this sampling rate
+    
+    Returns
+    -------
+    numpy.array
+        An array of resampled data
+    '''
     i = 0
     time_delta = datetime.timedelta(0, 1, 0)
     start_time = times[0]

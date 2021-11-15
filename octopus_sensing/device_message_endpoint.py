@@ -23,6 +23,10 @@ class DeviceMessageHTTPEndpoint(EndpointBase):
     the Device Coordinator to dispatch them to the devices.
     It accepts HTTP POST requests. The Body can be serialized in one of 'json', 'msgpack'
     or 'pickle'. See the Usage section for how to call the endpoint.
+
+    Attributes
+    ----------
+
     Parameters
     ----------
     device_coordinator
@@ -30,8 +34,8 @@ class DeviceMessageHTTPEndpoint(EndpointBase):
     port
         Port to listen on. Default is: 9331
 
-    Usage
-    -----
+    Examples
+    --------
     To start the endpoint:
 
     >>> from octopus_sensing.device_coordinator import DeviceCoordinator

@@ -26,13 +26,6 @@ Preprocess Devices
    :members:
    :undoc-members:
    :show-inheritance:
+   :Exclude-members:
 
-
-Utils
--------------------------------------------
-
-.. automodule:: octopus_sensing.preprocessing.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
 

@@ -12,13 +12,6 @@ Device
    :show-inheritance:
 
 
-MonitoredDevice
----------------
-
-.. automodule:: octopus_sensing.devices.monitored_device
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Camera
 ------
