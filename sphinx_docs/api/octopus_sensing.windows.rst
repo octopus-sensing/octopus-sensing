@@ -1,24 +1,9 @@
-octopus\_sensing.windows
+Windows
 ================================
+Creates some common dialogs/windows using Gtk, which can be used in designing Experiment scenarios
 
 
-octopus\_sensing.windows.command\_window
------------------------------------------------
-
-.. automodule:: octopus_sensing.windows.command_window
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-octopus\_sensing.windows.image\_window
----------------------------------------------
-
-.. automodule:: octopus_sensing.windows.image_window
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-octopus\_sensing.windows.message\_window
+Message Window
 -----------------------------------------------
 
 .. automodule:: octopus_sensing.windows.message_window
@@ -26,7 +11,17 @@ octopus\_sensing.windows.message\_window
    :undoc-members:
    :show-inheritance:
 
-octopus\_sensing.windows.timer\_window
+
+Image Window
+---------------------------------------------
+
+.. automodule:: octopus_sensing.windows.image_window
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Timer Window
 ---------------------------------------------
 
 .. automodule:: octopus_sensing.windows.timer_window

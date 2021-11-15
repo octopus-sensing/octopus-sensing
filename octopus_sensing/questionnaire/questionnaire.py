@@ -26,6 +26,7 @@ from octopus_sensing.questionnaire.question import Question  # nopep8
 class Questionnaire(Gtk.Window):
     '''
     Creating a questionnaire using Gtk
+    It has a Done button which by clicking on it, the answers will be saved and window will be destroyed
 
     Attributes
     -----------

@@ -13,26 +13,20 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import threading
-from screeninfo import get_monitors
-from gi.repository import Gtk, GdkPixbuf, GLib, Gst
+from gi.repository import Gtk, Gst
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
-
-
+from octopus_sensing.windows.image_window import ImageWindow
 
 Gst.init(None)
 Gst.init_check(None)
 
-
-class ImageWindow(Gtk.Window):
+def show_image_standalone(image_path, timeout, monitor_no=0):
     '''
-    Creates a Gtk window with a message for informing the participant about something
-    It has a continue button which by clicking on it, the window will be destroyed
-
-    Attributes
-    ----------
+    It may have some miliseconds delay to initialize GTK.
+    If these miliseconds are important, don't use this method to display image
 
     Parameters
     ----------
@@ -45,30 +39,11 @@ class ImageWindow(Gtk.Window):
     
     monitor_no: int, default: 0
         The ID of monitor for displaying of image. It can be 0, 1, ...
-
     '''
-    def __init__(self, image_path, timeout, monitor_no=0):
-        Gtk.Window.__init__(self, title="")
+    def gtk_main():
+        image_window = ImageWindow(image_path, timeout, monitor_no=monitor_no)
+        image_window.show_window()
+        image_window.connect("destroy", Gtk.main_quit)
+        Gtk.main()
 
-        self._timeout = timeout
-        image_box = Gtk.Box()
-        monitors = get_monitors()
-        image_width = monitors[monitor_no].width
-        image_height = monitors[monitor_no].height
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(
-            image_path, image_width, image_height, False)
-        image = Gtk.Image()
-        image.set_from_pixbuf(pixbuf)
-        image_box.pack_start(image, False, False, 0)
-        self.add(image_box)
-
-        self.modal = True
-        self.fullscreen()
-
-        image_box.show()
-        image.show()
-
-    def show_window(self):
-        GLib.timeout_add_seconds(self._timeout, self.destroy)
-        self.show()
-
+    threading.Thread(target=gtk_main).start()

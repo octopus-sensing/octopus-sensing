@@ -27,11 +27,30 @@ image_height = monitors[0].height
 
 
 class TimerWindow(Gtk.Window):
-    def __init__(self, message_image_path, title):
-        print("new one")
+    '''
+    Creates a Gtk window with a timer
+    It is like a button which by clicking on it, the timer window will be destroyed
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+
+    title: str
+        Title of window
+
+    width: int, default: 400
+        The width of questionnaire window in pixel
+    
+    height: int, default: 200
+        The height of questionnaire window in pixel
+
+    '''
+    def __init__(self, title:str, width:int= 400, height: int= 200):
         self._destroy = False
         Gtk.Window.__init__(self, title=title)
-        self.set_default_size(400, 200)
+        self.set_default_size(width, height)
         grid = Gtk.Grid(column_homogeneous=False,
                         column_spacing=30,
                         row_spacing=30)
@@ -40,7 +59,7 @@ class TimerWindow(Gtk.Window):
         label.set_markup(FONT_STYLE.format(title))
         grid.attach(label, 0, 0, 1, 1)
         self._timer_button = Gtk.Button.new_with_label("")
-        self._timer_button.connect("clicked", self.on_click_timer_button)
+        self._timer_button.connect("clicked", self._on_click_timer_button)
         self._timer_button.get_child().set_markup(FONT_STYLE.format("0 : 0"))
         Gtk.Widget.set_size_request(self._timer_button, 600, 300)
         grid.attach(self._timer_button, 0, 1, 1, 1)
@@ -69,10 +88,20 @@ class TimerWindow(Gtk.Window):
         GObject.timeout_add(1000, self._display_timer)
 
     def show_window(self):
+        '''
+        Shwos timer window
+        '''
         self._start_timer()
         self.show_all()
 
-    def on_click_timer_button(self, button):
+    def _on_click_timer_button(self, button: Gtk.Button):
+        '''
+        Destroy the timer window
+
+        Parameters
+        ----------
+        button: Gtk.Button
+        '''
         print("destroy")
         self._destroy = True
         self.destroy()
