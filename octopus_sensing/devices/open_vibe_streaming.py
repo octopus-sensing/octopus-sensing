@@ -17,7 +17,6 @@ import time
 from octopus_sensing.devices.device import Device
 
 
-# transform a value into an array of byte values in little-endian order.
 class OpenVibeStreaming(Device):
     '''
     Sending triggers to OpenVibe data recorders. OpenVibe supports data acquisition through
@@ -31,7 +30,7 @@ class OpenVibeStreaming(Device):
     host: str
         host IP address
 
-    port: str
+    port: int
         port number
 
     Example
@@ -48,7 +47,7 @@ class OpenVibeStreaming(Device):
     '''
     def __init__(self,
                  host: str='127.0.0.1',
-                 port: str=15361):
+                 port: int=15361):
         super().__init__()
         # connect
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

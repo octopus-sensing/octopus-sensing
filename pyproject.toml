@@ -44,9 +44,8 @@ brainflow = "^4.6.1"
 pytest = "^5.2"
 mypy = "^0.782"
 coverage = "^5.2.1"
-mkdocstrings = "^0.16.0"
-mkdocs = "^1.2.3"
-pytkdocs = {version = "^0.12.0", extras = ["numpy-style"]}
+sphinx = "^4.3.0"
+
 
 [tool.autopep8]
 max_line_length = 100

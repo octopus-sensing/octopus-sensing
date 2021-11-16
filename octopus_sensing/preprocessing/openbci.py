@@ -207,7 +207,7 @@ class EegPreprocessing():
 def clean_eeg(data, channel_names: List[str] = None,
               low_frequency: float = 1,
               high_frequency: float = 45,
-              sampling_rate: Optional[int] = 128):
+              sampling_rate: int = 128):
     '''
     Cleans EEG data
 
