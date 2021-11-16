@@ -75,7 +75,7 @@ class Shimmer3Streaming(MonitoredDevice):
     >>> my_shimmer = Shimmer3Streaming(name="shimmer",
     ...                                saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
     ...                                output_path="./output")
-    >>> device_coordinator.add_device(camera)
+    >>> device_coordinator.add_device(my_shimmer)
 
 
     Note

@@ -25,17 +25,15 @@ Main features
 
 Quick Start
 =========== 
-See `Quick Start <https://octopus-sensing.nastaran-saffar.me/quick_start>`_ to learn how to install Octopus-Sensing
+See :ref:`quick_start` to learn how to install Octopus Sensing
 
 Tutorial
 ========
-
-See `Tutorial <https://octopus-sensing.nastaran-saffar.me/tutorial>`_ to learn how to use Octopus Sensing.
+See :ref:`tutorial` to learn how to use Octopus Sensing.
 
 API Reference
 =============
-
-See `API Reference <https://octopus-sensing.nastaran-saffar.me/api-reference/>`_ for the complete documentation of all the public classes and methods available in Octopus Sensing.
+See :ref:`api_reference` for the complete documentation of all the public classes and methods available in Octopus Sensing.
 
 Copyright
 =========
@@ -57,4 +55,6 @@ Content
    :caption: .
 
    quick_start
+   tutorial
    api_reference
+   development

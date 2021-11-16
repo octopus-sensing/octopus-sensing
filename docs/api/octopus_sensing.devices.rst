@@ -1,9 +1,10 @@
+.. _devices:
+
 *******
 Devices
 *******
 
-
-Device
+Device (Base class)
 -------
 
 .. automodule:: octopus_sensing.devices.device
@@ -12,6 +13,13 @@ Device
    :show-inheritance:
 
 
+MonitoredDevice
+---------------
+
+.. automodule:: octopus_sensing.devices.monitored_device
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Camera
 ------
