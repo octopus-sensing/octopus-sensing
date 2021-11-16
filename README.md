@@ -110,7 +110,7 @@ See [Tutorial](https://octopus-sensing.nastaran-saffar.me/tutorial) to learn how
 API Reference
 -------------
 
-See [API Reference](https://octopus-sensing.nastaran-saffar.me/api-reference/) for the complete documentation of all the public classes and methods available in Octopus Sensing.
+See [API Reference](https://octopus-sensing.nastaran-saffar.me/api_reference/) for the complete documentation of all the public classes and methods available in Octopus Sensing.
 
 Troubleshooting
 ---------------
