@@ -1,5 +1,10 @@
 .. _development:
 
+***********
+Development
+***********
+
+
 Installing from source
 ======================
 

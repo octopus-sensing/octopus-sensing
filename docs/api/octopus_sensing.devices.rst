@@ -5,7 +5,7 @@ Devices
 *******
 
 Device (Base class)
--------
+-------------------
 
 .. automodule:: octopus_sensing.devices.device
    :members:
