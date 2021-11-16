@@ -22,25 +22,17 @@ class Device(multiprocessing.Process):
     All devices should inherit from Device class.
     
     Attributes
-    -----------
-    name: str, optional, default = None:
-          The name of device
-    
-    output_path: str, optional, default = output
-                The path for recording files.
-                Audio files will be recorded in folder {output_path}/{name}
-    
-    Methods
-    --------
-    run
-        Starts the device's process
-    
-    set_queue
-        Sets message queue for the device
-    
-    get_name
-        Returns device name
-    
+    ----------
+
+    Parameters
+    ----------
+    name: str, default: None
+        Device name. This name will be used in the output path to identify 
+        each device's data.
+
+    output_path: str,  default: output
+        The path for recording files.
+        Audio files will be recorded in folder {output_path}/{name}   
     '''
 
     def __init__(self, name: Optional[str] = None, output_path: str = "output"):
@@ -51,6 +43,10 @@ class Device(multiprocessing.Process):
         self.output_path: str = output_path
 
     def run(self) -> None:
+        '''
+        Starts the device's process. DeviceCoordinator calls this mehod to start
+        data recording
+        '''
         self._run()
 
     def _run(self) -> None:
@@ -59,18 +55,19 @@ class Device(multiprocessing.Process):
 
     def set_queue(self, queue: Queue) -> None:
         '''
-        Sets message queue for the device
+        Sets message queue for the device. 
+        Device coordinator calls this method and set the queue for its device list
 
         Parameters
         -----------
         queue: Queue
-             a queue that will be used for message passing
+            a queue that will be used for message passing
         '''
         self.message_queue = queue
 
     def get_name(self) -> str:
         '''
-        Returns device name
+        Gets device's name
 
         Returns
         --------

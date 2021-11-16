@@ -36,7 +36,7 @@ class MonitoredDevice(Device):
         self._monitor_out_q = None
 
     def set_monitoring_queues(self, monitor_in_q: QueueType, monitor_out_q: QueueType) -> None:
-        '''Set the queues for communicating with the parent process.
+        '''Sets the queues for communicating with the parent process.
         It should be called before the start of the process.
         '''
         assert isinstance(monitor_in_q, QueueType)

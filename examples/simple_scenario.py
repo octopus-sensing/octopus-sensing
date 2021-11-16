@@ -3,7 +3,7 @@ import os
 from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message
-from octopus_sensing.windows.image_window import show_image_standalone
+from octopus_sensing.stimuli.image_stimuli import show_image_standalone
 
 
 def simple_scenario(stimuli_path):

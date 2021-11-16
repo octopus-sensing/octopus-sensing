@@ -4,11 +4,6 @@ SHELL := /bin/bash
 help:
 	@echo -e "$$(grep -hE '^\S+:.*##' $(MAKEFILE_LIST) | sed -e 's/:.*##\s*/:/' -e 's/^\(.\+\):\(.*\)/\\x1b[36m\1\\x1b[m:\2/' | column -c2 -t -s :)"
 
-docs: ## Generate documents
-	cp README.md docs/index.md
-	poetry run mkdocs build
-	rm docs/index.md
-
 mypy: ## Static type checking
 #   Skipping other directories, such as init_script
 	poetry run mypy octopus_sensing
@@ -32,3 +27,13 @@ test-coverage: ## Runs tests and reports coverage
 #	tag
 #	push tag
 #	poetry publish
+
+# You can set these variables from the command line, and also
+# from the environment for the first two.
+SPHINXOPTS    ?=
+SPHINXBUILD   ?= sphinx-build
+SOURCEDIR     = docs
+BUILDDIR      = build
+
+sphinx:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

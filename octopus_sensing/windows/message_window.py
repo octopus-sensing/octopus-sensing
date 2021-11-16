@@ -19,10 +19,31 @@ gi.require_version('Gst', '1.0')
 
 
 class MessageWindow(Gtk.Window):
-    def __init__(self, message_image_path):
+    '''
+    Creates a Gtk window with a message to inform the participant about something
+    It has a continue button which by clicking on it, the window will be destroyed
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+
+    message_image_path: str
+        An image with an embeded message
+    
+    width: int, default: 400
+        The width of questionnaire window in pixel
+    
+    height: int, default: 200
+        The height of questionnaire window in pixel
+    
+
+    '''
+    def __init__(self, message_image_path: str, width:int= 400, height: int= 200):
         Gtk.Window.__init__(self, title="")
 
-        self.set_default_size(400, 200)
+        self.set_default_size(width, height)
         grid = Gtk.Grid(column_homogeneous=False,
                         column_spacing=30,
                         row_spacing=30)
@@ -36,7 +57,7 @@ class MessageWindow(Gtk.Window):
         grid.attach(image_box, 0, 0, 1, 1)
 
         continue_button = Gtk.Button.new_with_label("Start")
-        continue_button.connect("clicked", self.on_click_continue_button)
+        continue_button.connect("clicked", self._on_click_continue_button)
         continue_button.get_child().set_markup("<span font_desc='Tahoma 14'>Continue</span>")
         grid.attach(continue_button, 0, 1, 1, 1)
 
@@ -47,7 +68,17 @@ class MessageWindow(Gtk.Window):
         image.show()
 
     def show_window(self):
+        '''
+        Shows the message window
+        '''
         self.show_all()
 
-    def on_click_continue_button(self, button):
+    def _on_click_continue_button(self, button):
+        '''
+        Destroy the message window
+
+        Parameters
+        ----------
+        button: Gtk.Button
+        '''
         self.destroy()

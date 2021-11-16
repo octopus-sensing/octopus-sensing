@@ -47,7 +47,10 @@ class MonitoringCache:
 
 class DeviceCoordinator:
     '''
-    Coordinating devices
+    Device coordinator is responsible for coordination, like start recording data
+    from all devices at once, stop recording, triggering (marking data at point), 
+    and terminating devices. 
+    When a device is added to the device coordinator, it will be initialized and prepared for data recording.
     '''
 
     def __init__(self):
@@ -78,29 +81,29 @@ class DeviceCoordinator:
 
         Returns
         -----------
-        list of Device
-            a list of devices
+        List[Device]
+            List of device objects
         '''
 
         return list(self.__devices.values())
 
     def add_device(self, device: Device) -> None:
         '''
-        Add new device to the coordinator and starts it
+        Adds new device to the coordinator and starts it
 
         Parameters
         ----------
-        device
+        device: Device
             a device object
         
-        Examples
+        Example
         --------
         >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
         >>> device_coordinator.add_device(my_shimmer)
 
         See Also
         ---------
-        add_devices: Add a list of new devices to the coordinator and starts them
+        add_devices: Adds a list of new devices to the coordinator and starts them
         '''
         assert isinstance(device, Device)
 
@@ -120,36 +123,36 @@ class DeviceCoordinator:
 
     def add_devices(self, devices: List[Device]) -> None:
         '''
-        Add a list of new devices to the coordinator and starts them
+        Adds a list of new devices to the coordinator and starts them
 
         Parameters
         ----------
-        devices
+        devices: List[Device]
             a list of device objects
     
-        Examples
+        Example
         --------
         >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor",
                                            output_path="./output")
         >>> device_coordinator.add_devices([my_shimmer])
 
         See Also
-        -----------
-        add_device: Add new device to the coordinator and starts it
+        ---------
+        add_device: Adds new device to the coordinator and starts it
         '''
         for device in devices:
             self.add_device(device)
 
     def dispatch(self, message: Message) -> None:
         '''
-        dispatch new message to all devices
+        dispatches a new message to all devices
 
         Parameters
         ----------
-        message
+        message: Message
             a message object
         
-        Examples
+        Example
         --------     
         >>> device_coordinator.dispatch(start_message(experiment_id,
                                                       stimuli_id))
@@ -160,7 +163,11 @@ class DeviceCoordinator:
 
     def terminate(self):
         '''
-        send terminate message to all devices and terminate all processes 
+        sends terminate message to all devices and terminate all processes 
+
+        Example
+        --------     
+        >>> device_coordinator.terminate()
         '''
         self.dispatch(terminate_message())
         for item in self.__devices.values():
@@ -174,10 +181,10 @@ class DeviceCoordinator:
         Returns
         ---------
         data : dict[str, list[any]]
-               The keys are device names and values are collected data from the device
+            The keys are device names and values are collected data from the device
         
         Note
-        ---------
+        ----
         This method is being used for real-time monitoring
 
         '''

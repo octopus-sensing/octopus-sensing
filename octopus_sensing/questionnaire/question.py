@@ -18,6 +18,20 @@ from gi.repository import Gtk  # nopep8
 
 
 class Question:
+    '''
+    The base class for creating questions using Gtk 3.0
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    id: str
+        A unique ID for the question
+    
+    text: str
+        The text of question
+    '''
     def __init__(self, id: str, text: str):
         self._text = text
         self.id = id

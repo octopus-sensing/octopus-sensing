@@ -29,57 +29,74 @@ from octopus_sensing.devices.common import SavingModeEnum
 
 class Shimmer3Streaming(MonitoredDevice):
     '''
-    Manages Shimmer3 streaming
-    
+    Streams and Records Shimmer3 data.
     Data will be recorded in a csv file/files with the following column order:
     type, time stamp, Acc_x, Acc_y, Acc_z, GSR_ohm, PPG_mv, time, trigger
 
     Attributes
-    -----------
-    name: str, optional, default = None
-          Device name. 
-          This name will be used in the output path to identify each device's data
-    
-    output_path: str, optional, default = output
-                 The path for recording files.
-                 Audio files will be recorded in folder {output_path}/{name}
+    ----------
 
-    saving_mode: int, optional, default = 0
+    Parameters
+    ----------
+    name: str, default: None
+        Device name. This name will be used in the output path to identify 
+        each device's data.
+
+    output_path: str,  default: output
+        The path for recording files.
+        Audio files will be recorded in folder {output_path}/{name}
+    
+    saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data: saving continiously in a file or save data related to
         each stimulus in a separate file. 
-        SavingModeEnum: CONTINIOUS_SAVING_MODE = 0
-                        SEPARATED_SAVING_MODE = 1
-    sampling_rate: int, optional, default = 128
+        SavingModeEnum is:
+        
+            0. CONTINIOUS_SAVING_MODE
+            1. SEPARATED_SAVING_MODE
+    
+    sampling_rate: int, default: 128
         The sampling frequency for acquiring data from the device
     
-    **kwargs : dict, optional
-               Extra optional arguments
-    
-    Methods
-    -----------
-    get_output_path: Return the path that use for data recording
-    get_saving_mode: Return saving mode
 
     See Also
     -----------
-    DeviceCoordinator
-        DeviceCoordinator is managing data recording by sending messages to this class 
-
+    :class:`octopus_sensing.device_coordinator`
+    :class:`octopus_sensing.devices.device`
 
     Example
-    -----------
-    >>> my_shimmer = \
-            Shimmer3Streaming(name="shimmer",
-                              saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
-                              output_path="./output")
+    -------
+    Creating an instance of shimmer3 and adding it to the device coordinator.
+    Device coordinator is responsible for triggerng the shimmer3 to 
+    start or stop recording  or to add markers to recorded data.
+    In this example, since the saving mode is continuous, all recorded data 
+    will be saved in a file. But, when an event happens, device coordinator will send a trigger message
+    to the device and recorded data will be marked with the trigger
+
+    >>> my_shimmer = Shimmer3Streaming(name="shimmer",
+    ...                                saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+    ...                                output_path="./output")
+    >>> device_coordinator.add_device(my_shimmer)
+
+
     Note
-    -----------
-    This class for Shimmer3 data streaming is based on 
-    https://github.com/nastaran62/ShimmerReader which is an extended version 
-    of LogAndStream python firmware for Shimmer3 data streaming
-    
-    LogAndStream for Shimmer3 document:
-    http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf
+    -----
+    Keep in your mind, before running the code for Shimmer data recording,
+    turn on the Shimmer3 sensor and pair bluetooth and the serial port. (Shimmer password: 1234)
+
+    For example in linux you can do it as follow:
+        1- hcitool scan   //It shows the macaddress of device. for shimmer it is 00:06:66:F0:95:95
+
+        2- vim /etc/bluetooth/rfcomm.conf write the below line in it: 
+        rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" } 
+
+        3- sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading bluetooth data from a serial port
+
+    Note
+    -----
+    This class is based on `ShimmerReader <https://github.com/nastaran62/ShimmerReader>`_ 
+    which is an extended version of 
+    `LogAndStream python firmware <http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf>`_ 
+    for Shimmer3 data streaming.
     '''
 
     def __init__(self,
@@ -352,25 +369,24 @@ class Shimmer3Streaming(MonitoredDevice):
 
     def get_saving_mode(self):
         '''
-        Return saving mode
+        Gets saving mode
         
         Returns
         -----------
-        int
+        saving_mode: int
             The way of saving data: saving continiously in a file or save data related to
             each stimulus in a separate file. 
-            SavingModeEnum: CONTINIOUS_SAVING_MODE = 0
-                            SEPARATED_SAVING_MODE = 1
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
         '''
         return self._saving_mode
 
     def get_output_path(self):
         '''
-        Return the path that use for data recording
+        Gets the path that is used for data recording
 
         Returns
         -----------
-        str
+        output_path: str
            The output path that use for data recording
         '''
         return self.output_path

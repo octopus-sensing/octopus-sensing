@@ -14,7 +14,7 @@
 import gi
 gi.require_version('Gtk', '3.0')  # nopep8
 from gi.repository import Gtk  # nopep8
-from typing import List, Union
+from typing import List, Union, Any
 
 from octopus_sensing.questionnaire.question import Question
 
@@ -22,7 +22,27 @@ FONT_STYLE = "<span font_desc='Tahoma 16'>{}</span>"
 
 
 class Option():
-    def __init__(self, id, label=None, value=None):
+    '''
+    The class for creating opinions
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+
+    id: str
+        A unique ID for the opinion
+    
+    label: str
+        The text of opinion
+    
+    value: Any
+        The value of opinion
+
+    '''
+
+    def __init__(self, id: str, label: str=None, value: Any=None):
         self.id = id
         self.label = label
         if self.label is None:
@@ -33,6 +53,30 @@ class Option():
 
 
 class OpinionQuestion(Question):
+    '''
+    The class for creating opinion questions using Gtk 3.0
+
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    id: str
+        A unique ID for the question
+
+    text: str
+        The text of question
+    
+    options: Union[dict, int]
+
+    image_path: str, default: None
+        The path to an image which will be showed with the question.
+    
+
+    default_answer: Union[int, str], default: 0
+        The default checked option
+    '''
     def __init__(self, id: str, text: str, options: Union[dict, int],
                  image_path: str = None, default_answer: int = 0):
         super().__init__(id, text)
@@ -51,17 +95,45 @@ class OpinionQuestion(Question):
 
         self._image_path = image_path
         self.answer = default_answer
-
-    def render(self, grid: Gtk.Grid, grid_row: int) -> int:
+    
+    def render(self, grid: Gtk.Grid, grid_row: int):
         '''
         renders a question for adding to a questionnaire
 
-        @param Grid grid: a grid object that this question will add to it
-        @param int grid_row: The row that the question will add
+        Parameters
+        ----------
+        grid: Gtk.Grid
+            a Gtk grid object that this question will be added to it
+            
+        grid_row: int
+            The row number of grid that the question will be added to it
+        
+        Returns
+        -------
+        row_counter: int
+            The grid's row for adding the next object after adding this question
+        
+        Examples
+        --------
+        Creating an opinion question and adding it to the questionnaire
 
-        @rtype: int
-        @return: the grid's row for adding the next object after adding the question
+        >>> emotions = {"Happiness": 4, "Sadness": 6, "Neutral": 5, "Fear": 3, "Anger": 1}
+        >>> question_1 = OpinionQuestion("q1",
+        ...                              "1- What emotion did you feel the most?",
+        ...                              options=emotions,
+        ...                              default_answer=5)
+        >>> questionnaire = Questionnaire("after_stimuli",
+        ...                               "study01_p10",
+        ...                               "stimuli00",
+        ...                               "After Stimulus Questionnaire")
+        >>> questionnaire.add_questions([question_1])
+
+        See Also
+        -----------
+        :class:`octopus_sensing.questionnaire.questionnaire`
+
         '''
+
         row_counter = grid_row
 
         # Question box
@@ -113,7 +185,10 @@ class OpinionQuestion(Question):
         '''
         Gets selected answer
 
-        @rtype: int
-        @return: answer
+        Returns
+        -------
+
+        answer: int
+            answer
         '''
         return self.answer
