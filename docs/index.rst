@@ -1,6 +1,6 @@
 Octopus Sensing 
 ====================================================================================
-Welcome to Octopus Sensing's documentation!
+**Welcome to Octopus Sensing's documentation!**
 
 Octopus Sensing is a tool to help you run scientific experiments that involve recording data synchronously from
 multiple sources in human-computer interaction studies. You write steps of an experiment scenario, for example showing a stimulus and then
