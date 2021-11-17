@@ -14,16 +14,17 @@
 
 import threading
 from gi.repository import Gtk, Gst
-import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
+import gi
+
 
 from octopus_sensing.windows.image_window import ImageWindow
 
 Gst.init(None)
 Gst.init_check(None)
 
-def show_image_standalone(image_path, timeout, monitor_no=0):
+def show_image_stimuli(image_path, timeout, monitor_no=0):
     '''
     It may have some miliseconds delay to initialize GTK.
     If these miliseconds are important, don't use this method to display image
