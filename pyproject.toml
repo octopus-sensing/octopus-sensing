@@ -45,6 +45,7 @@ pytest = "^5.2"
 mypy = "^0.782"
 coverage = "^5.2.1"
 sphinx = "^4.3.0"
+sphinx-rtd-theme = "^1.0.0"
 
 
 [tool.autopep8]

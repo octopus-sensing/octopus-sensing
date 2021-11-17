@@ -33,7 +33,7 @@ test-coverage: ## Runs tests and reports coverage
 SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = docs
-BUILDDIR      = build
+BUILDDIR      = docs_build
 
-sphinx:
-	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+docs: ## Build the documents. Output will be './docs_build'
+	poetry run $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
