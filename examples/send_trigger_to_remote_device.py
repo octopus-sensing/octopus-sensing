@@ -16,7 +16,7 @@ import sys  # nopep8
 sys.path.append('../octopus-sensing/')  # nopep8
 import time
 from octopus_sensing.device_coordinator import DeviceCoordinator
-from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
+from octopus_sensing.devices import SocketNetworkDevice
 from octopus_sensing.common.message_creators import start_message, stop_message
 
 def server():

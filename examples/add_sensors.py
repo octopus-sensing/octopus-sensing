@@ -1,6 +1,5 @@
 import time
-import random
-from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
+from octopus_sensing.devices import Shimmer3Streaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message
 

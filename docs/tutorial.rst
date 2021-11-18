@@ -203,23 +203,32 @@ See this example in octopus_sensing.examples.matlabRecorder.m
 --------------------------------------------------
 In this example, we learn how to record data in parallel with displaying image stimuli.
 
-To display image stimuli, Octopus-Sensing provides a set of predefined stimuli, including video and image.
+To display stimuli, Octopus-Sensing provides a set of predefined stimuli, including video and image.
 To display image stimuli, we used GTK. We should specify the path of the image stimulus and the duration time
 for displaying it.
 
+>>> from octopus_sensing.stimuli import ImageStimulus
+>>> stimulus = ImageStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name), 5)
+>>> stimulus.show_standalone()
 
->>> from octopus_sensing.stimuli.image_stimuli import show_image_standalone
->>> show_image_standalone(os.path.join(stimuli_path, stmulus_name), display_time)
+Similarly we can create an video stimulus. Octopus Sensing uses 
+`VLC media player <https://www.videolan.org/vlc/>`_ to display video stimuli. 
+You should have VLC installed on your system.
+
+>>> from octopus_sensing.stimuli import VideoStimulus
+>>> stimulus = VideoStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name))
+>>> stimulus.show()
 
 The following code is the complete example of recording physiological data using Shimmer3
-sensor while a set of images are displaying. See `octopus_sensing/examples/simple_scenario.py`
+sensor while a set of images are displaying. See `octopus_sensing/examples/simple_scenario.py`. 
+In this example you can have video stimuli with uncommenting video stimuli lines and commenting image stimuli lines.
 
 >>> import time
 >>> import os
->>> from octopu s_sensing.devices.shimmer3_streaming import Shimmer3Streaming
+>>> from octopus_sensing.devices import Shimmer3Streaming
 >>> from oc>>> topus_sensing.device_coordinator import DeviceCoordinator
 >>> from octopus_sensing.common.message_creators import start_message, stop_message
->>> from octopus_sensing.windows.image_window import show_image_standalone
+>>> from octopus_sensing.stimuli import ImageStimulus
 >>> 
 >>> 
 >>> def simple_scenario(stimuli_path):
@@ -231,9 +240,6 @@ sensor while a set of images are displaying. See `octopus_sensing/examples/simpl
 >>>     for item in stimuli_list:
 >>>         stimuli[i] = item
 >>>         i += 1
->>> 
->>>     # The time for displaying each image stimulus
->>>      display_time = 5
 >>> 
 >>>     print("initializing")
 >>>     # Creating an instance of sensor
@@ -258,7 +264,8 @@ sensor while a set of images are displaying. See `octopus_sensing/examples/simpl
 >>>         device_coordinator.dispatch(start_message(experiment_id, stimuli_id))
 >>> 
 >>>         # Displaying an image may start with some milliseconds delay after data recording because of GTK       initialization in show_image_standalone. If this delay is important to you, use other tools for displaying image stimuli
->>>         show_image_standalone(os.path.join(stimuli_path, stmulus_name), display_time)
+>>>         stimulus = ImageStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name), 5)
+>>>         stimulus.show_standalone()
 >>> 
 >>>         # Stops data recording by closing image
 >>>         device_coordinator.dispatch(stop_message(experiment_id, stimuli_id))
