@@ -1,32 +1,17 @@
-import os
-import random
-import csv
-from octopus_sensing.windows.image_window import ImageWindow
+# This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
+# Copyright © Nastaran Saffaryazdi 2020
+#
+# Octopus Sensing is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+#  either version 3 of the License, or (at your option) any later version.
+#
+# Octopus Sensing is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with Octopus Sensing.
+# If not, see <https://www.gnu.org/licenses/>.
 
+from octopus_sensing.stimuli.video_stimulus import VideoStimulus
+from octopus_sensing.stimuli.image_stimulus import ImageStimulus
 
-class Stimulus():
-    def __init__(self, id, path):
-        self.id = id
-        self.path = path
-
-    def show(self):
-        raise NotImplementedError()
-
-
-class VideoStimulus(Stimulus):
-    def __init__(self, id, path):
-        super().__init__(id, path)
-
-    def show(self):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        os.system("sh {0}/play_video.sh {1}".format(current_dir, self.path))
-
-
-class ImageStimulus(Stimulus):
-    def __init__(self, id, path, show_time):
-        super().__init__(id, path)
-        self._show_time = show_time
-        self.image = ImageWindow(path, show_time)
-
-    def show(self):
-        self.image.show_window()

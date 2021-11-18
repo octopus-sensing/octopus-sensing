@@ -30,7 +30,7 @@ author = 'Nastaran Saffaryazdi, Aidin Gharibnavaz'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',]
+    'sphinx.ext.viewcode']
 
 # Napoleon settings
 napoleon_numpy_docstring = True
@@ -76,4 +76,8 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_sidebars = { '**': ['globaltoc.html', 'relations.html', 'sourcelink.html', 'searchbox.html']}
+html_sidebars = { '**': ['globaltoc.html',
+                         'relations.html',
+                         'sourcelink.html',
+                         'searchbox.html']}
+

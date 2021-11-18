@@ -1,3 +1,4 @@
+
 # This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
 # Copyright © Nastaran Saffaryazdi 2020
 #
@@ -12,6 +13,24 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from octopus_sensing.windows.image_window import ImageWindow
-from octopus_sensing.windows.message_window import MessageWindow
-from octopus_sensing.windows.timer_window import TimerWindow
+class Stimulus():
+    '''
+    Attributes
+    -----------
+
+
+    Parameters
+    ----------
+    id: str
+        The id of stimulus
+
+    path: str
+        The path of image
+    '''
+    
+    def __init__(self, id, path):
+        self.id = id
+        self.path = path
+
+    def show(self):
+        raise NotImplementedError()

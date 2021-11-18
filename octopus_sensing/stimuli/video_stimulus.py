@@ -12,6 +12,12 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from octopus_sensing.windows.image_window import ImageWindow
-from octopus_sensing.windows.message_window import MessageWindow
-from octopus_sensing.windows.timer_window import TimerWindow
+import os
+from octopus_sensing.stimuli.stimulus import Stimulus
+
+class VideoStimulus(Stimulus):
+    def __init__(self, id, path):
+        super().__init__(id, path)
+
+    def show(self):
+        os.system("vlc --fullscreen --play-and-exit {0}".format(self.path))
