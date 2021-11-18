@@ -12,3 +12,10 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
+from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
+from octopus_sensing.devices.brainflow_openbci_streaming import BrainFlowOpenBCIStreaming
+from octopus_sensing.devices.camera_streaming import CameraStreaming
+from octopus_sensing.devices.audio_streaming import AudioStreaming
+from octopus_sensing.devices.open_vibe_streaming import OpenVibeStreaming
+from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
+from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
