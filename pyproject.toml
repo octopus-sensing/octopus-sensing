@@ -39,7 +39,6 @@ PyGObject = "3.40.1"
 screeninfo = "^0.7"
 miniaudio = "^1.45"
 brainflow = "^4.6.1"
-python-vlc = "^3.0.12118"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
