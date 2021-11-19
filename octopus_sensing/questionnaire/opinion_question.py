@@ -31,7 +31,7 @@ class Option():
     Parameters
     ----------
 
-    id: str
+    id: int
         A unique ID for the opinion
     
     label: str
@@ -42,11 +42,11 @@ class Option():
 
     '''
 
-    def __init__(self, id: str, label: str=None, value: Any=None):
+    def __init__(self, id: int, label: str=None, value: Any=None):
         self.id = id
         self.label = label
         if self.label is None:
-            self.label = id
+            self.label = str(id)
         self.value = value
         if self.value is None:
             self.value = id

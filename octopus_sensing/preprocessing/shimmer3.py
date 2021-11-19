@@ -168,14 +168,14 @@ def clean_gsr(data, sampling_rate: int, low_pass: float=0.1, high_pass: float=15
     nyqs = sampling_rate * 0.5
     # Removing high frequency noises
     b, a = signal.butter(5, [low_pass / nyqs, high_pass / nyqs], 'bands')
-    output = signal.filtfilt(b, a, np.array(data, dtype=np.float))
+    output = signal.filtfilt(b, a, np.array(data, dtype=np.float64))
 
     # Removing rapid transient artifacts
     final_output = signal.medfilt(output, kernel_size=5)
     return final_output
 
 
-def clean_ppg(data: np.array, sampling_rate: int, low_pass: float=0.7, high_pass: float=2.5):
+def clean_ppg(data: np.ndarray, sampling_rate: int, low_pass: float=0.7, high_pass: float=2.5):
     '''
     Removes high frequency noises
 
@@ -183,7 +183,7 @@ def clean_ppg(data: np.array, sampling_rate: int, low_pass: float=0.7, high_pass
 
     Parameters
     -----------
-    data: numpy.array
+    data: numpy.ndarray
         An 1D array of PPG data
 
     smpling_rate: int, default: 128

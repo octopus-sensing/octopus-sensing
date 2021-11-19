@@ -14,7 +14,7 @@
 
 import os
 import pathlib
-from typing import List
+from typing import List, Dict
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.devices.openbci_streaming import OpenBCIStreaming
 from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
@@ -86,7 +86,7 @@ def preprocess_devices(device_coordinator: DeviceCoordinator, output_path: str,
     print("Preprocessing done")
 
 
-def preprocess_devices_by_path(devices_path: dict[str, str], output_path: str,
+def preprocess_devices_by_path(devices_path: Dict[str, str], output_path: str,
                        openbci_channels: List[str] = ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
                         "C4", "T4", "T5", "P3", "P4", "T6", "O1", "O2"],
                        openbci_sampling_rate: int = 128,

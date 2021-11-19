@@ -15,7 +15,7 @@
 import datetime
 import csv
 import numpy as np
-from typing import List, Any
+from typing import List, Any, Tuple
 
 
 def load_all_samples(file_path, channels_cols, time_stamp_col, time_format):
@@ -67,7 +67,7 @@ def load_all_samples(file_path, channels_cols, time_stamp_col, time_format):
     return data, converted_times
 
 
-def load_all_trials(file_path: str, channels_cols: List[int], time_stamp_col: int, triger_col: int, time_format: str):
+def load_all_trials(file_path: str, channels_cols: Tuple[int, int], time_stamp_col: int, triger_col: int, time_format: str):
     '''
     Reads the recorded data files and separate data according to the START and STOP triggers
 
@@ -76,7 +76,7 @@ def load_all_trials(file_path: str, channels_cols: List[int], time_stamp_col: in
     file_path: str
         The path of recorded data
     
-    channels_cols: List[int]
+    channels_cols: Tuple[int]
         The start column and end column number of channels. 
         For example [1, 16] means column 1 to 16 in the csv file includes channels data
     
@@ -108,8 +108,8 @@ def load_all_trials(file_path: str, channels_cols: List[int], time_stamp_col: in
     trial_numbers = []
 
     action_flag = None
-    data = []
-    times = []
+    data:List[Any] = []
+    times: List[Any] = []
     with open(file_path, 'r') as file:
         reader = csv.reader(file, delimiter=',')
 
@@ -192,7 +192,7 @@ def resample(data: List[Any], times: List[datetime.datetime], sampling_rate: int
     time_delta = datetime.timedelta(0, 1, 0)
     start_time = times[0]
     sample_start_time = start_time
-    block = []
+    block: List[Any] = []
     all_data = []
     j = 0
     block_number = 0
