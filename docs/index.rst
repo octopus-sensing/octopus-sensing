@@ -21,7 +21,7 @@ Main features
 * Tags an event on collected data, such as the start of an experiment, and events during the experiment, etc.
 * Can show stimuli (images and videos) and questionnaires
 * Monitoring interface that visualizes collected data in real-time
-* Offline visualizing data from multiple sources simultanously 
+* Offline visualization of data from multiple sources simultanously 
 
 Quick Start
 =========== 
@@ -37,7 +37,7 @@ See :ref:`api_reference` for the complete documentation of all the public classe
 
 Copyright
 =========
-Copyright © 2020 Nastaran Saffaryazdi
+Copyright © 2020 Nastaran Saffaryazdi, Aidin Gharibnavaz
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation, either version 3 of the
@@ -58,3 +58,5 @@ Content
    tutorial
    api_reference
    development
+   visualizer
+   monitoring

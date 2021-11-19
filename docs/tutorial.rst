@@ -284,6 +284,7 @@ For each stimulus, the device records two triggers in the file, one for the star
 
 5- Monitoring
 --------------
+See :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
 
 6- Preprocess and visualize data offline
 ----------------------------------------
@@ -306,5 +307,4 @@ Then it will split data based on start and stop triggers.
 Then, since `signal_preprocess` is True, it will apply bandpass filtering and cleaning noises.
 Finally, this data will be recorded in the specified output path and ready to be used for analysis.
 
-7- Adding new devices
-----------------------
+See :ref:`octopus_sensing_visualizer` to know more about visualizer and how to use it.
