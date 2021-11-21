@@ -22,7 +22,7 @@ test-coverage: ## Runs tests and reports coverage
 # TODO: PyPi publish
 #publish: ## Publishes to PyPi
 #publish: mypy test
-#	update version in __init__.py
+#	update version in __init__.py, pyproject
 #   commit
 #	tag
 #	push tag
