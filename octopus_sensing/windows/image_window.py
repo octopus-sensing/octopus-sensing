@@ -12,14 +12,11 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-import threading
 from screeninfo import get_monitors
 from gi.repository import Gtk, GdkPixbuf, GLib, Gst
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
-
-
 
 
 Gst.init(None)
