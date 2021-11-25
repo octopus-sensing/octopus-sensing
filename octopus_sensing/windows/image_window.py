@@ -61,7 +61,7 @@ class ImageWindow(Gtk.Window):
 
         self.modal = True
         self.fullscreen()
-
+        
         image_box.show()
         image.show()
 

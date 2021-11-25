@@ -19,7 +19,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
-FONT_STYLE = "<span font_desc='Tahoma 40'>{0}</span>"
+FONT_STYLE = "<span font_desc='Tahoma {0}'>{1}</span>"
 # Todo change it to config
 monitors = get_monitors()
 image_width = monitors[0].width
@@ -39,28 +39,34 @@ class TimerWindow(Gtk.Window):
 
     title: str
         Title of window
+    
+    message: str:
+        A messageto be displayed on the window
 
     width: int, default: 400
         The width of questionnaire window in pixel
     
     height: int, default: 200
         The height of questionnaire window in pixel
+    
+    font_size: str
+        The font size for displaying the text
 
     '''
-    def __init__(self, title:str, width:int= 400, height: int= 200):
+    def __init__(self, title:str, message: str="", width:int= 400, height: int= 200, font_size=20):
         self._destroy = False
         Gtk.Window.__init__(self, title=title)
         self.set_default_size(width, height)
         grid = Gtk.Grid(column_homogeneous=False,
                         column_spacing=30,
                         row_spacing=30)
-
+        self._font_size = font_size
         label = Gtk.Label()
-        label.set_markup(FONT_STYLE.format(title))
+        label.set_markup(FONT_STYLE.format(self._font_size, message))
         grid.attach(label, 0, 0, 1, 1)
         self._timer_button = Gtk.Button.new_with_label("")
         self._timer_button.connect("clicked", self._on_click_timer_button)
-        self._timer_button.get_child().set_markup(FONT_STYLE.format("0 : 0"))
+        self._timer_button.get_child().set_markup(FONT_STYLE.format(self._font_size, "0 : 0"))
         Gtk.Widget.set_size_request(self._timer_button, 600, 300)
         grid.attach(self._timer_button, 0, 1, 1, 1)
         self.add(grid)
@@ -79,7 +85,7 @@ class TimerWindow(Gtk.Window):
             self.__min += 1
         now_time = str(self.__min) + " : " + str(self.__sec)
         self._timer_button.get_child().set_markup(
-            FONT_STYLE.format(now_time))
+            FONT_STYLE.format(self._font_size, now_time))
         return True
 
     # Initialize Timer

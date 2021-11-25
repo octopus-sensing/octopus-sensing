@@ -54,10 +54,10 @@ class DeviceMessageHTTPEndpoint(EndpointBase):
     >>> http_client = http.client.HTTPConnection("127.0.0.1:9331", timeout=3)
     >>> http_client.request(
     ...     "POST", "/",
-    ...    body=mesgpack.packs({'type': 'START',
-    ...                         'experiment_id': '123',
-    ...                         'stimulus_id': 's8'}),
-    ...                         headers={'Accept': 'application/msgpack'})
+    ...    body=msgpack.packb({'type': 'START',
+    ...                        'experiment_id': '123',
+    ...                        'stimulus_id': 's8'}),
+    ...                        headers={'Accept': 'application/msgpack'})
     >>> response = http_client.getresponse()
     >>> assert response.status == 200
 

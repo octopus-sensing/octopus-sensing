@@ -12,73 +12,82 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk, GdkPixbuf, GLib, Gst
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('Gst', '1.0')
+gi.require_version('Gtk', '3.0')  # nopep8
+from gi.repository import Gtk  # nopep8
 
+FONT_STYLE = "<span font_desc='Tahoma 18'>{}</span>"
 
 class MessageWindow(Gtk.Window):
+
     '''
-    Creates a Gtk window with a message to inform the participant about something
-    It has a continue button which by clicking on it, the window will be destroyed
+    Creating a message window using Gtk
+    It has a button which by clicking on it, The window will be closed
 
     Attributes
-    ----------
+    -----------
 
     Parameters
     ----------
-
-    message_image_path: str
-        An image with an embeded message
+    title: str
+        Window title
     
-    width: int, default: 400
+    message: str
+        The message text
+    
+    width: int, default: 500
         The width of questionnaire window in pixel
     
     height: int, default: 200
         The height of questionnaire window in pixel
-    
 
     '''
-    def __init__(self, message_image_path: str, width:int= 400, height: int= 200):
-        Gtk.Window.__init__(self, title="")
-
+    def __init__(self, title: str, message: str, button_label: str = "Ok",
+                 width: int = 500, height: int = 200):
+        Gtk.Window.__init__(self, title=title)
+        self.set_border_width(10)
         self.set_default_size(width, height)
+        self._message = message
+        self._width = width
+        self._height = height
+        self._button_label = button_label
+
+
+    def show(self) -> None:
+        '''
+        Shows the message
+        '''
         grid = Gtk.Grid(column_homogeneous=False,
-                        column_spacing=30,
-                        row_spacing=30)
-
+                        column_spacing=10,
+                        row_spacing=10)
         self.add(grid)
-        image_box = Gtk.Box()
-        pixbuf = GdkPixbuf.Pixbuf.new_from_file(message_image_path)
-        image = Gtk.Image()
-        image.set_from_pixbuf(pixbuf)
-        image_box.pack_start(image, False, False, 0)
-        grid.attach(image_box, 0, 0, 1, 1)
 
-        continue_button = Gtk.Button.new_with_label("Start")
-        continue_button.connect("clicked", self._on_click_continue_button)
-        continue_button.get_child().set_markup("<span font_desc='Tahoma 14'>Continue</span>")
-        grid.attach(continue_button, 0, 1, 1, 1)
+        message_label_box = Gtk.Box(spacing=120)
+        message_label = Gtk.Label()
+        message_label.set_markup(FONT_STYLE.format(self._message))
+        Gtk.Widget.set_size_request(message_label, self._width, (self._height - 50))
+        message_label_box.pack_start(message_label, False, False, 0)
 
-        self.modal = True
-        # self.fullscreen()
+        grid.attach(message_label_box, 0, 0, 1, 1)
 
-        image_box.show()
-        image.show()
 
-    def show_window(self):
-        '''
-        Shows the message window
-        '''
+        ok_button = Gtk.Button.new_with_label("Ok")
+        ok_button.connect("clicked", self._on_click_ok_button)
+        ok_button.get_child().set_markup("<span font_desc='Tahoma 14'>{}</span>".format(self._button_label))
+        Gtk.Widget.set_size_request(ok_button, self._width, 50)
+        grid.attach(ok_button, 0, 1, 1, 1)
+        self.connect("destroy", Gtk.main_quit)
         self.show_all()
+        Gtk.main()
 
-    def _on_click_continue_button(self, button):
+    def _on_click_ok_button(self, button: Gtk.Button) -> None:
         '''
-        Destroy the message window
+        Close the message dialog
 
         Parameters
         ----------
         button: Gtk.Button
+            by clicking this button, this method will be called
+
         '''
         self.destroy()

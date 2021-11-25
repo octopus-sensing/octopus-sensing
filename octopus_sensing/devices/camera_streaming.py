@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Tuple, Any, Optional
+from typing import Tuple, Any, Optional, Union
 import os
 import threading
 import cv2
@@ -79,7 +79,7 @@ class CameraStreaming(Device):
     :class:`octopus_sensing.devices.device`
 
     '''
-    def __init__(self, camera_no: Optional[int] = None,
+    def __init__(self, camera_no: Optional[Union[int, str]] = None,
                  camera_path: Optional[str] = None,
                  image_width: int = 1280,
                  image_height: int = 720,
@@ -92,7 +92,7 @@ class CameraStreaming(Device):
         if camera_no is not None:
             self._camera_number = camera_no
         elif camera_path is not None:
-            self._camera_number = int(os.path.realpath(camera_path))
+            self._camera_number = os.path.realpath(camera_path)
 
         self._image_width = image_width
         self._image_height = image_height

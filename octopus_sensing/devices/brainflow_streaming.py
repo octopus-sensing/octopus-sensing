@@ -12,11 +12,13 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
+from datetime import datetime
+import time
 import os
 import threading
 import csv
 import numpy as np
-from typing import List
+from typing import List, Optional
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
 from octopus_sensing.common.message_creators import MessageType
@@ -84,8 +86,9 @@ class BrainFlowStreaming(MonitoredDevice):
                  sampling_rate: int,
                  brain_flow_input_params: BrainFlowInputParams,
                  saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
-                 **kwargs):
-        super().__init__(**kwargs)
+                 name: Optional[str] = None,
+                 output_path: str = "output"):
+        super().__init__(name=name, output_path=output_path)
 
         self._saving_mode = saving_mode
         self._stream_data: List[float] = []
@@ -144,14 +147,16 @@ class BrainFlowStreaming(MonitoredDevice):
             data = self._board.get_board_data()
             if np.array(data).shape[1] != 0:
                 self._stream_data.extend(list(np.transpose(data)))
+                last_record = self._stream_data.pop()
+                last_record = list(last_record)
+                now = str(datetime.now().time())
+                last_record.append(now)
+                last_record.append(time.time())
+                self._stream_data.append(last_record)
                 if self._trigger is not None:
                     last_record = self._stream_data.pop()
-                    print("type", type(last_record))
-                    print(list(last_record))
                     last_record = list(last_record)
                     last_record.append(self._trigger)
-                    print(last_record)
-                    print(len(last_record))
                     self._stream_data.append(last_record)
                 self._trigger = None
 
@@ -168,7 +173,6 @@ class BrainFlowStreaming(MonitoredDevice):
             "{0}-{1}-{2}".format(message.type,
                                  message.experiment_id,
                                  str(message.stimulus_id).zfill(2))
-        print(self._trigger)
 
     def _save_to_file(self, file_name):
         if not os.path.exists(file_name):
@@ -180,7 +184,6 @@ class BrainFlowStreaming(MonitoredDevice):
                 csv_file.close()
         with open(file_name, 'a') as csv_file:
             writer = csv.writer(csv_file)
-            print(len(self._stream_data))
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
