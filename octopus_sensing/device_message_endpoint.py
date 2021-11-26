@@ -69,7 +69,7 @@ class DeviceMessageHTTPEndpoint(EndpointBase):
     '''
 
     def __init__(self, device_coordinator: DeviceCoordinator, port: int = 9331):
-        super().__init__(endpoint_name="MonitoringEndpoint-Thread",
+        super().__init__(endpoint_name="DeviceMessageHttpEndpoint-Thread",
                          port=port, post_callback=self._post_handler)
         self._device_coordinator = device_coordinator
 

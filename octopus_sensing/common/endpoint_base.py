@@ -23,10 +23,38 @@ import json
 from typing import Callable, Optional, Any
 
 import msgpack
+import numpy
 
 
 class EndpointClientError(Exception):
     pass
+
+class _NumpyJSONEncoder(json.JSONEncoder):
+    """Helper class for encoding Numpy types to JSON"""
+    def default(self, obj):
+        if isinstance(obj, (numpy.int_, numpy.intc, numpy.intp, numpy.int8,
+                            numpy.int16, numpy.int32, numpy.int64, numpy.uint8,
+                            numpy.uint16, numpy.uint32, numpy.uint64)):
+            return int(obj)
+        elif isinstance(obj, (numpy.float_, numpy.float16, numpy.float32,
+                              numpy.float64)):
+            return float(obj)
+        elif isinstance(obj, (numpy.ndarray,)):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+def _numpy_msgpack_encoder(obj):
+    """Helper function for encoding Numpy types to msgpack"""
+    if isinstance(obj, (numpy.int_, numpy.intc, numpy.intp, numpy.int8,
+                        numpy.int16, numpy.int32, numpy.int64, numpy.uint8,
+                        numpy.uint16, numpy.uint32, numpy.uint64)):
+        return int(obj)
+    elif isinstance(obj, (numpy.float_, numpy.float16, numpy.float32,
+                          numpy.float64)):
+        return float(obj)
+    elif isinstance(obj, (numpy.ndarray,)):
+        return obj.tolist()
+    return obj
 
 
 def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], post_callback: Optional[Callable[[Any], Any]]):
@@ -53,9 +81,9 @@ def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], pos
             if encoding_type is None or "pickle" in encoding_type:
                 serialized_response = pickle.dumps(response)
             elif "json" in encoding_type:
-                serialized_response = json.dumps(response)
+                serialized_response = json.dumps(response, cls=_NumpyJSONEncoder).encode('UTF-8')
             elif "msgpack" in encoding_type:
-                serialized_response = msgpack.packb(response)
+                serialized_response = msgpack.packb(response, default=_numpy_msgpack_encoder)
             else:
                 self.send_error(
                     400,

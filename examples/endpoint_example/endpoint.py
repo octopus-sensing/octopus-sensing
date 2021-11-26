@@ -12,6 +12,7 @@ def main():
     if not os.path.exists(output_path):
         os.makedirs(output_path, exist_ok=False)
 
+    # Add your devices
     audio = AudioStreaming(2, name="Audio", output_path=output_path)
     camera = \
         CameraStreaming(name="webcam",
@@ -23,17 +24,16 @@ def main():
     device_coordinator = DeviceCoordinator()
     device_coordinator.add_devices([audio, camera])
 
-    # Add your devices
+    # Create and start the endpoint
     message_endpoint = DeviceMessageHTTPEndpoint(device_coordinator)
     print("start listening")
     message_endpoint.start()
 
-    
     while True:
         key = input("Please enter q to stop")
         if key == "q":
             break
-    
+
     message_endpoint.stop()
 
 main()
