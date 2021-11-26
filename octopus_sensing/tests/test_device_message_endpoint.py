@@ -26,10 +26,14 @@ from octopus_sensing.device_message_endpoint import DeviceMessageHTTPEndpoint
 from octopus_sensing.common.message import Message
 
 
+def fake_run(self):
+    pass
+
+
 @pytest.fixture()
 def fixture():
     test_device = Device()
-    test_device._run = lambda: None
+    test_device._run = fake_run
     coordinator = DeviceCoordinator()
     coordinator.add_device(test_device)
 
