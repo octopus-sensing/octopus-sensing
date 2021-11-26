@@ -16,11 +16,12 @@ The example scenario is the most common in emotion recognition research in affec
 
     1. Record data from various sources synchronously.
     2. Being synchronized with other software like Matlab and unity.
-    3. Use various kinds of stimuli in octopus-sensing.
-    4. Providing some utilities for designing experiments. 
-    5. Monitor and data in real-time.
-    6. Preprocess and visualize data offline.
-    7. How to add new devices to Octopus Sensing
+    3. Running the scenario and creating triggers in another application and recording data 
+        synchronously using Octopus Sensing
+    4. Use various kinds of stimuli in octopus-sensing.
+    5. Providing some utilities for designing experiments. 
+    6. Monitor and data in real-time.
+    7. Preprocess and visualize data offline.
 
 **Prerequisites**
 
@@ -66,7 +67,7 @@ For example, we use the id of the recorded subject as experiment ID.
 Defining stimulus ID is essential for identifying the recorded data related to each stimulus
 when we have different stimuli.
 
-To see the completed example see (octopus_sensing/examples/add_sensors.py).
+To see the completed example see **octopus_sensing/examples/add_sensors.py**.
 By running this example, according to the `saving_mode` option that we passed when creating the sensor instance,
 the recorded file/s will be different. The default value of saving mode for Shimmer3 is continuous.
 It means if we have several stimuli, all data will be recorded in one file.
@@ -134,7 +135,7 @@ that sends several triggers to a simple data recorder in Matlab.
 
 By running the server code, it starts listening. Before to begin sending markers, make sure
 that client code is running, and it has connected to the server. 
-See the complete example in octopus_sensing.examples.send_trigger_to_remote_device.py
+See the complete example in **octopus-sensing/examples/remote_device_example/send_trigger_to_remote_device.py**
 
 >>> device_coordinator = DeviceCoordinator()
 >>> socket_device = SocketNetworkDevice("0.0.0.0", 5002)
@@ -161,7 +162,7 @@ We created a simple data recorder in this example which, in parallel, listens to
 By running matlabRecorder in Matlab, firstly, it tries to connect to the specified server. 
 Then it starts listening to specified port asynchronously. Parallel to this, it is recording some numbers in a file.
 As soon as it receives a marker, it will add it to the recorded line in the file.
-See this example in octopus_sensing.examples.matlabRecorder.m
+See this example in **octopus-sensing/examples/remote_device_example/matlabRecorder.m**
 
 
 >>> function matlabRecorder()
@@ -198,13 +199,54 @@ See this example in octopus_sensing.examples.matlabRecorder.m
 >>>     marker = erase(data, char(10));
 >>> end
 
+3- 
+-----------------------------------------------------
+Octopus Sensing provides an endpoint which by starting it, it listens for incoming Message requests. 
+It passes the message to the Device Coordinator to dispatch them to the devices.
+It accepts HTTP POST requests. The Body can be serialized in one of 'json', 'msgpack'
+or 'pickle'. 
+This feature can be used when we have designed the overal scenario with other programming languages, or scenario
+is running in other software like Uniti or Matlab. In this cases, we should write a simple code in python and use
+Octopus Sensing for data recording and through our scenario just send triggers as a http request.
 
-3- Use various kinds of stimuli in octopus-sensing
+In the server-side first of all we should create the device_coordinator and add the desired devices to it. Then we should 
+create an endpoint as follows, pass the DeviceCoordinator instance to it and start it. 
+
+>>> from octopus_sensing.device_message_endpoint import DeviceMessageHTTPEndpoint
+>>> message_endpoint = DeviceMessageHTTPEndpoint(device_coordinator, port=9331)
+>>> message_endpoint.start()
+
+By running this code, a http server will be started which is listening on the port 9331. 
+When it receives a trigger, it passes it to the DeviceCoordinator and DeviceCoordinator
+dispatch it to the all added devices. 
+
+In the client side if the language is python, first of all we should connect to the server 
+by giving the address of machine and the specified port of server. In this example we give the
+address of local machine because both client and server is running on the same machine
+
+>>> import msgpack
+>>> import http.client
+>>> http_client = http.client.HTTPConnection("127.0.0.1:9331", timeout=3)
+
+Then we can send a message as follows:
+
+>>> http_client.request("POST", "/",
+...                     body=msgpack.packb({'type': 'START',
+...                                         'experiment_id': experiment_id,
+...                                         'stimulus_id': stimuli_id}),
+...                     headers={'Accept': 'application/msgpack'})
+>>> response = http_client.getresponse()
+>>> assert response.status == 200
+
+See the full example in **octopus-sensing/examples/endpoint_example**.
+
+
+4- Use various kinds of stimuli in octopus-sensing
 --------------------------------------------------
 In this example, we learn how to record data in parallel with displaying image stimuli.
 
 To display stimuli, Octopus-Sensing provides a set of predefined stimuli, including video and image.
-To display image stimuli, we used GTK. We should specify the path of the image stimulus and the duration time
+To display image stimuli, we used `GTK <https://athenajc.gitbooks.io/python-gtk-3-api/content/>`_. We should specify the path of the image stimulus and the duration time
 for displaying it.
 
 >>> from octopus_sensing.stimuli import ImageStimulus
@@ -220,7 +262,7 @@ You should have VLC installed on your system.
 >>> stimulus.show()
 
 The following code is the complete example of recording physiological data using Shimmer3
-sensor while a set of images are displaying. See `octopus_sensing/examples/simple_scenario.py`. 
+sensor while a set of images are displaying. See **octopus-sensing/examples/simple_scenario.py**. 
 In this example you can have video stimuli with uncommenting video stimuli lines and commenting image stimuli lines.
 
 >>> import time
@@ -255,7 +297,7 @@ In this example you can have video stimuli with uncommenting video stimuli lines
 >>>     experiment_id = "p01"
 >>> 
 >>>     # A delay to be sure initialing devices have finished
->>>     time.delay(3)
+>>>     time.sleep(3)
 >>> 
 >>>     input("\nPress a key to run the scenario")
 >>> 
@@ -263,9 +305,13 @@ In this example you can have video stimuli with uncommenting video stimuli lines
 >>>         # Starts data recording by displaying the image
 >>>         device_coordinator.dispatch(start_message(experiment_id, stimuli_id))
 >>> 
->>>         # Displaying an image may start with some milliseconds delay after data recording because of GTK       initialization in show_image_standalone. If this delay is important to you, use other tools for displaying image stimuli
+>>>         # Displaying an image may start with some milliseconds delay after data recording because of GTK
+>>>         # initialization in show_image_standalone. If this delay is important to you, use other tools for displaying image stimuli
+>>>         # Since image is displaying in another thread we have to manually create the same delay in current 
+>>>         # thread to record data for 10 seconds
 >>>         stimulus = ImageStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name), 5)
 >>>         stimulus.show_standalone()
+>>>         time.sleep(5)
 >>> 
 >>>         # Stops data recording by closing image
 >>>         device_coordinator.dispatch(stop_message(experiment_id, stimuli_id))
@@ -279,14 +325,20 @@ Since the default saving mode is continuous, Shimmer3 will record all data in on
 For each stimulus, the device records two triggers in the file, one for the start of stimulus and one for the end of the stimulus. 
 
 
-4- Utilities for designing experiments
+5- Utilities for designing experiments
 --------------------------------------
+Octopus Sensing provides some utilities using `GTK <https://athenajc.gitbooks.io/python-gtk-3-api/content/>`_ for
+designing a questionnaire, displaying images, and some widgets like creating a timer. We used all of these utilities in 
+the **octopus-sensing/examples/full_scenario** example. Look at this example to find a simple scenario by
+displaying a fixation cross image, displaying a video clip and data recording, and then creating and showing a questionnaire
+after each stimulus.
+Also, go to the API section and look at the questionnaire and windows documentation to know more about utilities. 
 
-5- Monitoring
+6- Monitoring
 --------------
 See :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
 
-6- Preprocess and visualize data offline
+7- Preprocess and visualize data offline
 ----------------------------------------
 
 If you used continuous `saving_mode` and want to split them into several files for processing,

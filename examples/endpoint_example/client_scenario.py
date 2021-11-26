@@ -1,14 +1,13 @@
 import time
 import os
-from octopus_sensing.devices import Shimmer3Streaming
-from octopus_sensing.devices import CameraStreaming
-from octopus_sensing.device_coordinator import DeviceCoordinator
-from octopus_sensing.common.message_creators import start_message, stop_message
+import msgpack
+import http.client
+
 from octopus_sensing.stimuli import ImageStimulus
-#from octopus_sensing.stimuli import VideoStimulus
 
 
 def simple_scenario(stimuli_path):
+    http_client = http.client.HTTPConnection("127.0.0.1:9331", timeout=3)
     # Reading image stimuli and assigning an ID to them based on their alphabetical order
     stimuli_list = os.listdir(stimuli_path)
     stimuli_list.sort()
@@ -17,20 +16,6 @@ def simple_scenario(stimuli_path):
     for item in stimuli_list:
         stimuli[i] = item
         i += 1
-   
-    print("initializing")
-    # Creating an instance of simmer3
-    my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
-
-    # Creating an instance of camera. by uncommenting this line and adding it to the dive_coordinator
-    # you can record video data as well
-    # my_camera = CameraStreaming(0, name="camera", output_path="./output", )
-
-    # Creating an instance of device coordinator
-    device_coordinator = DeviceCoordinator()
-
-    # Adding sensor to device coordinator
-    device_coordinator.add_devices([my_shimmer])
 
     experiment_id = "p01"
 
@@ -41,7 +26,13 @@ def simple_scenario(stimuli_path):
 
     for stimuli_id, stmulus_name in stimuli.items():
         # Starts data recording by displaying the image
-        device_coordinator.dispatch(start_message(experiment_id, stimuli_id))
+        http_client.request("POST", "/",
+                            body=msgpack.packb({'type': 'START',
+                                                'experiment_id': experiment_id,
+                                                'stimulus_id': stimuli_id}),
+                            headers={'Accept': 'application/msgpack'})
+        response = http_client.getresponse()
+        assert response.status == 200
 
         # Displaying image may start with some miliseconds delay after data recording
         # because of GTK initialization in show_image_standalone. If this delay is important to you,
@@ -49,8 +40,8 @@ def simple_scenario(stimuli_path):
         # Since image is displaying in another thread we have to manually create the same delay in current 
         # thread to record data for 10 seconds
 
-        timeout = 5
-        stimulus = ImageStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name), 5)
+        timeout = 10
+        stimulus = ImageStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name), timeout)
         stimulus.show_standalone()
         time.sleep(timeout)
 
@@ -59,11 +50,21 @@ def simple_scenario(stimuli_path):
         #stimulus.show()
 
         # Stops data recording by closing image
-        device_coordinator.dispatch(stop_message(experiment_id, stimuli_id))
+        http_client.request("POST", "/",
+                    body=msgpack.packb({'type': 'STOP',
+                                        'experiment_id': experiment_id,
+                                        'stimulus_id': stimuli_id}),
+                    headers={'Accept': 'application/msgpack'})
+        response = http_client.getresponse()
+        assert response.status == 200
         input("\nPress a key to continue")
 
     # Terminate, This step is necessary to close the connection with added devices
-    device_coordinator.terminate()
+    http_client.request("POST", "/",
+                body=msgpack.packb({'type': 'TERMINATE'}),
+                headers={'Accept': 'application/msgpack'})
+    response = http_client.getresponse()
+    assert response.status == 200
 
 if __name__ == "__main__":
-    simple_scenario('Path_to_the_stimuli_folder')
+    simple_scenario('/home/nastaran/Pictures/wood pattern')#Path_to_the_stimuli_folder')
