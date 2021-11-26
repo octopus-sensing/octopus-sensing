@@ -175,13 +175,6 @@ class BrainFlowStreaming(MonitoredDevice):
                                  str(message.stimulus_id).zfill(2))
 
     def _save_to_file(self, file_name):
-        if not os.path.exists(file_name):
-            csv_file = open(file_name, 'a')
-            writer = csv.writer(csv_file)
-            if self.header is not None:
-                writer.writerow(self.header)
-                csv_file.flush()
-                csv_file.close()
         with open(file_name, 'a') as csv_file:
             writer = csv.writer(csv_file)
             for row in self._stream_data:
