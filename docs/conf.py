@@ -74,10 +74,20 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
 
 html_sidebars = { '**': ['globaltoc.html',
                          'relations.html',
                          'sourcelink.html',
                          'searchbox.html']}
 
+html_context = {
+    'source_url_prefix': "https://github.com/octopus-sensing/octopus-sensing/blob/master/docs/",
+    "display_github": True,
+    "github_host": "github.com",
+    "github_user": "octopus-sensing",
+    "github_repo": "octopus-sensing",
+    "github_version": "master",
+    "conf_py_path": "/docs/",
+    "source_suffix": '.rst',
+}
