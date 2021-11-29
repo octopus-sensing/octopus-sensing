@@ -12,16 +12,16 @@ In this tutorial, we'll show how to design a simple scenario with octopus-sensin
 
 The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happens and stop data recording by finishing the event.
 
-**By designing these examples, we learn how to:**
+**By following these examples, we learn how to:**
 
-    1. Record data from various sources synchronously.
-    2. Being synchronized with other software like Matlab and unity.
-    3. Running the scenario and creating triggers in another application and recording data
-        synchronously using Octopus Sensing
-    4. Use various kinds of stimuli in octopus-sensing.
-    5. Providing some utilities for designing experiments.
-    6. Monitor and data in real-time.
-    7. Preprocess and visualize data offline.
+    - Record data from various sources synchronously.
+    - Being synchronized with other software like Matlab and unity.
+    - Running the scenario and creating triggers in another application and recording data synchronously using Octopus Sensing
+    - Use various kinds of stimuli in octopus-sensing.
+    - Providing some utilities for designing experiments.
+    - Monitor data in real-time.
+    - Read recorded data in real-time
+    - Preprocess and visualize data offline.
 
 **Prerequisites**
 
@@ -337,9 +337,41 @@ Also, go to the API section and look at the questionnaire and windows documentat
 
 6- Monitoring
 --------------
-See :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
+You can monitor data that Octopus Sensing is recording in real-time through an HTTP endpoint.  To
+do so see :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
 
-7- Preprocess and visualize data offline
+
+7- Reading recorded data in real-time
+---------------------------------------
+
+You can read the data that Octopus Sensing is recording, in real-time, through an HTTP endpoint. To
+do so, you can use the same endpoint that Monitoring is using: `MonitoringEndpoint`.
+
+To do so, start the Monitoring Endpoint in the usual way:
+
+>>> from octopus_sensing.device_coordinator import DeviceCoordinator
+>>> from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
+>>> # Create coordinator instance
+>>> coordinator = DeviceCoordinator()
+>>> # Add your devices
+>>> ...
+>>> # Creating the endpoint instance and start it.
+>>> monitoring_endpoint = MonitoringEndpoint(coordinator)
+>>> monitoring_endpoint.start()
+>>> ...
+
+On the client-side (a separate application), simply send a GET request:
+
+>>> import json
+>>> import http.client
+>>> http_client = http.client.HTTPConnection("127.0.0.1:9330", timeout=3)
+>>> http_client.request("GET", "/",
+...                     headers={"Accept": "application/json"})
+>>> response = http_client.getresponse()
+>>> assert response.status == 200
+>>> recorded_data = json.loads(response.read())
+
+8- Preprocess and visualize data offline
 ----------------------------------------
 
 If you used continuous `saving_mode` and want to split them into several files for processing,
@@ -361,33 +393,3 @@ Then, since `signal_preprocess` is True, it will apply bandpass filtering and cl
 Finally, this data will be recorded in the specified output path and ready to be used for analysis.
 
 See :ref:`octopus_sensing_visualizer` to know more about visualizer and how to use it.
-
-8- Reading recorded data in real-time
----------------------------------------
-
-You can read the data that Octopus Sensing is recording, in real time, through an HTTP endpoint. To
-do so, you can use the same endpoint that Monitoring is using: `MonitoringEndpoint`.
-
-To do so, start the Monitoring Endpoint the usual way:
-
->>> from octopus_sensing.device_coordinator import DeviceCoordinator
->>> from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
->>> # Create coordinator instance
->>> coordinator = DeviceCoordinator()
->>> # Add your devices
->>> ...
->>> # Creating the endpoint instance and start it.
->>> monitoring_endpoint = MonitoringEndpoint(coordinator)
->>> monitoring_endpoint.start()
->>> ...
-
-The on the client side (a separate application), simply send a GET request:
-
->>> import json
->>> import http.client
->>> http_client = http.client.HTTPConnection("127.0.0.1:9330", timeout=3)
->>> http_client.request("GET", "/",
-...                     headers={"Accept": "application/json"})
->>> response = http_client.getresponse()
->>> assert response.status == 200
->>> recorded_data = json.loads(response.read())

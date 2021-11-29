@@ -92,8 +92,7 @@ There is a text box for setting window size. This window size shows the length o
 Setting the bigger values leads to displaying a wider window of data in each moment and so fewer details.
 The sliding bar is moving each second, and all graphs will be updated in each second.
 
-Copyright
----------
+**Copyright**
 
 Copyright © 2021 [Nastaran Saffaryazdi]
 
