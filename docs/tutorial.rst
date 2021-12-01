@@ -21,11 +21,14 @@ The example scenario is the most common in emotion recognition research in affec
     4. Use various kinds of stimuli in octopus-sensing.
     5. Providing some utilities for designing experiments.
     6. Monitor and data in real-time.
-    7. Preprocess and visualize data offline.
+    7. Reading recorded data in real-time
+    8. Preprocess and visualize data offline.
+    9. Watching video scenario
 
 **Prerequisites**
 
 Create a project and install `octopus-sensing` package by following the instructions on :ref:`quick_start`. We recommend using `pipenv` to do so.
+And then copy the source of examples from `examples` package in octopus-sensing repository to your project directory and run them.
 
 1- Record data from various sources synchronously
 -------------------------------------------------
@@ -338,31 +341,9 @@ Also, go to the API section and look at the questionnaire and windows documentat
 6- Monitoring
 --------------
 See :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
+See the example in **octopus-sensing/examples/full_scenario** as an example to know more about how to monitor data.
 
-7- Preprocess and visualize data offline
-----------------------------------------
-
-If you used continuous `saving_mode` and want to split them into several files for processing,
-Octopus Sensing provides this feature by adding only one line to the end of the previous example.
-
->>> from octopus_sensing.preprocessing.preprocess_devices import preprocess_devices
->>> preprocess_devices(device_coordinator,
-...                    output_path,
-...                    shimmer3_sampling_rate=128,
-...                    signal_preprocess=True):
-
-By passing the instance of `DeviceCoordinator` as a parameter to `preprocess_devices` function,
-it will apply preprocessing step on all added devices that implemented preprocessing.
-For audio and video, we don't need any general preparation.
-But, the OpenBCI and Shimmer3 sensor will apply three or two preprocessing steps according to the passed parameters.
-It will resample the recorded data for Shimmer3 in this example to a sampling rate of 128 Hz.
-Then it will split data based on start and stop triggers.
-Then, since `signal_preprocess` is True, it will apply bandpass filtering and cleaning noises.
-Finally, this data will be recorded in the specified output path and ready to be used for analysis.
-
-See :ref:`octopus_sensing_visualizer` to know more about visualizer and how to use it.
-
-8- Reading recorded data in real-time
+7- Reading recorded data in real-time
 ---------------------------------------
 
 You can read the data that Octopus Sensing is recording, in real time, through an HTTP endpoint. To
@@ -391,3 +372,33 @@ The on the client side (a separate application), simply send a GET request:
 >>> response = http_client.getresponse()
 >>> assert response.status == 200
 >>> recorded_data = json.loads(response.read())
+
+8- Preprocess and visualize data offline
+----------------------------------------
+
+If you used continuous `saving_mode` and want to split them into several files for processing,
+Octopus Sensing provides this feature by adding only one line to the end of the previous example.
+
+>>> from octopus_sensing.preprocessing.preprocess_devices import preprocess_devices
+>>> preprocess_devices(device_coordinator,
+...                    output_path,
+...                    shimmer3_sampling_rate=128,
+...                    signal_preprocess=True):
+
+By passing the instance of `DeviceCoordinator` as a parameter to `preprocess_devices` function,
+it will apply preprocessing step on all added devices that implemented preprocessing.
+For audio and video, we don't need any general preparation.
+But, the OpenBCI and Shimmer3 sensor will apply three or two preprocessing steps according to the passed parameters.
+It will resample the recorded data for Shimmer3 in this example to a sampling rate of 128 Hz.
+Then it will split data based on start and stop triggers.
+Then, since `signal_preprocess` is True, it will apply bandpass filtering and cleaning noises.
+Finally, this data will be recorded in the specified output path and ready to be used for analysis.
+
+See :ref:`octopus_sensing_visualizer` to know more about visualizer and how to use it.
+
+9- Watching video scenario
+Octopus Sensing provides the common scenario in emotion recognition studies. 
+In this scenario, data is recording during a watching video task and the user can report emotions using a questionnaire.
+Every steps in the code is fully commented. By reading and running this example you can learn how to
+do every step in the scenario, monitor data in real-time and visualize data after finishing the scenario.
+See the example in **octopus-sensing/examples/full_scenario**.    

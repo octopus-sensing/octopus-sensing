@@ -18,7 +18,7 @@ import numpy as np
 from typing import List, Any, Tuple
 
 
-def load_all_samples(file_path, channels_cols, time_stamp_col, time_format):
+def load_all_samples(file_path: str, channels_cols: Tuple[int, int], time_stamp_col: int, time_format: str):
     '''
     Reads the recorded data file and separate data according to the START and STOP triggers
 
@@ -27,15 +27,12 @@ def load_all_samples(file_path, channels_cols, time_stamp_col, time_format):
     file_path: str
         The path of recorded data
     
-    channels_cols: List[int]
+    channels_cols: Tuple[int, int]
         The start column and end column number of channels. 
         For example [1, 16] means column 1 to 16 in the csv file includes channels data
     
     time_stamp_col: int
         The column number of time stamp
-    
-    triger_col: int
-        The column number of trigger
     
     time_format: str
         The format of recorded times
@@ -219,3 +216,83 @@ def resample(data: List[Any], times: List[datetime.datetime], sampling_rate: int
             block_number += 1
             all_data.extend(block)
     return np.array(all_data)
+
+
+def load_all_samples_without_time(file_path: str, channels_cols: Tuple[int, int]):
+    '''
+    Reads the recorded data file and separate data according to the START and STOP triggers
+
+    Parameters
+    ----------
+    file_path: str
+        The path of recorded data
+    
+    channels_cols: Tuple[int, int]
+        The start column and end column number of channels. 
+        For example [1, 16] means column 1 to 16 in the csv file includes channels data
+
+
+    Returns
+    ---------
+    trial_data: List[Any]
+        A list of a trial's data
+    '''
+    data = []
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file, delimiter=',')
+        for row in reader:
+            data.append(np.array(row[channels_cols[0]:channels_cols[1]], dtype=np.float32))
+    return data
+
+
+def load_all_trials_without_time(file_path: str, channels_cols: Tuple[int, int], triger_col: int):
+    '''
+    Reads the recorded data files and separate data according to the START and STOP triggers
+
+    Parameters
+    ----------
+    file_path: str
+        The path of recorded data
+    
+    channels_cols: Tuple[int, int]
+        The start column and end column number of channels. 
+        For example [1, 16] means column 1 to 16 in the csv file includes channels data
+    
+    triger_col: int
+        The column number of trigger
+
+    Returns
+    ---------
+    all_trials_data, trial_numbers: 
+        tuple(List[Any], List[List[int]])
+
+    all_trials_data: List[Any]
+        A list of all trials data
+    
+    all_trials_times: List[List[int]]
+        A list of all trials IDs
+    '''
+    all_trials_data = []
+    trial_numbers = []
+
+    action_flag = None
+    data:List[Any] = []
+    with open(file_path, 'r') as file:
+        reader = csv.reader(file, delimiter=',')
+
+        for i, row in enumerate(reader):
+            if len(row) > triger_col:
+                if row[triger_col] not in (None, ''):
+                    triger = row[triger_col]
+                    action = triger[0:4]
+                    trial_number = int(triger[-2:])
+                    if action == "STAR":
+                        action_flag = 1
+                    elif action == "STOP":
+                        action_flag = 0
+                        all_trials_data.append(data)
+                        trial_numbers.append(trial_number)
+                        data = []
+            if action_flag == 1:
+                data.append(np.array(row[channels_cols[0]:channels_cols[1]], dtype=np.float32))
+    return all_trials_data, trial_numbers
