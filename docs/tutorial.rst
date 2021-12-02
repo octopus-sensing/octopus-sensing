@@ -383,7 +383,7 @@ Octopus Sensing provides this feature by adding only one line to the end of the 
 >>> preprocess_devices(device_coordinator,
 ...                    output_path,
 ...                    shimmer3_sampling_rate=128,
-...                    signal_preprocess=True):
+...                    signal_preprocess=True)
 
 By passing the instance of `DeviceCoordinator` as a parameter to `preprocess_devices` function,
 it will apply preprocessing step on all added devices that implemented preprocessing.
