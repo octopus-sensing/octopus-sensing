@@ -50,3 +50,11 @@ jobs:
 
     - name: test
       run: make test-coverage
+
+    # Only need to upload coverage data once.
+    - name: upload coverage to codecov.io
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.9' }}
+      uses: codecov/codecov-action@v2
+      with:
+        fail_ci_if_error: true
+        verbose: true
