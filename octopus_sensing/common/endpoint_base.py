@@ -133,7 +133,7 @@ def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], pos
             if encoding_type is None or "pickle" in encoding_type:
                 serialized_response = pickle.dumps(response)
             elif "json" in encoding_type:
-                serialized_response = json.dumps(response)
+                serialized_response = json.dumps(response).encode('UTF-8')
             elif "msgpack" in encoding_type:
                 serialized_response = msgpack.packb(response)
 

@@ -26,16 +26,19 @@ def test_monitoring_cache():
 
     cache.cache(data)
 
-    time.sleep(0.06)
+    time.sleep(0.02)
     assert cache.get_cache() == data
 
-    time.sleep(0.05)
+    time.sleep(0.1)
     assert cache.get_cache() is None
 
 
+def fake_run():
+    pass
+
 def test_should_auto_assign_device_id():
     test_device = Device()
-    test_device._run = lambda: None
+    test_device._run = fake_run
     coordinator = DeviceCoordinator()
     coordinator.add_device(test_device)
     assert isinstance(test_device.name, str)
@@ -44,7 +47,7 @@ def test_should_auto_assign_device_id():
 
 def test_should_not_add_duplicated_deivces():
     test_device = Device(name="device1")
-    test_device._run = lambda: None
+    test_device._run = fake_run
     coordinator = DeviceCoordinator()
     coordinator.add_device(test_device)
     with pytest.raises(RuntimeError):

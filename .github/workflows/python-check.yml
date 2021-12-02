@@ -1,0 +1,52 @@
+# Docs:
+# https://github.com/actions/setup-python
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python Check
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # TODO: Add MacOS
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.7", "3.8", "3.9"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }} on ${{ matrix.os }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Ubuntu Packages
+      if: ${{ matrix.os == 'ubuntu-latest' }}
+      run: sudo apt-get install --yes libgirepository1.0-dev
+
+    - name: MacOS Packages
+      if: ${{ matrix.os == 'macos-latest' }}
+      run: brew install cairo gobject-introspection
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry coveralls
+
+    - name: Windows Packages
+      # It's not easy to install PyGObject in Windows using Poetry. Let's skip it for now.
+      if: ${{ matrix.os == 'windows-latest' }}
+      run: poetry remove PyGObject
+
+    - name: Poetry install
+      run: poetry update -v
+
+    - name: mypy
+      run: make mypy
+
+    - name: test
+      run: make test-coverage

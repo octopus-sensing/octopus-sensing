@@ -22,41 +22,55 @@ from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
 from octopus_sensing.common.message_creators import start_message, stop_message
 
+PORT = 5002
+EVENT = threading.Event()
+TIMEOUT = 30
 
 def __server():
     '''
     Starts a server and send several messages and terminates
     '''
     device_coordinator = DeviceCoordinator()
-    socket_device = SocketNetworkDevice("localhost", 5002)
+    socket_device = SocketNetworkDevice("localhost", PORT)
     device_coordinator.add_devices([socket_device])
 
-    time.sleep(5)
+    EVENT.wait(timeout=TIMEOUT)
     message = start_message("test", "00")
     device_coordinator.dispatch(message)
-    
-    time.sleep(2)
+
+    time.sleep(1)
     message = stop_message("test", "00")
     device_coordinator.dispatch(message)
-    time.sleep(2)
+    time.sleep(1)
     message = start_message("test", "01")
     device_coordinator.dispatch(message)
-    time.sleep(2)
+    time.sleep(1)
     message = stop_message("test", "01")
     device_coordinator.dispatch(message)
-    time.sleep(3)
+    time.sleep(2)
 
     device_coordinator.terminate()
-    
+
 def test_client_socket():
     threading.Thread(target=__server).start()
     time.sleep(5)
     host = "localhost"
-    port = 5002  
+    port = PORT
 
-    client_socket = socket.socket()  # instantiate
-    client_socket.connect((host, port))  # connect to the server
-
+    # Waiting at most 30 seconds for the SocketNetworkDevice to become ready.
+    retries = TIMEOUT
+    while True:
+      try:
+          client_socket = socket.create_connection((host, port))
+          break
+      except ConnectionError:
+          if retries <= 0:
+              raise
+          retries = retries - 1
+          time.sleep(1)
+          continue
+    # Causes the server to start sending messages.
+    EVENT.set()
 
     data = client_socket.recv(1024).decode()  # receive response
     assert data == "START-test-00\n"
