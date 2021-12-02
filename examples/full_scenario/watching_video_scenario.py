@@ -8,7 +8,7 @@ Copy some short videos as stimuli in the stimuli directory inside the full_scena
 Run `pipenv run python watching_video_scenario.py`
 Run `pipenv run octopus-sensing-monitoring` in current directory in another terminal and monitor data on browser
 After finishing the scenario, run `pipenv run octopus-sensing-visualizer` and visualize data on browser. 
-You can change the visualizer config file in the full_scenario directory 
+You can config the `octopus_sensing_visualizer_config.conf` file in your project directory.
 
 '''
 
@@ -24,12 +24,10 @@ sys.path.insert(0, "../../octopus-sensing")  # nopep8
 
 from stimuli_loader import load_stimuli
 from questionnaires import get_video_questionnaire
-from octopus_sensing.windows.message_window import MessageWindow
 from octopus_sensing.windows.image_window import ImageWindow
 from octopus_sensing.common.message_creators import start_message, stop_message
 from octopus_sensing.devices import CameraStreaming
 from octopus_sensing.devices import BrainFlowOpenBCIStreaming
-from octopus_sensing.devices import Shimmer3Streaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
 from octopus_sensing.preprocessing.preprocess_devices import preprocess_devices
@@ -223,7 +221,7 @@ def main():
     
     # After running this code, Run `pipenv run octopus-sensing-monitoring` in another terminal
     # and then monitor data on browser.
-    # (Make sure to octopus-sensing-monitoring if you want to monitor data in real time)
+    # (Make sure to install octopus-sensing-monitoring if you want to monitor data in real time)
     monitoring_endpoint = MonitoringEndpoint(device_coordinator)
     monitoring_endpoint.start()
 
