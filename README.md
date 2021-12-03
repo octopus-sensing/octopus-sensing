@@ -1,8 +1,8 @@
 Octopus Sensing
 ===============
 
-![Travis status](https://img.shields.io/travis/com/nastaran62/octopus-sensing)
-![Coveralls status](https://img.shields.io/coveralls/github/nastaran62/octopus-sensing)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/octopus-sensing/octopus-sensing/Python%20Check?label=checks)
+![Codecov](https://img.shields.io/codecov/c/gh/octopus-sensing/octopus-sensing)
 ![PyPI - Version](https://img.shields.io/pypi/v/octopus-sensing)
 ![PyPI - License](https://img.shields.io/pypi/l/octopus-sensing)
 
