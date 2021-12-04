@@ -1,11 +1,13 @@
-Octopus Sensing
-===============
-
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/octopus-sensing/octopus-sensing/Python%20Check?label=checks)
-![Codecov](https://img.shields.io/codecov/c/gh/octopus-sensing/octopus-sensing)
-![PyPI - Version](https://img.shields.io/pypi/v/octopus-sensing)
-![PyPI - License](https://img.shields.io/pypi/l/octopus-sensing)
-
+<h2 align="center">Octopus Sensing</h2>
+<p align="center">
+  <img src="https://octopus-sensing.nastaran-saffar.me/_static/octopus-sensing-logo-small.png" alt="Octopus Sensing Logo">
+</p>
+<p align="center">
+  <img src="https://img.shields.io/github/workflow/status/octopus-sensing/octopus-sensing/Python%20Check?label=checks" alt="GitHub Workflow Status">
+  <img src="https://img.shields.io/codecov/c/gh/octopus-sensing/octopus-sensing" alt="Codecov">
+  <img src="https://img.shields.io/pypi/v/octopus-sensing" alt="PyPI">
+  <img src="https://img.shields.io/pypi/l/octopus-sensing" alt="PyPI - License">
+</p>
 
 Octopus Sensing is a tool to help you run scientific experiments that involve recording data synchronously from
 multiple sources in human-computer interaction studies. You write steps of an experiment scenario, for example showing a stimulus and then a questionnaire. The tool takes care of the rest.
@@ -16,11 +18,11 @@ Collected data will be tagged with the timestamp of the start and stop of the ex
 the experiment, etc.
 
 The aim is to make the scripting interface so simple that people with minimum or no software
-development skills can define experiment scenarios with no effort. 
+development skills can define experiment scenarios with no effort.
 Also, this tool can be used as the base structure for creating real-time data processing systems like systems with capabilities of recognizing emotions, stress, cognitive load, or analyzing human behaviors.
 
 
-**To see the full documentation go to [Otopus Sensing](https://octopus-sensing.nastaran-saffar.me/) website.**
+**To see the full documentation go to [Otopus Sensing website](https://octopus-sensing.nastaran-saffar.me/).**
 
 Main features
 --------------

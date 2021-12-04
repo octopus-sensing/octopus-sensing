@@ -1,5 +1,9 @@
-Octopus Sensing 
+.. image:: _static/octopus-sensing-logo-small.png
+   :alt: Octopus Sensing Logo
+
+Octopus Sensing
 ====================================================================================
+
 **Welcome to Octopus Sensing's documentation!**
 
 Octopus Sensing is a tool to help you run scientific experiments that involve recording data synchronously from
