@@ -91,3 +91,5 @@ html_context = {
     "conf_py_path": "/docs/",
     "source_suffix": '.rst',
 }
+
+html_favicon = "_static/favicon.png"
