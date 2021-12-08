@@ -96,6 +96,11 @@ Network
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: octopus_sensing.devices.network_devices.http_device.HttpNetworkDevice
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 
 Common
@@ -105,6 +110,3 @@ Common
    :members:
    :undoc-members:
    :show-inheritance:
-
-
-
