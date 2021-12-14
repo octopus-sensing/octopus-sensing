@@ -83,7 +83,6 @@ class AudioStreaming(Device):
         _ = yield
         while True:
             data = yield
-            print(".", end="", flush=True)
             self._stream_data.append(data)
 
     def _run(self):
