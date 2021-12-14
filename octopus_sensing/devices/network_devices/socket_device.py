@@ -11,8 +11,11 @@
 #
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
+
 import threading
 import socket
+from typing import List, Optional
+
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
 from octopus_sensing.devices.device import Device
@@ -61,11 +64,11 @@ class SocketNetworkDevice(Device):
 
         self._host = host
         self._port = port
-        self._server_socket = None
-        self.__connections = []
+        self._server_socket: Optional[socket.socket] = None
+        self.__connections: List[socket.socket] = []
         self._stop_listening = False
-        self._trigger = None
-        self._experiment_id = None
+        self._trigger: Optional[str] = None
+        self._experiment_id: Optional[str] = None
 
     def _accept_connections(self):
         self._server_socket.listen(5)
@@ -126,6 +129,7 @@ class SocketNetworkDevice(Device):
         connection: socket.socket
             a socket connection
         '''
+        assert self._trigger is not None
         self._trigger += "\n"
         connection.send(self._trigger.encode())
 
