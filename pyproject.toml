@@ -39,9 +39,9 @@ miniaudio = "^1.45"
 brainflow = "^4.6.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
-mypy = "^0.782"
-coverage = "^5.2.1"
+pytest = "^6.2.5"
+mypy = "^0.910"
+coverage = "^6.2"
 sphinx = "^4.3.0"
 sphinx-rtd-theme = "^1.0.0"
 

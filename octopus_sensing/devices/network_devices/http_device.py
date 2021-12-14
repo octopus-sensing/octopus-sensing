@@ -18,7 +18,7 @@ import threading
 import http.client
 import pickle
 import json
-from typing import Optional, Callable, List
+from typing import Optional, Callable, List, Union
 
 import msgpack
 
@@ -81,7 +81,7 @@ class HttpNetworkDevice(Device):
     def __init__(self,
                  external_endpoints: List[str],
                  serialization_type: Callable[...,
-                                              bytes] = SerializationTypes.JSON,
+                                              Union[bytes, str]] = SerializationTypes.JSON,
                  name: Optional[str] = None,
                  timeout: int = 3):
         super().__init__(name=name)
@@ -92,12 +92,12 @@ class HttpNetworkDevice(Device):
         # Regex is borrowed from O'Reilly website: https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch08s10.html
         # It validates and extracts host and port parts of the URL
         self._url_regex = re.compile((
-            """([a-z][a-z0-9+\-.]*://)"""  # scheme
-            """([a-z0-9\-._~%]+"""  # named host
-            """|\[[a-f0-9:.]+\]"""  # ipv6 host
-            """|\[v[a-f0-9][a-z0-9\-._~%!$&'()*+,;=:]+\])"""  # IPvFuture host
-            """(:[0-9]+)?"""  # port
-            """(/.*)?"""  # rest
+            r"""([a-z][a-z0-9+\-.]*://)"""  # scheme
+            r"""([a-z0-9\-._~%]+"""  # named host
+            r"""|\[[a-f0-9:.]+\]"""  # ipv6 host
+            r"""|\[v[a-f0-9][a-z0-9\-._~%!$&'()*+,;=:]+\])"""  # IPvFuture host
+            r"""(:[0-9]+)?"""  # port
+            r"""(/.*)?"""  # rest
         ))
 
         # We want to give these kind of errors early
@@ -136,13 +136,14 @@ class HttpNetworkDevice(Device):
             threading.Thread(target=self._http_post,
                              args=(endpoint, serialized_message,)).start()
 
-    def _http_post(self, endpoint: str, body: bytes):
-        scheme, host, port, rest = self._url_regex.match(endpoint).groups()
+    def _http_post(self, endpoint: str, body: Union[bytes, str]):
+        match_object = self._url_regex.match(endpoint)
+        assert match_object is not None, 'We already validated all endpoints'
+        scheme, host, port_str, rest = match_object.groups()
 
-        if not port:
-            port = None
-        else:
-            port = int(port)
+        port: Optional[int] = None
+        if port_str:
+            port = int(port_str)
 
         connect_to = "{0}:{1}".format(scheme, host)
         post_to = rest
@@ -156,6 +157,6 @@ class HttpNetworkDevice(Device):
         response = http_client.getresponse()
 
         if response.status != 200:
-            print("HttpNetworkDevice({0}): Sending message to [{1}:{2}] failed: {3} {4}".format(
-                  self.name, endpoint, self._client_port, response.status, response.reason),
+            print("HttpNetworkDevice({0}): Sending message to [{1}] failed: {2} {3}".format(
+                  self.name, endpoint, response.status, response.reason),
                   file=sys.stderr)
