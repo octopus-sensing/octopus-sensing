@@ -32,7 +32,8 @@ msgpack = "^1.0.0"
 pandas = "^1.2.4"
 mne = "^0.23.0"
 heartpy = "^1.2.7"
-PyGObject = "3.40.1"
+# Pip cannot install PyGObject on Windows. Users need to install it manually themselves.
+PyGObject = { version = "3.40.1", markers = "sys_platform != 'win32'" }
 screeninfo = "^0.7"
 miniaudio = "^1.45"
 brainflow = "^4.6.1"

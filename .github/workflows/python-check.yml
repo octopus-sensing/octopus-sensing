@@ -37,11 +37,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry coveralls
 
-    - name: Windows Packages
-      # It's not easy to install PyGObject in Windows using Poetry. Let's skip it for now.
-      if: ${{ matrix.os == 'windows-latest' }}
-      run: poetry remove PyGObject
-
     - name: Poetry install
       run: poetry update -v
 
