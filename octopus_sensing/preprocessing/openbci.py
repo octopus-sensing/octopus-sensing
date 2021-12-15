@@ -82,7 +82,7 @@ def openbci_preprocess(input_path: str, file_name: str, output_path: str,
             resample(data, times, sampling_rate)
         if signal_preprocess is True:
             preprocessed_data = \
-                clean_eeg(resampled_data,
+                clean_eeg(resampled_data/1e6,
                           channel_names=channels,
                           sampling_rate=sampling_rate)
         else:
@@ -158,7 +158,7 @@ class EegPreprocessing():
         else:
             self._channel_names = channel_names
 
-        channel_data = np.transpose(data)/1e6
+        channel_data = np.transpose(data)
         channel_types = ["eeg"]*len(self._channel_names)
 
         self.__info = mne.create_info(self._channel_names,

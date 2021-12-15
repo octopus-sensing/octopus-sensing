@@ -17,8 +17,10 @@ import pathlib
 from typing import List, Dict
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.devices.openbci_streaming import OpenBCIStreaming
-from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
+from octopus_sensing.devices import BrainFlowOpenBCIStreaming
+from octopus_sensing.devices import Shimmer3Streaming
 from octopus_sensing.preprocessing.openbci import openbci_preprocess
+from octopus_sensing.preprocessing.openbci_brainflow import openbci_brainflow_preprocess
 from octopus_sensing.preprocessing.shimmer3 import shimmer3_preprocess
 
 
@@ -66,6 +68,25 @@ def preprocess_devices(device_coordinator: DeviceCoordinator, output_path: str,
                                    saving_mode=device.get_saving_mode(),
                                    sampling_rate=openbci_sampling_rate,
                                    signal_preprocess=signal_preprocess)
+        elif isinstance(device, BrainFlowOpenBCIStreaming):
+            device_output_path = os.path.join(output_path, device.get_name())
+            print("device_output_path", device_output_path)
+            if not os.path.exists(device_output_path):
+                pathlib.Path(device_output_path).mkdir(parents=True, exist_ok=True)
+
+            # This is the path that device saves recording data
+            input_path = device.get_output_path()
+            print("input_path", input_path)
+            file_names = os.listdir(input_path)
+            file_names.sort()
+            if not os.path.exists(device_output_path):
+                os.mkdir(device_output_path)
+            for file_name in file_names:
+                openbci_brainflow_preprocess(input_path, file_name, device_output_path,
+                                             device.get_channels(),
+                                             saving_mode=device.get_saving_mode(),
+                                             sampling_rate=openbci_sampling_rate,
+                                             signal_preprocess=signal_preprocess)
         elif isinstance(device, Shimmer3Streaming):
             device_output_path = os.path.join(output_path, device.get_name())
             if not os.path.exists(device_output_path):
@@ -136,6 +157,24 @@ def preprocess_devices_by_path(devices_path: Dict[str, str], output_path: str,
                                    openbci_channels,
                                    sampling_rate=openbci_sampling_rate,
                                    signal_preprocess=signal_preprocess)
+        elif device == "openbci_brainflow":
+            device_output_path = os.path.join(output_path, "openbci_brainflow")
+            print("device_output_path", device_output_path)
+            if not os.path.exists(device_output_path):
+                pathlib.Path(device_output_path).mkdir(parents=True, exist_ok=True)
+
+            # This is the path that device saves recording data
+            print("input_path", input_path)
+            file_names = os.listdir(input_path)
+            file_names.sort()
+            if not os.path.exists(device_output_path):
+                os.mkdir(device_output_path)
+            for file_name in file_names:
+                print(file_name, device_output_path)
+                openbci_brainflow_preprocess(input_path, file_name, device_output_path,
+                                             openbci_channels,
+                                             sampling_rate=openbci_sampling_rate,
+                                             signal_preprocess=signal_preprocess)
         elif device == "shimmer3":
             device_output_path = output_path
             print("device_output_path", device_output_path)

@@ -51,6 +51,13 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
             - cyton: for cyton board sampling rate is 250 and it has 8 channels
             - cyton-daisy: for cyton-daisy board sampling rate is 125 and it has 16 channels
             - ganglion: for Ganglion board sampling rate is 200 and it has 4 channels
+    
+    serial_port: str, default: None
+        The serial port for reading OpenBCI data. By default we set this as follows for various platforms:
+
+            - Linux: /dev/ttyUSB0
+            - Windows: Com3
+            - MacOS: /dev/cu.*
 
     channels_order: List(str), default: None
         A list of channel names which specify the order and names of channels
@@ -93,7 +100,8 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                  channels_order: List[str]=None,
                  board_type:str ="cyton-daisy",
                  name: Optional[str] = None,
-                 output_path: str = "output"):
+                 output_path: str = "output",
+                 serial_port=None):
         self.channels = channels_order        
         if board_type == "cyton-daisy":
             device_id = 2
@@ -121,12 +129,13 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
         else:
             raise RuntimeError("Use BrainflowStreaming fr other boards")
 
-        if platform.system() == "Linux":
-            serial_port = "/dev/ttyUSB0"
-        elif platform.system() == "Windows":
-            serial_port = "Com3"
-        else:
-            serial_port = "/dev/cu.*"
+        if serial_port is None:
+            if platform.system() == "Linux":
+                serial_port = "/dev/ttyUSB0"
+            elif platform.system() == "Windows":
+                serial_port = "Com3"
+            else:
+                serial_port = "/dev/cu.*"
 
         params = BrainFlowInputParams()
         params.serial_port = serial_port
@@ -135,3 +144,39 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                          brain_flow_input_params=params,
                          name=name,
                          output_path=output_path)
+    def get_output_path(self):
+        '''
+        Gets the path that is used for data recording
+
+        Returns
+        -----------
+        output_path: str
+           The output path that use for data recording
+        '''
+        return self.output_path
+
+    def get_channels(self):
+        '''
+        Gets the list of channels
+
+        Returns
+        -------
+
+        channels_name: List[str]
+            The list of channels' name
+
+        '''
+        return self.channels
+    
+    def get_saving_mode(self):
+        '''
+        Gets saving mode
+        
+        Returns
+        -----------
+        saving_mode: int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
+        '''
+        return self._saving_mode

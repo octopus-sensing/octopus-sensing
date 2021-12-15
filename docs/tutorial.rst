@@ -14,18 +14,21 @@ The example scenario is the most common in emotion recognition research in affec
 
 **By following these examples, we learn how to:**
 
-    - Record data from various sources synchronously.
-    - Being synchronized with other software like Matlab and unity.
-    - Running the scenario and creating triggers in another application and recording data synchronously using Octopus Sensing
-    - Use various kinds of stimuli in octopus-sensing.
-    - Providing some utilities for designing experiments.
-    - Monitor data in real-time.
-    - Read recorded data in real-time
-    - Preprocess and visualize data offline.
+    1. Record data from various sources synchronously.
+    2. Being synchronized with other software like Matlab and unity.
+    3. Running the scenario and creating triggers in another application and recording data
+        synchronously using Octopus Sensing
+    4. Use various kinds of stimuli in octopus-sensing.
+    5. Providing some utilities for designing experiments.
+    6. Monitor and data in real-time.
+    7. Reading recorded data in real-time
+    8. Preprocess and visualize data offline.
+    9. Watching video scenario
 
 **Prerequisites**
 
 Create a project and install `octopus-sensing` package by following the instructions on :ref:`quick_start`. We recommend using `pipenv` to do so.
+And then copy the source of examples from `examples` package in octopus-sensing repository to your project directory and run them.
 
 1- Record data from various sources synchronously
 -------------------------------------------------
@@ -337,9 +340,8 @@ Also, go to the API section and look at the questionnaire and windows documentat
 
 6- Monitoring
 --------------
-You can monitor data that Octopus Sensing is recording in real-time through an HTTP endpoint.  To
-do so see :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
-
+See :ref:`octopus_sensing_monitoring` to know more about monitoring and how to use it.
+See the example in **octopus-sensing/examples/full_scenario** as an example to know more about how to monitor data.
 
 7- Reading recorded data in real-time
 ---------------------------------------
@@ -381,7 +383,7 @@ Octopus Sensing provides this feature by adding only one line to the end of the 
 >>> preprocess_devices(device_coordinator,
 ...                    output_path,
 ...                    shimmer3_sampling_rate=128,
-...                    signal_preprocess=True):
+...                    signal_preprocess=True)
 
 By passing the instance of `DeviceCoordinator` as a parameter to `preprocess_devices` function,
 it will apply preprocessing step on all added devices that implemented preprocessing.
@@ -393,3 +395,11 @@ Then, since `signal_preprocess` is True, it will apply bandpass filtering and cl
 Finally, this data will be recorded in the specified output path and ready to be used for analysis.
 
 See :ref:`octopus_sensing_visualizer` to know more about visualizer and how to use it.
+
+9- Watching video scenario
+Octopus Sensing provides the common scenario in emotion recognition studies. 
+In this scenario, data is recording during a watching video task and the user can report emotions using a questionnaire.
+Every steps in the code is fully commented. By reading and running this example you can learn how to
+do every step in the scenario, monitor data in real-time and visualize data after finishing the scenario.
+See the example in **octopus-sensing/examples/full_scenario**.    
+

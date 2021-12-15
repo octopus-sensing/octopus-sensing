@@ -2,8 +2,12 @@ from octopus_sensing.questionnaire.opinion_question import OpinionQuestion
 from octopus_sensing.questionnaire import Questionnaire
 
 
-def get_video_questionnaire(name, experiment_id, stimuli_index, title):
-    video_questionnaire = Questionnaire(name, experiment_id, stimuli_index, title)
+def get_video_questionnaire(name, experiment_id, stimuli_index, title, output_path="output"):
+    video_questionnaire = Questionnaire(name,
+                                        experiment_id,
+                                        stimuli_index,
+                                        title,
+                                        output_path=output_path)
 
     emotions = {"Happiness": 4, "Sadness": 6, "Neutral": 5, "Fear": 3, "Anger": 1}
     question_1 = \

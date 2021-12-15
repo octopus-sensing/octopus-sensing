@@ -4,6 +4,7 @@ venv
 env
 .pytest_cache
 .coverage
+coverage.xml
 dist/
 build/
 octopus_sensing.egg-info/
@@ -17,4 +18,3 @@ docs_build/
 *.jpg
 *.jpeg
 *.mp4
-*.png
