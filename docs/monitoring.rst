@@ -85,8 +85,7 @@ Security notice
 Note that the webserver accepts requests from any machine, and it uses `http` protocol, which
 is not encrypted. Don't run it on a network that you don't trust.
 
-Copyright
----------
+**Copyright**
 
 Copyright © 2020,2021 `Aidin Gharibnavaz <https://aidinhut.com>`
 

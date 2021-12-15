@@ -12,7 +12,7 @@ In this tutorial, we'll show how to design a simple scenario with octopus-sensin
 
 The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happens and stop data recording by finishing the event.
 
-**By designing these examples, we learn how to:**
+**By following these examples, we learn how to:**
 
     1. Record data from various sources synchronously.
     2. Being synchronized with other software like Matlab and unity.
@@ -346,10 +346,10 @@ See the example in **octopus-sensing/examples/full_scenario** as an example to k
 7- Reading recorded data in real-time
 ---------------------------------------
 
-You can read the data that Octopus Sensing is recording, in real time, through an HTTP endpoint. To
+You can read the data that Octopus Sensing is recording, in real-time, through an HTTP endpoint. To
 do so, you can use the same endpoint that Monitoring is using: `MonitoringEndpoint`.
 
-To do so, start the Monitoring Endpoint the usual way:
+To do so, start the Monitoring Endpoint in the usual way:
 
 >>> from octopus_sensing.device_coordinator import DeviceCoordinator
 >>> from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
@@ -362,7 +362,7 @@ To do so, start the Monitoring Endpoint the usual way:
 >>> monitoring_endpoint.start()
 >>> ...
 
-The on the client side (a separate application), simply send a GET request:
+On the client-side (a separate application), simply send a GET request:
 
 >>> import json
 >>> import http.client
@@ -402,3 +402,4 @@ In this scenario, data is recording during a watching video task and the user ca
 Every steps in the code is fully commented. By reading and running this example you can learn how to
 do every step in the scenario, monitor data in real-time and visualize data after finishing the scenario.
 See the example in **octopus-sensing/examples/full_scenario**.    
+
