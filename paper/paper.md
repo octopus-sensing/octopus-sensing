@@ -54,6 +54,7 @@ There are a limited number of frameworks that support synchronous data acquisiti
 Octopus Sensing is a tool to help in running scientific experiments that involve recording data synchronously from multiple sources. It can simultaneously collect data from various devices such as EEG [OpenBCI EEG headset](https://openbci.com/), GSR and PPG [Shimmer3 sensor](https://shimmersensing.com), video and audio. Data collection can be started and stopped synchronously across all devices. 
  
 The main features of `Octopus Sensing` are listed as follows:
+
 * Manages data recording from multiple sources using a simple unified interface.
 * Minimizes human errors from manipulating data in synchronous data collection.
 * Provides some utilities for designing studies like showing different stimuli or designing questionnaires.
