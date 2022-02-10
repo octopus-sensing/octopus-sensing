@@ -78,6 +78,7 @@ class AudioStreaming(Device):
         self._stream_data: List[bytes] = []
         self._record = False
         self._terminate = False
+        self._state = ""
 
     def __stream_loop(self):
         _ = yield
@@ -102,18 +103,26 @@ class AudioStreaming(Device):
             if message is None:
                 continue
             if message.type == MessageType.START:
-                self._stream_data = []
-                capture.start(recorder)
-                self._record = True
+                if self._state == "START":
+                    print("Audio streaming has already started")
+                else:
+                    self._stream_data = []
+                    capture.start(recorder)
+                    self._record = True
+                    self._state = "START"
             elif message.type == MessageType.STOP:
-                capture.stop()
-                self._record = False
-                file_name = \
-                    "{0}/{1}-{2}-{3}.wav".format(self.output_path,
-                                                 self.name,
-                                                 message.experiment_id,
-                                                 str(message.stimulus_id).zfill(2))
-                self._save_to_file(file_name, capture)
+                if self._state == "STOP":
+                   print("Audio streaming has already stopped")
+                else:
+                    capture.stop()
+                    self._record = False
+                    file_name = \
+                        "{0}/{1}-{2}-{3}.wav".format(self.output_path,
+                                                    self.name,
+                                                    message.experiment_id,
+                                                    str(message.stimulus_id).zfill(2))
+                    self._save_to_file(file_name, capture)
+                    self._state = "STOP"
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 break

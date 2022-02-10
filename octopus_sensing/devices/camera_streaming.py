@@ -102,6 +102,7 @@ class CameraStreaming(Device):
         self._capture_times: list = []
         self._frames: list = []
         self._counter = 0
+        self._state = ""
 
     def _run(self):
         print("self._camera_number", self._camera_number)
@@ -130,29 +131,37 @@ class CameraStreaming(Device):
             if message is None:
                 continue
             if message.type == MessageType.START:
-                self._frames = []
-                self._capture_times = []
-                if recording_thread is not None:
-                    raise RuntimeError(
-                        ("[{0} device] Received two start messages. "
-                         "A STOP message should be send before trying "
-                         "to start a new video recording.".format(self.name)))
+                if self._state == "START":
+                    print("Video streaming has already started")
+                else:
+                    self._frames = []
+                    self._capture_times = []
+                    if recording_thread is not None:
+                        raise RuntimeError(
+                            ("[{0} device] Received two start messages. "
+                            "A STOP message should be send before trying "
+                            "to start a new video recording.".format(self.name)))
 
-                file_name = "{0}/{1}-{2}-{3}.avi".format(self.output_path,
-                                                         self.name,
-                                                         message.experiment_id,
-                                                         str(message.stimulus_id).zfill(2))
-                recording_event = threading.Event()
-                recording_event.set()
-                recording_thread = threading.Thread(
-                    target=self._stream_loop, args=(file_name, recording_event), daemon=True)
-                recording_thread.start()
+                    file_name = "{0}/{1}-{2}-{3}.avi".format(self.output_path,
+                                                            self.name,
+                                                            message.experiment_id,
+                                                            str(message.stimulus_id).zfill(2))
+                    recording_event = threading.Event()
+                    recording_event.set()
+                    recording_thread = threading.Thread(
+                        target=self._stream_loop, args=(file_name, recording_event), daemon=True)
+                    recording_thread.start()
+                    self._state = "START"
 
             elif message.type == MessageType.STOP:
-                if recording_event is not None:
-                    recording_event.clear()
-                recording_thread = None
-                recording_event = None
+                if self._state == "STOP":
+                    print("Video streaming has already started")
+                else:
+                    if recording_event is not None:
+                        recording_event.clear()
+                    recording_thread = None
+                    recording_event = None
+                    self._state = "STOP"
 
             elif message.type == MessageType.TERMINATE:
                 if recording_event is not None:

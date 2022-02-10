@@ -94,17 +94,22 @@ class BrainFlowStreaming(MonitoredDevice):
         self._stream_data: List[float] = []
         self.sampling_rate = sampling_rate
 
-        self._board = BoardShim(device_id, brain_flow_input_params)
-        self._board.set_log_level(0)
-        self._board.prepare_session()
+        self._board = None
+        self._device_id = device_id
+        self._brain_flow_input_params = brain_flow_input_params
         self._terminate = False
         self._trigger = None
         self._experiment_id = None
 
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
+        self._state = ""
 
     def _run(self):
+        self._board = BoardShim(self._device_id, self._brain_flow_input_params)
+        self._board.set_log_level(0)
+        self._board.prepare_session()
+
         threading.Thread(target=self._stream_loop).start()
 
         while True:
@@ -112,21 +117,31 @@ class BrainFlowStreaming(MonitoredDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
-                self.__set_trigger(message)
-                self._experiment_id = message.experiment_id
-            elif message.type == MessageType.STOP:
-                if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
-                    self._experiment_id = message.experiment_id
-                    file_name = \
-                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                     self.name,
-                                                     self._experiment_id,
-                                                     message.stimulus_id)
-                    self._save_to_file(file_name)
-                    self._stream_data = []
+                if self._state == "START":
+                    print("Brainflow streaming has already recorded the START triger")
                 else:
-                    self._experiment_id = message.experiment_id
+                    print("OpenBCI start")
                     self.__set_trigger(message)
+                    self._experiment_id = message.experiment_id
+                    self._state = "START"
+            elif message.type == MessageType.STOP:
+                if self._state == "STOP":
+                    print("Brainflow streaming has already recorded the STOP triger")
+                else:
+                    print("OpenBCI stop")
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        self._experiment_id = message.experiment_id
+                        file_name = \
+                            "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                        self.name,
+                                                        self._experiment_id,
+                                                        message.stimulus_id)
+                        self._save_to_file(file_name)
+                        self._stream_data = []
+                    else:
+                        self._experiment_id = message.experiment_id
+                        self.__set_trigger(message)
+                    self._state = "STOP"
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
@@ -152,13 +167,13 @@ class BrainFlowStreaming(MonitoredDevice):
                 now = str(datetime.now().time())
                 last_record.append(now)
                 last_record.append(time.time())
-                self._stream_data.append(last_record)
                 if self._trigger is not None:
-                    last_record = self._stream_data.pop()
-                    last_record = list(last_record)
                     last_record.append(self._trigger)
-                    self._stream_data.append(last_record)
-                self._trigger = None
+                    self._trigger = None
+                self._stream_data.append(last_record)
+            else:
+                time.sleep(0.1)
+            #    print("brainflow: didn't read any data")
 
     def __set_trigger(self, message):
         '''

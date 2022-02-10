@@ -112,7 +112,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._trigger: Optional[str] = None
         self._break_loop = False
         self.output_path = self._make_output_path()
-        
+        self._state = ""
 
     def _make_output_path(self):
         output_path = os.path.join(self.output_path, self.name)
@@ -192,6 +192,7 @@ class Shimmer3Streaming(MonitoredDevice):
         self._serial.write(struct.pack('B', 0x07))
         self._wait_for_ack()
         print("start command sending, done.")
+        self._experiment_id = 0
 
     def _wait_for_ack(self):
         ddata = ""
@@ -211,22 +212,30 @@ class Shimmer3Streaming(MonitoredDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
-                print("Shimmer start")
-                self._experiment_id = message.experiment_id
-                self.__set_trigger(message)
-            elif message.type == MessageType.STOP:
-                if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
-                    self._experiment_id = message.experiment_id
-                    file_name = \
-                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                     self.name,
-                                                     self._experiment_id,
-                                                     message.stimulus_id)
-                    self._save_to_file(file_name)
+                if self._state == "START":
+                    print("Shimmer3 streaming has already recorded the START triger")
                 else:
-                    print("Shimmer stop")
+                    print("Shimmer start")
                     self._experiment_id = message.experiment_id
                     self.__set_trigger(message)
+                    self._state = "START"
+            elif message.type == MessageType.STOP:
+                if self._state == "STOP":
+                    print("Shimmer3 streaming has already recorded the STOP triger")
+                else:
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        self._experiment_id = message.experiment_id
+                        file_name = \
+                            "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                        self.name,
+                                                        self._experiment_id,
+                                                        message.stimulus_id)
+                        self._save_to_file(file_name)
+                    else:
+                        print("Shimmer stop")
+                        self._experiment_id = message.experiment_id
+                        self.__set_trigger(message)
+                    self._state = "STOP"
             elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
                     file_name = \
