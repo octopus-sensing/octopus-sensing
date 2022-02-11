@@ -19,7 +19,7 @@ Then `cd` to where the source code located and run:
 >>> poetry install
 >>> poetry build
 
-It will create a virtual environment and installs `octopus-sensing` with its dependencies in it.
+It will create a virtual environment and installs `Octopus Sensing` with its dependencies in it.
 
 Coding Style
 ==============
@@ -40,7 +40,7 @@ Doc Strings
 ~~~~~~~~~~~~
 Every public method or function should have doc string. We also generate our API Reference document
 from these doc strings. So ensure they are clear and addresses all the functionality and exceptions
-of a method.
+of a method. We are using `NumPy style <https://numpydoc.readthedocs.io/>` for creating doc strings.
 
 Static Type Checking
 ======================

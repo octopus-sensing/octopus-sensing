@@ -8,7 +8,7 @@ Tutorial
 What Are We Building?
 ----------------------
 
-In this tutorial, we'll show how to design a simple scenario with octopus-sensing step by step.
+This tutorial will show how to design a simple scenario with octopus-sensing step by step.
 
 The example scenario is the most common in emotion recognition research in affective computing. In this scenario, we learn how to record data from different sources synchronously when an event happens and stop data recording by finishing the event.
 
@@ -27,8 +27,8 @@ The example scenario is the most common in emotion recognition research in affec
 
 **Prerequisites**
 
-Create a project and install `octopus-sensing` package by following the instructions on :ref:`quick_start`. We recommend using `pipenv` to do so.
-And then copy the source of examples from `examples` package in octopus-sensing repository to your project directory and run them.
+Create a project and install the `octopus-sensing` package by following the instructions on :ref:`quick_start`. We recommend using `pipenv` to do so.
+And then, copy the source of examples from `examples` package in octopus-sensing repository to your project directory and run them.
 
 1- Record data from various sources synchronously
 -------------------------------------------------
@@ -49,7 +49,7 @@ Firstly we should create a Shimmer3Streaming object with a specific name and an 
 ...                                saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
 ...                                output_path="./output")
 
-Then we should add the created object to the `DeviceCoordinator`.  As the name suggests, the device coordinator is responsible for coordination, like starting to record data in all devices at once, stopping data recording, triggering (marking data at a point), and terminating devices. When a device is added to the device coordinator, it will be initialized and prepared for recording.
+Then we should add the created object to the `DeviceCoordinator`. As the name suggests, the device coordinator is responsible for coordination, like starting to record data in all devices at once, stopping data recording, triggering (marking data at a point), and terminating devices. When a device is added to the device coordinator, it will be initialized and prepared for recording.
 
 >>> device_coordinator = DeviceCoordinator()
 >>> device_coordinator.add_devices([my_shimmer])
@@ -81,10 +81,10 @@ The name of the recorded file will be `shimmer-{experiment_id}.csv` and will be 
 Keep in your mind, before running the code, turn on the Shimmer3 sensor and pair Bluetooth and the serial port.
 (Shimmer password: 1234)
 
-For example, in Linux you can do it as follow:
+For example, in Linux, you can do it as follow:
     1. hcitool scan   //It shows the mac-address of the device. for shimmer it is 00:06:66:F0:95:95
     2. vim /etc/bluetooth/rfcomm.conf write the below line in it: rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" }
-    3. sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading bluetooth data from a serial port
+    3. sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading Bluetooth data from a serial port
 
 Adding several sensors
 """"""""""""""""""""""
@@ -205,28 +205,28 @@ See this example in **octopus-sensing/examples/remote_device_example/matlabRecor
 
 3- Receiving Messages over Network
 -----------------------------------
-Octopus Sensing provides an endpoint which by starting it, it listens for incoming Message requests.
+Octopus Sensing provides an endpoint that listens for incoming Message requests by starting it.
 It passes the message to the Device Coordinator to dispatch them to the devices.
 It accepts HTTP POST requests. The Body can be serialized in one of 'json', 'msgpack'
 or 'pickle'.
-This feature can be used when we have designed the overal scenario with other programming languages, or scenario
-is running in other software like Uniti or Matlab. In this cases, we should write a simple code in python taht uses
-Octopus Sensing for data recording and our scenario will just send triggers as a http request.
+This feature can be used when we have designed the overall scenario with other programming languages or the scenario
+is running in other software like Unity or Matlab. In this cases, we should write a simple code in python that uses
+Octopus Sensing for data recording and our scenario will just send triggers as an http request.
 
-In the server-side first of all we should create the device_coordinator and add the desired devices to it. Then we should
+On the server-side first of all, we should create the device_coordinator and add the desired devices to it. Then we should
 create an endpoint as follows, pass the DeviceCoordinator instance to it and start it.
 
 >>> from octopus_sensing.device_message_endpoint import DeviceMessageHTTPEndpoint
 >>> message_endpoint = DeviceMessageHTTPEndpoint(device_coordinator, port=9331)
 >>> message_endpoint.start()
 
-By running this code, a http server will be started which is listening on the port 9331.
-When it receives a trigger, it passes it to the DeviceCoordinator and DeviceCoordinator
-dispatch it to the all added devices.
+An HTTP server will be started by running this code, which is listening on port 9331.
+When it receives a trigger, it passes it to the DeviceCoordinator, and DeviceCoordinator
+dispatches it to all the added devices.
 
-In the client side if the language is python, first of all we should connect to the server
-by giving the address of machine and the specified port of server. In this example we give the
-address of local machine because both client and server is running on the same machine
+On the client-side, if the language is python, we should first connect to the server
+by giving the machine's address and the specified port of the server. In this example, we provide the
+address of the local machine because both client and server is running on the same machine
 
 >>> import msgpack
 >>> import http.client
@@ -257,7 +257,7 @@ for displaying it.
 >>> stimulus = ImageStimulus(stimuli_id, os.path.join(stimuli_path, stmulus_name), 5)
 >>> stimulus.show_standalone()
 
-Similarly we can create an video stimulus. Octopus Sensing uses
+Similarly, we can create a video stimulus. Octopus Sensing uses
 `VLC media player <https://www.videolan.org/vlc/>`_ to display video stimuli.
 You should have VLC installed on your system.
 
@@ -267,7 +267,7 @@ You should have VLC installed on your system.
 
 The following code is the complete example of recording physiological data using Shimmer3
 sensor while a set of images are displaying. See **octopus-sensing/examples/simple_scenario.py**.
-In this example you can have video stimuli with uncommenting video stimuli lines and commenting image stimuli lines.
+In this example, you can have video stimuli with uncommenting video stimuli lines and commenting image stimuli lines.
 
 >>> import time
 >>> import os
@@ -326,7 +326,7 @@ In this example you can have video stimuli with uncommenting video stimuli lines
 
 
 Since the default saving mode is continuous, Shimmer3 will record all data in one file.
-For each stimulus, the device records two triggers in the file, one for the start of stimulus and one for the end of the stimulus.
+For each stimulus, the device records two triggers in the file, one for the start of the stimulus and one for the end of the stimulus.
 
 
 5- Utilities for designing experiments
@@ -386,7 +386,7 @@ Octopus Sensing provides this feature by adding only one line to the end of the 
 ...                    signal_preprocess=True)
 
 By passing the instance of `DeviceCoordinator` as a parameter to `preprocess_devices` function,
-it will apply preprocessing step on all added devices that implemented preprocessing.
+it will apply the preprocessing step on all added devices that implemented preprocessing.
 For audio and video, we don't need any general preparation.
 But, the OpenBCI and Shimmer3 sensor will apply three or two preprocessing steps according to the passed parameters.
 It will resample the recorded data for Shimmer3 in this example to a sampling rate of 128 Hz.
@@ -397,9 +397,11 @@ Finally, this data will be recorded in the specified output path and ready to be
 See :ref:`octopus_sensing_visualizer` to know more about visualizer and how to use it.
 
 9- Watching video scenario
+---------------------------
+
 Octopus Sensing provides the common scenario in emotion recognition studies. 
-In this scenario, data is recording during a watching video task and the user can report emotions using a questionnaire.
-Every steps in the code is fully commented. By reading and running this example you can learn how to
-do every step in the scenario, monitor data in real-time and visualize data after finishing the scenario.
+In this scenario, the data is recorded during a watching video task, and the user can report emotions using a questionnaire.
+Every step in the code is fully commented. By reading and running this example, you can learn how to
+do every step in the scenario, monitor data in real-time, and visualize data after finishing the scenario.
 See the example in **octopus-sensing/examples/full_scenario**.    
 

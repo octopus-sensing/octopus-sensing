@@ -80,7 +80,7 @@ Installation from source
 ========================
 
 If you want to compile it from source for development purposes or to have the un-released features,
-please refer to `Development Guide <https://octopus-sensing.nastaran-saffar.me/development>`_.
+please refer to :ref:`development`.
 
 Troubleshooting
 ===============
