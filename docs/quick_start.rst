@@ -23,13 +23,13 @@ will also create a sample application.
 
     mkdir my-awesome-project
     cd my-awesome-project
-    curl https://raw.githubusercontent.com/nastaran62/octopus-sensing/master/init_script/init.sh
+    curl --output init.sh https://raw.githubusercontent.com/nastaran62/octopus-sensing/master/init_script/init.sh
     # It's a good idea to read any script before executing it.
-    sudo bash ./init.sh
+    bash ./init.sh
     rm ./init.sh
 
 
-The created `main.py` file is a sample application. To run it:
+The created `main.py` file is an example application. To run it:
 
 :code:`pipenv run python main.py`
 
