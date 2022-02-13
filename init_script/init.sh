@@ -6,11 +6,6 @@
 # Run pipenv --python [found version]
 # Download the sample program
 
-if [ ! -z $(ls -A .) ]; then
-  echo "The current directory is not empty. Please run this script in an empty directory."
-  exit 5
-fi
-
 echo "Checking dependencies..."
 
 function check_python {

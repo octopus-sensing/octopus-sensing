@@ -80,13 +80,16 @@ Installation from source
 ========================
 
 If you want to compile it from source for development purposes or to have the un-released features,
-please refer to `Development Guide <https://octopus-sensing.nastaran-saffar.me/development>`_.
+please refer to :ref:`development`.
 
 Troubleshooting
 ===============
-If the installation failed, and this error is in the logs:
+- If the installation failed, and this error is in the logs:
 
 ```fatal error: portaudio.h: No such file or directory```
 
 You need to install `portaudio` package on your system. On a debian-based linux the package called
 `portaudio19-dev`.
+
+- Pip cannot install PyGObject on Windows. Users need to install it manually themselves. 
+See `PyGObject documentation<https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started>`_ to know how to install PyGObject on Windows.
