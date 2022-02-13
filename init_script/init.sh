@@ -6,61 +6,88 @@
 # Run pipenv --python [found version]
 # Download the sample program
 
+if [ ! -z $(ls -A .) ]; then
+  echo "The current directory is not empty. Please run this script in an empty directory."
+  exit 5
+fi
+
 echo "Checking dependencies..."
 
+function check_python {
+  VERSION=$1
+  python$VERSION --version >/dev/null 2>&1
+  return $?
+}
+
 PYTHON="NOT FOUND"
-python3.9 --version >/dev/null 2>&1
-if [ $? -eq 0 ]; then
-  PYTHON="python3.9"
+
+if check_python 3.10; then
+  PYTHON="python3.10"
 else
-  python3.8 --version >/dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    PYTHON="python3.8"
+  if check_python 3.9; then
+    PYTHON="python3.9"
   else
-    python3.7 --version >/dev/null 2>&1
-    if [ $? -eq 0 ]; then
-      PYTHON="python3.7"
+    if check_python 3.8; then
+      PYTHON="python3.8"
     else
-      echo "Could not find suitable Python version."
-      echo "I need Python 3.7 or later."
-      exit 10
+      if check_python 3.7; then
+        PYTHON="python3.7"
+      else
+        echo "Could not find suitable Python version."
+        echo "I need Python 3.7 or later."
+        exit 10
+      fi
     fi
   fi
 fi
 
 PIP="NOT FOUND"
-pip3 --version > /dev/null 2>&1
+$PYTHON -m pip --version > /dev/null 2>&1
 if [ $? -eq 0 ]; then
   PIP="pip3"
 else
-  pip --version > /dev/null 2>&1
-  if [ $? -eq 0 ]; then
-    PIP="pip"
-  else
-    echo "Could not find 'pip' command."
-    echo "Please ensure 'pip' or 'pip3' command exists on your system and is in the PATH."
-    exit 20
-  fi
+  echo "$PYTHON doesn't have the 'pip' module"
+  echo "Please ensure you installed 'pip' for this version of Python"
+  exit 20
 fi
 
 pipenv --version > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   set -e
+  echo
+  echo "Couldn't find pipenv on you system. Do you want me to install it?"
+  ANSWER=""
+  read -p "[y/n]" -N 1 ANSWER
+  if [[ $ANSWER != "y" && $ANSWER != "Y" ]]; then
+    echo "Please install 'pipenv' and run the script again"
+    exit 0
+  fi
   echo "Installing 'pipenv'..."
-  cmd=($PIP install pipenv)
-  "${cmd[@]}"
+  # Checking if there's a sudo command on this machine.
+  SUDO_CMD=""
+  sudo --help > /dev/null 2>&1
+  if [ $? -eq 0 ]; then
+    SUDO_CMD="sudo"
+  fi
+  $SUDO_CMD $PIP install pipenv
   set +e
 fi
 
-echo "Creating the project..."
+echo
+echo "Creating the project. Going to use:"
+$PYTHON --version
+$PIP --version
+pipenv --version
+echo
+
 set -e
 pipenv --python $PYTHON
-pipenv install octopus-sensing
+pipenv install octopus-sensing octopus-sensing-monitoring octopus-sensing-visualizer
 set +e
 
 echo "Downloading sample code..."
 
-MAIN_PY_URL=https://raw.githubusercontent.com/nastaran62/octopus-sensing/master/init_script/main.py
+MAIN_PY_URL=https://raw.githubusercontent.com/octopus-sensing/octopus-sensing/master/examples/add_sensors.py
 
 curl --version >/dev/null 2>&1
 if [ $? -eq 0 ]; then
@@ -80,4 +107,5 @@ else
   fi
 fi
 
+echo
 echo "Done."
