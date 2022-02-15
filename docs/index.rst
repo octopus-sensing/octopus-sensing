@@ -28,6 +28,9 @@ Main features
 * Monitoring interface that visualizes collected data in real-time
 * Offline visualization of data from multiple sources simultaneously 
 
+.. image:: _static/OCS-diagram.png
+   :alt: Octopus Sensing Components
+
 Quick Start
 =========== 
 See :ref:`quick_start` to learn how to install Octopus Sensing.
