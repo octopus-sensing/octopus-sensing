@@ -16,8 +16,27 @@ import os
 from octopus_sensing.stimuli.stimulus import Stimulus
 
 class VideoStimulus(Stimulus):
+    '''
+    Creates video stimulus
+
+    Attributes
+    -----------
+
+
+    Parameters
+    ----------
+    id: str
+        The id of stimulus
+
+    path: str
+        The path of video
+    '''
+
     def __init__(self, id, path):
         super().__init__(id, path)
 
     def show(self):
+        '''
+        Displays video stimulus using VLC
+        '''
         os.system("vlc --fullscreen --play-and-exit {0}".format(self.path))

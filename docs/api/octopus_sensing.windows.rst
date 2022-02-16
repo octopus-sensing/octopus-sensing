@@ -1,3 +1,5 @@
+.. _windows:
+
 Windows
 ================================
 Creates some common dialogs/windows using Gtk, which can be used in designing Experiment scenarios

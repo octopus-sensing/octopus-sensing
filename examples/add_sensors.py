@@ -1,17 +1,20 @@
 import time
-from octopus_sensing.devices import Shimmer3Streaming
+from octopus_sensing.devices import CameraStreaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message
 
 def add_sensors():
     # Creating an instance of sensor
-    my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
+    
+    my_camera = CameraStreaming(camera_no=0,
+                                name="camera",
+                                output_path="./output")
 
     # Creating an instance of device coordinator
     device_coordinator = DeviceCoordinator()
 
     # Adding sensor to device coordinator
-    device_coordinator.add_devices([my_shimmer])
+    device_coordinator.add_devices([my_camera])
 
     experiment_id = "p01"
     stimuli_id = "S00"
@@ -24,7 +27,7 @@ def add_sensors():
 
     # Stops deta recording
     device_coordinator.dispatch(stop_message(experiment_id, stimuli_id))
-
+    time.sleep(0.5)
     # Terminate, This step is necessary to close the connection with added devices
     device_coordinator.terminate()
 

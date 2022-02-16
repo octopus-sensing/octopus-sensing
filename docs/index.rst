@@ -28,6 +28,9 @@ Main features
 * Monitoring interface that visualizes collected data in real-time
 * Offline visualization of data from multiple sources simultaneously 
 
+.. image:: _static/OCS-diagram.png
+   :alt: Octopus Sensing Components
+
 Quick Start
 =========== 
 See :ref:`quick_start` to learn how to install Octopus Sensing.
@@ -40,6 +43,18 @@ API Reference
 =============
 See :ref:`api_reference` for the complete documentation of all the public classes and methods available in Octopus Sensing.
 
+Development
+=============
+See :ref:`development` to learn how to contribute to the Octopus Sensing.
+
+Issue report
+=============
+Please create a new issue on `Octopus Sensing Github repository <https://github.com/octopus-sensing/octopus-sensing/issues>`_ to report bugs and request for new features.
+
+support
+========
+Please contact Nastaran (nsaffar@gmail.com) or Aidin (aidin@aidinhut.com) if you have any questions or seek support.
+
 Copyright
 =========
 Copyright © 2020 Nastaran Saffaryazdi, Aidin Gharibnavaz
@@ -48,7 +63,7 @@ This program is free software: you can redistribute it and/or modify it under th
 General Public License as published by the Free Software Foundation, either version 3 of the
 License, or (at your option) any later version.
 
-See `License file <https://github.com/nastaran62/octopus-sensing/blob/master/LICENSE>`_ for full terms.
+See `License file <https://github.com/octopus-sensing/octopus-sensing/blob/master/LICENSE>`_ for full terms.
 
 
 
