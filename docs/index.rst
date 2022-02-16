@@ -43,21 +43,17 @@ API Reference
 =============
 See :ref:`api_reference` for the complete documentation of all the public classes and methods available in Octopus Sensing.
 
-Development
-=============
-See :ref:`development` to learn how to contribute to the Octopus Sensing.
+Contribution Guideline
+=======================
+See :ref:`contribution` to learn how to contribute to the Octopus Sensing.
 
-Issue report
-=============
-Please create a new issue on `Octopus Sensing Github repository <https://github.com/octopus-sensing/octopus-sensing/issues>`_ to report bugs and request for new features.
-
-support
+Support
 ========
 Please contact Nastaran (nsaffar@gmail.com) or Aidin (aidin@aidinhut.com) if you have any questions or seek support.
 
 Copyright
 =========
-Copyright © 2020 Nastaran Saffaryazdi, Aidin Gharibnavaz
+Copyright © 2020-2022 Nastaran Saffaryazdi, Aidin Gharibnavaz
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation, either version 3 of the
@@ -77,6 +73,7 @@ Content
    quick_start
    tutorial
    api_reference
+   contribution
    development
    visualizer
    monitoring

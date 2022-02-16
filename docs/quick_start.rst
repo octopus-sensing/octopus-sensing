@@ -91,5 +91,4 @@ Troubleshooting
 You need to install `portaudio` package on your system. On a debian-based linux the package called
 `portaudio19-dev`.
 
-- Pip cannot install PyGObject on Windows. Users need to install it manually themselves. 
-See `PyGObject documentation<https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started>`_ to know how to install PyGObject on Windows.
+- Pip cannot install PyGObject on Windows. Users need to install it manually themselves. See `PyGObject documentation <https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started>`_ to know how to install PyGObject on Windows.
