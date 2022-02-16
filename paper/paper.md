@@ -63,7 +63,7 @@ The main features of `Octopus Sensing` are listed as follows:
 # Methodology
 Octopus Sensing synchronizes data recording by using `multiprocessing` in Python. It creates a message queue and a process with three threads for every device by creating the device's instance. The main thread handles the message queue. One thread is responsible for data streaming and reacording, and the other thread listens on a queue and when received a request, returns the last three second of data from a buffer. This data can be used in real-time monitoring, or real-time processing and creating real-time feedbacks.  The `Device Coordinator` sends different triggers such as the start of recording or end of recording to different devices by putting the message in all devices' queue. The `Device Coordinator` also sends the trigger over the network for devices that are not embedded in the Octopus Sensing. 
 <p align="center">
-  <img src="https://octopus-sensing.nastaran-saffar.me/_static/OCS-diagram.png" alt="Ovrall view of Octopus Sensing">
+  <img src="https://github.com/octopus-sensing/octopus-sensing/blob/paper-review/docs/_static/OCS-diagram.png" alt="Ovrall view of Octopus Sensing">
 </p>
  
 # Research perspective
