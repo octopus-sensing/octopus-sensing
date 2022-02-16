@@ -62,9 +62,7 @@ The main features of `Octopus Sensing` are listed as follows:
 
 # Methodology
 Octopus Sensing synchronizes data recording by using `multiprocessing` in Python. By initiating an instance of a device, Octopus Sensing creates a process for the device. Each device's process has three threads: data acquisition thread, trigger handling and data recording thread, and real-time data thread. The data acquisition thread is responsible for acquiring data from a sensor. The trigger handling and data recording thread handles trigger messages through a message queue for synchronous data recording. It also records data in a file or files. The real-time data thread listens on a queue and returns the last three seconds of data from a buffer when receiving a request. This data is being used in real-time monitoring and can be used for real-time processing and creating real-time feedback in the future. The `Device Coordinator` sends different triggers such as the start of recording or end of recording to different devices by putting the message in all devices' trigger queues. The `Device Coordinator` also sends the trigger over the network for devices that are not embedded in the Octopus Sensing. The following image shows the overall view of the main components of the Octopus Sensing and their relations.
-<p align="center">
-  <img src="https://raw.githubusercontent.com/octopus-sensing/octopus-sensing/master/docs/_static/OCS-diagram.png" alt="Ovrall view of Octopus Sensing">
-</p>
+-![Ovrall view of Octopus Sensing](OCS-diagram.png)
  
 # Research perspective
  
