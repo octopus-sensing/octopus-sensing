@@ -84,11 +84,5 @@ please refer to :ref:`development`.
 
 Troubleshooting
 ===============
-- If the installation failed, and this error is in the logs:
-
-```fatal error: portaudio.h: No such file or directory```
-
-You need to install `portaudio` package on your system. On a debian-based linux the package called
-`portaudio19-dev`.
 
 - Pip cannot install PyGObject on Windows. If users want to use `octopus-sensing.stimuli` or `octopus-sensing.windows` packages, they need to install it manually themselves. See `PyGObject documentation <https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started>`_ to know how to install PyGObject on Windows.
