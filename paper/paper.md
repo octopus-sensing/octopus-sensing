@@ -71,6 +71,6 @@ This tool can be used to build real-time data processing systems to recognize em
 
 
 # Acknowledgement
-We acknowledge the [Empatic Computing Laboratory (ECL)](http://empathiccomputing.org/) for their financial support and for providing feedback, and Professor Suranga Nanayakkara for giving us feedback.
+We acknowledge the [Empatic Computing Laboratory (ECL)](http://empathiccomputing.org/) for financial support and for providing feedback, and Professor Suranga Nanayakkara for encouragement and feedback.
 
 # References

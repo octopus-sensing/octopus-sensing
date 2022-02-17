@@ -67,4 +67,4 @@ def simple_scenario(stimuli_path):
     assert response.status == 200
 
 if __name__ == "__main__":
-    simple_scenario('/home/nastaran/Pictures/wood pattern')#Path_to_the_stimuli_folder')
+    simple_scenario('images')#Path_to_the_stimuli_folder
