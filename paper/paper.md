@@ -65,7 +65,6 @@ The main features of `Octopus Sensing` are listed as follows:
 -![Ovrall view of Octopus Sensing](OCS-diagram.png)
 
 # Research perspective
-
 We used `Octopus Sensing` to design several human emotion recognition experiments. We designed the experiments and recorded facial video, brain activity, and physiological signals using `Octopus Sensing` in a watching video task to recognize emotion [@Saffaryazdi2021]. This scenario which is common in physiological emotion recognition studies has been included in the repository as an example and explained in the tutorial. In another research study, we collected multimodal data in a face-to-face conversation task to analyze human emotional responses [@Saffaryazdi2021conv].
 
 This tool can be used to build real-time data processing systems to recognize emotions, stress, cognitive load, or analyze human behavior. Our final goal is to extend its capabilities to provide real-time emotion recognition using multimodal data. Furthermore, we plan to integrate it with `Psychopy` in the future and combine multimodal data collection and monitoring with `Psychopy` features when designing scenarios. Additionally, we plan to support LSL in the future. By supporting LSL, other applications that already support LSL could work with `Octopus Sensing`.
