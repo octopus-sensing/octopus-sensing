@@ -1,5 +1,5 @@
 ---
-title: 'Octopus-sensing: A python library for human behavior studies'
+title: 'Octopus Sensing: A python library for human behavior studies'
 tags:
  - Python
  - Javascript
