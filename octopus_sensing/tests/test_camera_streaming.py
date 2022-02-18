@@ -10,8 +10,8 @@ from octopus_sensing.common.message_creators import start_message, stop_message,
 
 class MockedCv2Module:
 
-    def VideoCapture(self):
-        return MockedVideoCaptureModule()
+    def VideoCapture(self, camera_number):
+        return MockedVideoCaptureModule(camera_number)
     
     def VideoWriter_fourcc(self, a, b, c, d):
         return ('XVID')
@@ -52,6 +52,9 @@ class MockedVideoCaptureModule:
     def release(self):
         pass
 
+    def get(self):
+        return (float(640.0))
+
 
 class MockedVideoWriterModule:
 
@@ -60,7 +63,7 @@ class MockedVideoWriterModule:
 
     def write(self, frame):
         a = time.time()
-        open(self.file_name[:-4] + "/" + str(a) + ".jpg", 'w+').write(frame)
+        open(self.file_name, 'w+').write(frame)
 
     def release(self):
         pass
@@ -112,16 +115,16 @@ def test_happy_path(mocked):
         device_name, experiment_id, stimuli_id))
 
     
-
+    ''' 
+    for bug testing only
     list_dir = os.listdir(device_output)
-    #打印目录列表
     print ('output_dir:',output_dir)
     print('device_name:',device_name)
     print ('device_output:', device_output)
     print("list_dir:",list_dir)
-    #遍历目录列表
     for temp in list_dir:
         print("temp:",temp)
+    '''
 
     assert os.path.exists(recorded_file)
 
