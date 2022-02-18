@@ -63,7 +63,7 @@ class MockedVideoWriterModule:
 
     def write(self, frame):
         a = time.time()
-        print('111111!',self.file_name)
+        print('self.file_name:',self.file_name) # used for bug checking
         open(self.file_name, 'w+').write(frame)
 
     def release(self):
