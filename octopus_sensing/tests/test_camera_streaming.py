@@ -14,18 +14,12 @@ class MockedCv2Module:
         return MockedVideoCaptureModule(camera_number)
     
     def VideoWriter_fourcc(self, a, b, c, d):
+        # choose .avi file for example
         return ('XVID')
     
     def VideoWriter(self, file_name, codec, fps, _video_size):
         return MockedVideoWriterModule(file_name)
 
-    '''
-    Get the information of your computer using:
-    >>> import cv2
-    >>> cap=cv2.VideoCapture(0)
-    >>> print(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    >>> print(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    '''
     def CAP_PROP_FRAME_WIDTH(self):
         return (float(640.0))
     
@@ -34,25 +28,27 @@ class MockedCv2Module:
     
     def imwrite(self, filename, img):
         a = time.time()
-        # self.output_path/self.name-experiment_id-str(message.stimulus_id).zfill(2)/str(a).jpg
         open(filename[:-4] + "/" + str(a) + ".jpg", 'w+').write(img)
 
 class MockedVideoCaptureModule:
 
+    def __init__(self, camera_number):
+        pass
+
     def isOpened(self):
         return True
 
-    def set(self):
+    def set(self, a, b):
         pass
 
     def read(self):
-        # bool, 3d matrix
+        # bool, 3d matrix (fake signal)
         return True, [[[0,10,10],[1,11,11]], [[0,10,10],[1,11,11]]]
     
     def release(self):
         pass
 
-    def get(self):
+    def get(self, option):
         return (float(640.0))
 
 
@@ -63,8 +59,7 @@ class MockedVideoWriterModule:
 
     def write(self, frame):
         a = time.time()
-        print('self.file_name:',self.file_name) # used for bug checking
-        open(self.file_name, 'w+').write(frame)
+        open(self.file_name, 'a').write(str(frame))
 
     def release(self):
         pass
@@ -115,19 +110,8 @@ def test_happy_path(mocked):
     recorded_file = os.path.join(device_output, '{}-{}-{}.avi'.format(
         device_name, experiment_id, stimuli_id))
 
-    
-    ''' 
-    for bug testing only
-    list_dir = os.listdir(device_output)
-    print ('output_dir:',output_dir)
-    print('device_name:',device_name)
-    print ('device_output:', device_output)
-    print("list_dir:",list_dir)
-    for temp in list_dir:
-        print("temp:",temp)
-    '''
-
     assert os.path.exists(recorded_file)
+    assert os.path.getsize(recorded_file) > 25600 # check the file size to assure it is not empty
 
     # Sending terminate and waiting for the device process to exit.
     msg_queue.put(terminate_message())
