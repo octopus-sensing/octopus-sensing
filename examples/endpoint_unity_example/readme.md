@@ -1,5 +1,5 @@
 # Octupus Sensing - Unity Example
-In this example, We're going to send predefined messages (START, STOP and, TERMINATE) from Unity to Octopus sensing, to control the recording of data. Octopus sensing (Python) is used as a server and Unity (C#) as a client.
+In this example, We're going to send predefined messages (START, STOP and, TERMINATE) from Unity to Octopus sensing, to control the recording of data. A python server running the Octopus sensing library is used and Unity (C#) is used as the client.
 
 Each button has the ability to send a specific message when pressed. See the UI below.
 
