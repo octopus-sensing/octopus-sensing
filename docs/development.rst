@@ -19,7 +19,7 @@ Then `cd` to where the source code located and run:
 >>> poetry install
 >>> poetry build
 
-It will create a virtual environment and installs `octopus-sensing` with its dependencies in it.
+It will create a virtual environment and installs `Octopus Sensing` with its dependencies in it.
 
 Coding Style
 ==============
@@ -40,7 +40,7 @@ Doc Strings
 ~~~~~~~~~~~~
 Every public method or function should have doc string. We also generate our API Reference document
 from these doc strings. So ensure they are clear and addresses all the functionality and exceptions
-of a method.
+of a method. We are using `NumPy style <https://numpydoc.readthedocs.io/>` for creating doc strings.
 
 Static Type Checking
 ======================
@@ -67,3 +67,82 @@ There are two sets of tests: An integration test that checks the overall health 
 a full scenario, and a lot of small unit tests that are testing functionalities individually.
 
 All tests are located in `octopus-sensing/tests` directory.
+
+Adding Support for a New Device
+===============================
+
+To add support for a new device, you need to create a subclass of `octopus-sensing.devices.device.Device`.
+
+The device's code will be run in a separate process. Because Python is not good with threading, and also
+because it minimizes the effect of other parts of the application on the data collection.
+
+The Device process and the parent process (the Device Coordinator) talk with each other using Message Queues.
+
+When implementing the `Device` class, you need to override `__init__` and `_run` methods.
+
+In `__init__`, you will receive the required parameters. For example, if the device needs configuration options.
+You also need to receive the same parameters as in the `Device` class (your base class) and pass them to your
+base class using `super()`.
+
+The `_run` method will be run in the separate process. You need to initialize the device here, and start
+recording the data. At the same time, you need to check the messages in `self.message_queue`. So, usually,
+you need to do your data recording in a separate thread, and check the messages in the main thread.
+
+The following code can be used as a starting point for adding a device. And also have a look at the devices
+currently implemented in Octopus Sensing for some sample codes.
+
+.. code-block:: python
+
+    import threading
+
+    from octopus_sensing.common.message_creators import MessageType
+    from octopus_sensing.devices.device import Device
+
+    # We inherit from Device class
+    class SampleDevice(Device):
+
+        # 'name' and 'output_path' are from our parent, the Device class
+        def __init__(self, config_flag, output_path, name=None):
+            # Parent should always be called. It does some initialization of itself.
+            # We're passing the parameters we received to it.
+            super().__init__(name=name, output_path=output_path)
+
+            # Keeping the config parameter
+            self._config_flag = config_flag
+
+            # Note that we don't do anything with the device here.
+            # Everything should be done after the process is created,
+            # in the _run method.
+
+        # Note that this is '_run' and not 'run'!
+        # You should never override 'run'.
+        def _run(self):
+            # Initialize your device here.
+            self._device_handle = ...
+            # Then we start a thread for recording the data.
+            # We will use this flag to tell the thread to finish recording.
+            self._record = True
+            threading.Thread(target=self._record_data).start()
+
+            # We're checking messages in the main thread.
+            while True:
+                # This will block until a message receives from the parent (the deivce coordinator)
+                message = self.message_queue.get()
+                if message.type == MessageType.TERMINATE:
+                    # This will cause the recording thread to exit. (see its code)
+                    self._record = False
+                    # Exiting the main loop. It will cause the process to finish and terminate.
+                    # (since there's nothing after this.)
+                    break
+
+
+        def _record_data(self):
+            # This is running in another thread (see _run)
+            # Do the actual data recording here.
+            while self._record:
+                data = self._device_handle.read()
+                # Write it to a file for example.
+
+            # Depending on the device, you might want to start recording data
+            # when you received the START message in the message_queue, and
+            # stop recording when you received the STOP message.

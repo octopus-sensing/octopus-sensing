@@ -10,7 +10,7 @@ authors = ["Nastaran Saffaryazdi <nsaffar@gmail.com>", "Aidin Gharibnavaz <aidin
 license = "GPL-3.0-or-later"
 readme = "README.md"
 homepage = "https://octopus-sensing.nastaran-saffar.me"
-repository = "https://github.com/nastaran62/octopus-sensing"
+repository = "https://github.com/octopus-sensing/octopus-sensing"
 keywords = ["sensors", "eeg", "gsr", "recorder"]
 
 [tool.poetry.dependencies]

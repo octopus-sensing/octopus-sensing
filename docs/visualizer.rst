@@ -16,7 +16,7 @@ the same format as we recorded through Octopus Sensing.
 **Note**
 
 If we want to display data that is recorded by Octopus Sensing,
-we should apply :ref: `preprocessing` module to prepare data for the visualizer while we record data or later.
+we should apply :ref: `api_reference/preprocessing` module to prepare data for the visualizer while we record data or later.
 
 
 

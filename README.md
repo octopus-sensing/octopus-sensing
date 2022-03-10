@@ -22,7 +22,7 @@ development skills can define experiment scenarios with no effort.
 Also, this tool can be used as the base structure for creating real-time data processing systems like systems with capabilities of recognizing emotions, stress, cognitive load, or analyzing human behaviors.
 
 
-**To see the full documentation go to [Otopus Sensing website](https://octopus-sensing.nastaran-saffar.me/).**
+**To see the full documentation visit the [Octopus Sensing website](https://octopus-sensing.nastaran-saffar.me/).**
 
 Main features
 --------------
@@ -35,7 +35,7 @@ Main features
 
 Copyright
 ---------
-Copyright © 2020 Nastaran Saffaryazdi, Aidin Gharibnavaz
+Copyright © 2020-2022 Nastaran Saffaryazdi, Aidin Gharibnavaz
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation, either version 3 of the
