@@ -120,7 +120,7 @@ class BrainFlowStreaming(MonitoredDevice):
                 if self._state == "START":
                     print("Brainflow streaming has already recorded the START triger")
                 else:
-                    print("OpenBCI start")
+                    print("Brainflow start")
                     self.__set_trigger(message)
                     self._experiment_id = message.experiment_id
                     self._state = "START"
@@ -128,7 +128,7 @@ class BrainFlowStreaming(MonitoredDevice):
                 if self._state == "STOP":
                     print("Brainflow streaming has already recorded the STOP triger")
                 else:
-                    print("OpenBCI stop")
+                    print("Brainflow stop")
                     if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
                         self._experiment_id = message.experiment_id
                         file_name = \

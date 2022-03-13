@@ -77,7 +77,12 @@ def test_system_health(mocked):
 
     params = board_shim.BrainFlowInputParams()
     params.serial_port = "/dev/ttyUSB0"
-    brainflow = brainflow_streaming.BrainFlowStreaming(2, 125, brain_flow_input_params=params, name="cyton_daisy", output_path=output_dir)    
+    brainflow = \
+        brainflow_streaming.BrainFlowStreaming(2,
+                                               125,
+                                               brain_flow_input_params=params,
+                                               name="cyton_daisy",
+                                               output_path=output_dir)    
 
     coordinator.add_device(brainflow)
 
@@ -95,10 +100,14 @@ def test_system_health(mocked):
         response = http_client.getresponse()
         assert response.status == 200
         monitoring_data = pickle.loads(response.read())
-        assert isinstance(monitoring_data, dict) # test the type of monitoring_data (should be dict, given that in real situation the recording data has various types)
-        assert isinstance(monitoring_data["cyton_daisy"], list) # test the type of the recording data of brain flow streaming
-        assert len(monitoring_data["cyton_daisy"]) >= 375 # test that there is something recorded rather than empty
-        assert len(monitoring_data["cyton_daisy"][0]) == 5 # the column number of the recorded data is five; need to check the first and last row
+        # test the type of monitoring_data (should be dict, given that in real situation the recording data has various types)
+        assert isinstance(monitoring_data, dict)
+        # test the type of the recording data of brain flow streaming
+        assert isinstance(monitoring_data["cyton_daisy"], list)
+        # test that there is something recorded rather than empty
+        assert len(monitoring_data["cyton_daisy"]) >= 375 
+        # the column number of the recorded data is five; need to check the first and last row
+        assert len(monitoring_data["cyton_daisy"][0]) == 5 
         assert len(monitoring_data["cyton_daisy"][-1]) == 5
 
     finally:
