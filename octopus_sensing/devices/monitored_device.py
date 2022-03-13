@@ -39,16 +39,13 @@ class MonitoredDevice(Device):
         '''Sets the queues for communicating with the parent process.
         It should be called before the start of the process.
         '''
-        assert isinstance(monitor_in_q, QueueType)
-        assert isinstance(monitor_out_q, QueueType)
-
         self._monitor_in_q = monitor_in_q
         self._monitor_out_q = monitor_out_q
 
     def run(self) -> None:
         # Ensuring queues are set.
-        assert isinstance(self._monitor_in_q, QueueType)
-        assert isinstance(self._monitor_out_q, QueueType)
+        assert self._monitor_in_q is not None
+        assert self._monitor_out_q is not None
 
         threading.Thread(target=self._monitor_loop,
                          name=self.__class__.__name__ + " monitor thread", daemon=True) \

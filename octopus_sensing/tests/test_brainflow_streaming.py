@@ -1,9 +1,8 @@
 import pytest
 import multiprocessing
-import multiprocessing.dummy
 import multiprocessing.queues
+import threading
 import queue
-import random
 import http.client
 import pickle
 import os
@@ -12,6 +11,12 @@ import numpy as np
 import time
 import tempfile
 from brainflow import board_shim
+
+import octopus_sensing.devices.brainflow_streaming as brainflow_streaming
+from octopus_sensing.device_coordinator import DeviceCoordinator
+from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
+from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
+
 
 class MockBrainFlowInputParams():
     def __init__(self):
@@ -44,80 +49,65 @@ class MockBoardShim():
 
 @pytest.fixture(scope="module")
 def mocked():
-    # Preventing processes from creating a new process
-    original_process = multiprocessing.Process
-    multiprocessing.Process = multiprocessing.dummy.Process
-    original_queue = multiprocessing.queues.Queue
-    multiprocessing.queues.Queue = queue.Queue
-    original_queue_method = multiprocessing.Queue
-    multiprocessing.Queue = queue.Queue
-
-    original_BrainFlowInputParams = board_shim.BrainFlowInputParams
-    board_shim.BrainFlowInputParams = MockBrainFlowInputParams
-    original_BoardShim = board_shim.BoardShim
-    board_shim.BoardShim = MockBoardShim
+    original_bases = brainflow_streaming.BrainFlowStreaming.__bases__[0].__bases__[0].__bases__
+    brainflow_streaming.BrainFlowStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
+    original_BrainFlowInputParams = brainflow_streaming.BrainFlowInputParams
+    brainflow_streaming.BrainFlowInputParams = MockBrainFlowInputParams
+    original_BoardShim = brainflow_streaming.BoardShim
+    brainflow_streaming.BoardShim = MockBoardShim
 
     yield None
 
-    multiprocessing.Process = original_process
-    multiprocessing.queues.Queue = original_queue
-    multiprocessing.Queue = original_queue_method
-    board_shim.BrainFlowInputParams = original_BrainFlowInputParams
-    board_shim.BoardShim = original_BoardShim
+    brainflow_streaming.BrainFlowStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
+    brainflow_streaming.BrainFlowInputParams = original_BrainFlowInputParams
+    brainflow_streaming.BoardShim = original_BoardShim
 
 def test_system_health(mocked):
-    import octopus_sensing.devices.brainflow_streaming as brainflow_streaming
-    from octopus_sensing.device_coordinator import DeviceCoordinator
-    from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
-    from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
 
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
-    print(output_dir)
-    coordinator = DeviceCoordinator()
+    experiment_id = 'test-exp-2'
+    stimuli_id = 'sti-2'
 
     params = board_shim.BrainFlowInputParams()
     params.serial_port = "/dev/ttyUSB0"
-    brainflow = \
+    device = \
         brainflow_streaming.BrainFlowStreaming(2,
                                                125,
                                                brain_flow_input_params=params,
                                                name="cyton_daisy",
                                                output_path=output_dir)    
+    msg_queue = queue.Queue()
+    device.set_queue(msg_queue)
+    monitoring_queue_in = queue.Queue()
+    monitoring_queue_out = queue.Queue()
+    device.set_monitoring_queues(monitoring_queue_in, monitoring_queue_out)
 
-    coordinator.add_device(brainflow)
+    device.start()
 
-    monitoring_endpoint = MonitoringEndpoint(coordinator)
-    monitoring_endpoint.start()
+    time.sleep(0.2)
 
-    try:
-        coordinator.dispatch(start_message("int_test", "stimulus_1"))
-        # Allowing data collection for five seconds
-        time.sleep(5)
-        coordinator.dispatch(stop_message("int_test", "stimulus_1"))
+    msg_queue.put(start_message(experiment_id, stimuli_id))
+    # Allowing data collection for one second
+    time.sleep(1)
 
-        http_client = http.client.HTTPConnection("127.0.0.1:9330")
-        http_client.request("GET", "/")
-        response = http_client.getresponse()
-        assert response.status == 200
-        monitoring_data = pickle.loads(response.read())
-        # test the type of monitoring_data (should be dict, given that in real situation the recording data has various types)
-        assert isinstance(monitoring_data, dict)
-        # test the type of the recording data of brain flow streaming
-        assert isinstance(monitoring_data["cyton_daisy"], list)
-        # test that there is something recorded rather than empty
-        assert len(monitoring_data["cyton_daisy"]) >= 375 
-        # the column number of the recorded data is five; need to check the first and last row
-        assert len(monitoring_data["cyton_daisy"][0]) == 5 
-        assert len(monitoring_data["cyton_daisy"][-1]) == 5
+    msg_queue.put(stop_message(experiment_id, stimuli_id))
 
-    finally:
-        coordinator.dispatch(terminate_message())
-        monitoring_endpoint.stop()
+    time.sleep(0.2)
 
-    # To ensure termination is happened.
-    time.sleep(0.5)
+    # Sending terminate and waiting for the device process to exit.
+    msg_queue.put(terminate_message())
+    device.join()
 
+    # It should save the file after receiving a TERMINATE.
     brain_output = os.path.join(output_dir, "cyton_daisy")
+    filename = "cyton_daisy-{}.csv".format(experiment_id)
+
     assert os.path.exists(brain_output)
     assert len(os.listdir(brain_output)) == 1
-    assert os.listdir(brain_output)[0] == "cyton_daisy-int_test.csv"
+    assert os.listdir(brain_output)[0] == filename
+
+    filecontent = open(os.path.join(brain_output, filename), 'r').read()
+    assert len(filecontent) >= 375
+    # TODO: Check if the triggers are there.
+    # TODO: We can check data in monitoring queues as well.
+    
