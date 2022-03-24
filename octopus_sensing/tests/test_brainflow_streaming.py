@@ -86,6 +86,9 @@ def test_system_health(mocked):
 
     time.sleep(0.2)
 
+    # check data in monitoring queues
+    assert len(device._get_monitoring_data()) >= 375
+
     msg_queue.put(start_message(experiment_id, stimuli_id))
     # Allowing data collection for one second
     time.sleep(1)
@@ -104,10 +107,8 @@ def test_system_health(mocked):
 
     assert os.path.exists(brain_output)
     assert len(os.listdir(brain_output)) == 1
+    # Check if the triggers are there
     assert os.listdir(brain_output)[0] == filename
 
     filecontent = open(os.path.join(brain_output, filename), 'r').read()
     assert len(filecontent) >= 375
-    # TODO: Check if the triggers are there.
-    # TODO: We can check data in monitoring queues as well.
-    
