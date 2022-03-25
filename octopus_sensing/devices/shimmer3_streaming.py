@@ -39,24 +39,27 @@ class Shimmer3Streaming(MonitoredDevice):
     Parameters
     ----------
     name: str, default: None
-        Device name. This name will be used in the output path to identify 
+        Device name. This name will be used in the output path to identify
         each device's data.
 
     output_path: str,  default: output
         The path for recording files.
         Audio files will be recorded in folder {output_path}/{name}
-    
+
     saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data: saving continiously in a file or save data related to
-        each stimulus in a separate file. 
+        each stimulus in a separate file.
         SavingModeEnum is:
-        
+
             0. CONTINIOUS_SAVING_MODE
             1. SEPARATED_SAVING_MODE
-    
+
+    serial_port: str, default: Windows=Com12, Linux=/dev/rfcomm0
+        The serial port that Shimmer is paired with (See the Note below)
+
     sampling_rate: int, default: 128
         The sampling frequency for acquiring data from the device
-    
+
 
     See Also
     -----------
@@ -66,9 +69,9 @@ class Shimmer3Streaming(MonitoredDevice):
     Example
     -------
     Creating an instance of shimmer3 and adding it to the device coordinator.
-    Device coordinator is responsible for triggerng the shimmer3 to 
+    Device coordinator is responsible for triggerng the shimmer3 to
     start or stop recording  or to add markers to recorded data.
-    In this example, since the saving mode is continuous, all recorded data 
+    In this example, since the saving mode is continuous, all recorded data
     will be saved in a file. But, when an event happens, device coordinator will send a trigger message
     to the device and recorded data will be marked with the trigger
 
@@ -86,33 +89,40 @@ class Shimmer3Streaming(MonitoredDevice):
     For example in linux you can do it as follow:
         1- hcitool scan   //It shows the macaddress of device. for shimmer it is 00:06:66:F0:95:95
 
-        2- vim /etc/bluetooth/rfcomm.conf write the below line in it: 
-        rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" } 
+        2- vim /etc/bluetooth/rfcomm.conf write the below line in it:
+        rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" }
 
         3- sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading bluetooth data from a serial port
 
     Note
     -----
-    This class is based on `ShimmerReader <https://github.com/nastaran62/ShimmerReader>`_ 
-    which is an extended version of 
-    `LogAndStream python firmware <http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf>`_ 
+    This class is based on `ShimmerReader <https://github.com/nastaran62/ShimmerReader>`_
+    which is an extended version of
+    `LogAndStream python firmware <http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf>`_
     for Shimmer3 data streaming.
     '''
 
     def __init__(self,
                  sampling_rate: int=128,
                  saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 serial_port: Optional[str]=None,
                  **kwargs):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
         self._stream_data: List[float] = []
         self._sampling_rate = sampling_rate
-        self._inintialize_connection()
         self._trigger: Optional[str] = None
         self._break_loop = False
         self.output_path = self._make_output_path()
         self._state = ""
+        if serial_port is None:
+            if platform.system() == "Windows":
+                self._serial_port = "Com12"
+            else:
+                self._serial_port = "/dev/rfcomm0"
+        else:
+            self._serial_port = serial_port
 
     def _make_output_path(self):
         output_path = os.path.join(self.output_path, self.name)
@@ -123,11 +133,7 @@ class Shimmer3Streaming(MonitoredDevice):
         '''
         Initializing connection with Simmer3 device
         '''
-        os_type = platform.system()
-        if os_type == "Windows":
-            self._serial = serial.Serial("Com12", 115200)
-        else:
-            self._serial = serial.Serial("/dev/rfcomm0", 115200)
+        self._serial = serial.Serial(self._serial_port, 115200)
         self._serial.flushInput()
         print("port opening, done.")
         # send the set sensors command
@@ -204,6 +210,8 @@ class Shimmer3Streaming(MonitoredDevice):
         '''
         Listening to the message queue and manage messages
         '''
+        self._inintialize_connection()
+
         loop_thread = threading.Thread(target=self._stream_loop)
         loop_thread.start()
 
@@ -379,12 +387,12 @@ class Shimmer3Streaming(MonitoredDevice):
     def get_saving_mode(self):
         '''
         Gets saving mode
-        
+
         Returns
         -----------
         saving_mode: int
             The way of saving data: saving continiously in a file or save data related to
-            each stimulus in a separate file. 
+            each stimulus in a separate file.
             SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
         '''
         return self._saving_mode
