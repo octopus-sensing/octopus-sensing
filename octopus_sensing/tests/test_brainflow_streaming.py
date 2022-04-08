@@ -107,8 +107,9 @@ def test_system_health(mocked):
 
     assert os.path.exists(brain_output)
     assert len(os.listdir(brain_output)) == 1
-    # Check if the triggers are there
+    # TODO: Check if the triggers are there.
     assert os.listdir(brain_output)[0] == filename
-
     filecontent = open(os.path.join(brain_output, filename), 'r').read()
     assert len(filecontent) >= 375
+    # TODO: We can check data in monitoring queues as well.
+    assert len(device._get_monitoring_data()) >= 375
