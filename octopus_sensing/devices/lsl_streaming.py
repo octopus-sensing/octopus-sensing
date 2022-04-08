@@ -15,6 +15,11 @@
 import threading
 from typing import Optional
 
+from pylsl import StreamInlet, resolve_stream
+import csv
+import sys
+import os
+
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.devices.device import Device
 
@@ -23,16 +28,42 @@ class LSLStreaming(Device):
 
     def __init__(self,
                  name: Optional[str] = None,
-                 output_path: str = "output"):
-        super().__init__(name=name, output_path=output_path)
+                 device_type: str = "name",
+                 device: str = "Keyboard",                 
+                 **kwargs):
+        super().__init__(**kwargs)
+
+        self.output_path = os.path.join(self.output_path, self.name)
+        os.makedirs(self.output_path, exist_ok=True)
+        self._name = name
+        self._device_type = device_type
+        self._device = device
+        self._stream_data = []
         self._terminate = False
+        self._state = ""
 
     def _run(self):
+        '''
+        Listening to the message queue and manage messages
+        '''
+
+        self._stream = resolve_stream(self._device_type, self._device)
+        self._inlet = StreamInlet(self._stream[0])
+
         threading.Thread(target=self._message_loop).start()
 
         while True:
             # The main thread.
             # Do all the communication with LSL here.
+
+            chunk, timestamp = self._inlet.pull_chunk()
+            
+            if timestamp:
+                data = [timestamp[0]]
+                for element in chunk[0]:
+                    data.append(element)
+                self._stream_data.append(data)
+            
             if self._terminate is True:
                 break
 
@@ -43,18 +74,36 @@ class LSLStreaming(Device):
                 continue
 
             if message.type == MessageType.START:
-                self.__set_trigger(message)
-                self._experiment_id = message.experiment_id
 
-            elif message.type == MessageType.STOP:
-                self._experiment_id = message.experiment_id
-                self.__set_trigger(message)
+                
+                if self._state == "START":
+                    print(f"LSL Device: '{self._device}' has already started")
+                else:
+                    print(f"LSL device: '{self._device}' start")
+                    self._experiment_id = message.experiment_id
+                    self.__set_trigger(message)
+                    self._state = "START"
+
+            elif message.type == MessageType.STOP:                
                 # Probably you want to write the data to the file here.
+                if self._state == "STOP":
+                    print(f"LSL Device '{self._device}' has already stopped")
+                else:
+                    
+                    self._experiment_id = message.experiment_id
+                    self.__set_trigger(message)
+                    file_name = \
+                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                    self.name,
+                                                    self._experiment_id,
+                                                    message.stimulus_id)
+                    self._save_to_file(file_name)                        
+                    self._state = "STOP"                
 
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 break
-
+                
     def __set_trigger(self, message):
         '''
         Takes a message and set the trigger using its data
@@ -65,3 +114,20 @@ class LSLStreaming(Device):
             a message object
         '''
         # Add the trigger to the data
+        self._trigger = \
+            "{0}-{1}-{2}".format(message.type,
+                                 message.experiment_id,
+                                 str(message.stimulus_id).zfill(2))
+
+    def _save_to_file(self, file_name):
+        if not os.path.exists(file_name):
+            csv_file = open(file_name, 'a')
+            writer = csv.writer(csv_file)
+            csv_file.flush()
+            csv_file.close()
+        
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            for row in self._stream_data:
+                writer.writerow(row)
+                csv_file.flush()
