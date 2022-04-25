@@ -8,6 +8,7 @@ import pickle
 import os
 import json
 import numpy as np
+import csv
 import time
 import tempfile
 from brainflow import board_shim
@@ -107,9 +108,21 @@ def test_system_health(mocked):
 
     assert os.path.exists(brain_output)
     assert len(os.listdir(brain_output)) == 1
+    # check the length of the recorded data
+    filepath = os.path.join(brain_output, filename)
+    filecontent = open(filepath, 'r').read()
+    assert len(filecontent) >= 375
     # TODO: Check if the triggers are there.
     assert os.listdir(brain_output)[0] == filename
-    filecontent = open(os.path.join(brain_output, filename), 'r').read()
-    assert len(filecontent) >= 375
+    data = []
+    with open(filepath, 'r') as csvfile:
+        csv_reader = csv.reader(csvfile)
+        for i, row in enumerate(csv_reader):
+            if (i == 2):
+                data.append(row)
+                break
+    assert (len(data) == 1)
+    assert (len(data[0]) == 5)
     # TODO: We can check data in monitoring queues as well.
     assert len(device._get_monitoring_data()) >= 375
+    assert len(device._get_monitoring_data()[0]) == 5
