@@ -13,7 +13,7 @@ def main():
         os.makedirs(output_path, exist_ok=False)
 
     # Add your devices
-    audio = AudioStreaming(2, name="Audio", output_path=output_path)
+    audio = AudioStreaming(1, name="Audio", output_path=output_path)
     camera = \
         CameraStreaming(name="webcam",
                         output_path=output_path,
@@ -36,4 +36,6 @@ def main():
 
     message_endpoint.stop()
 
-main()
+if __name__ == "__main__":
+    main()
+# main()
