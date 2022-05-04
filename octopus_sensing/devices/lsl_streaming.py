@@ -25,6 +25,49 @@ from octopus_sensing.devices.device import Device
 
 
 class LSLStreaming(Device):
+    '''
+    Get and Record data from a LSL stream.
+
+    Attributes
+    ----------
+
+    Parameters
+    ----------
+    
+    name: str, optional
+          device name
+          This name will be used in the output path to identify each device's data
+    
+    output_path: str, optional
+                 The path for recording files.
+                 Audio files will be recorded in folder {output_path}/{name}
+
+    device_type: str
+                 Device type provided by the specific LSL streaming device documentation. To access all available devices, see: https://github.com/sccn/labstreaminglayer/tree/master/Apps
+
+    device: str
+            Device name provided by the specific LSL streaming device documentation.
+
+
+    Example
+    -------
+    If you want to know get position data from a keyboard streaming, start the .exe available here: https://github.com/labstreaminglayer/App-Input/tree/5eec1b06b9b5db732acdb96f4bd2fc25a1e562fe
+
+    Creating an instance of LSL streaming recorder and adding it to the device coordinator.
+    Device coordinator is responsible for triggerng the audio recorder to start or stop recording
+
+    >>> lsl_keyboard = LSLStreaming(1,
+    ...                                 name="my_keyboard",
+    ...                                 device_type="name",
+    ...                                  device="MousePosition")
+    >>> device_coordinator.add_device(lsl_keyboard)
+
+    See Also
+    -----------
+    :class:`octopus_sensing.device_coordinator`
+    :class:`octopus_sensing.devices.device`
+
+    '''
 
     def __init__(self,
                  name: Optional[str] = None,
