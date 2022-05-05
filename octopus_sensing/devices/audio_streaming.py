@@ -19,6 +19,7 @@ import miniaudio
 
 from octopus_sensing.devices.device import Device
 from octopus_sensing.common.message_creators import MessageType
+from octopus_sensing.devices.common import SavingModeEnum
 
 class AudioStreaming(Device):
     '''
@@ -68,17 +69,19 @@ class AudioStreaming(Device):
     :class:`octopus_sensing.devices.device`
 
     '''
-    def __init__(self, device_id:int, **kwargs):
+    def __init__(self, device_id:int, saving_mode: int=SavingModeEnum.SEPARATED_SAVING_MODE, **kwargs):
         super().__init__(**kwargs)
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
 
         self._device_id = device_id
         
+        self._saving_mode = saving_mode
         self._stream_data: List[bytes] = []
         self._record = False
         self._terminate = False
         self._state = ""
+        
 
     def __stream_loop(self):
         _ = yield
@@ -106,6 +109,8 @@ class AudioStreaming(Device):
                 if self._state == "START":
                     print("Audio streaming has already started")
                 else:
+                    print("Audio start")
+                    self._experiment_id = message.experiment_id
                     self._stream_data = []
                     capture.start(recorder)
                     self._record = True
@@ -114,18 +119,34 @@ class AudioStreaming(Device):
                 if self._state == "STOP":
                    print("Audio streaming has already stopped")
                 else:
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        capture.stop()
+                        self._record = False
+                        file_name = \
+                            "{0}/{1}-{2}-{3}.wav".format(self.output_path,
+                                                        self.name,
+                                                        message.experiment_id,
+                                                        str(message.stimulus_id).zfill(2))
+                        self._save_to_file(file_name, capture)
+                    else:
+                        print("Audio stop")
+                        self._experiment_id = message.experiment_id
+                    self._state = "STOP"
+            
+            elif message.type == MessageType.TERMINATE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
                     capture.stop()
                     self._record = False
                     file_name = \
-                        "{0}/{1}-{2}-{3}.wav".format(self.output_path,
-                                                    self.name,
-                                                    message.experiment_id,
-                                                    str(message.stimulus_id).zfill(2))
+                        "{0}/{1}-{2}.wav".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
                     self._save_to_file(file_name, capture)
-                    self._state = "STOP"
-            elif message.type == MessageType.TERMINATE:
+                
+                print("Audio terminate")
                 self._terminate = True
                 break
+                
 
     def _save_to_file(self, file_name:str, capture:miniaudio.CaptureDevice):
         buffer = b"".join(self._stream_data)
@@ -137,3 +158,16 @@ class AudioStreaming(Device):
                                            capture.format,
                                            samples)
         miniaudio.wav_write_file(file_name, sound)
+
+    def get_saving_mode(self):
+        '''
+        Gets saving mode
+        
+        Returns
+        -----------
+        saving_mode: int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
+        '''
+        return self._saving_mode
