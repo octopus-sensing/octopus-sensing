@@ -38,6 +38,7 @@ screeninfo = "^0.7"
 miniaudio = "^1.45"
 brainflow = "^4.6.1"
 pylsl = "^1.15.0"
+pydub = "^0.25.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

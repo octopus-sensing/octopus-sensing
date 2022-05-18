@@ -14,3 +14,4 @@
 
 from octopus_sensing.preprocessing.openbci import openbci_preprocess
 from octopus_sensing.preprocessing.shimmer3 import shimmer3_preprocess
+from octopus_sensing.preprocessing.audiovideo_split import audio_split, video_split

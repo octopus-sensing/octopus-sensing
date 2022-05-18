@@ -16,6 +16,8 @@ import os
 import array
 from typing import List
 import miniaudio
+import datetime
+import csv
 
 from octopus_sensing.devices.device import Device
 from octopus_sensing.common.message_creators import MessageType
@@ -81,6 +83,8 @@ class AudioStreaming(Device):
         self._record = False
         self._terminate = False
         self._state = ""
+        self._log = []
+        self._start_continuous = False
         
 
     def __stream_loop(self):
@@ -106,16 +110,23 @@ class AudioStreaming(Device):
             if message is None:
                 continue
             if message.type == MessageType.START:
+                self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE START'])
+
                 if self._state == "START":
                     print("Audio streaming has already started")
                 else:
                     print("Audio start")
-                    self._experiment_id = message.experiment_id
-                    self._stream_data = []
-                    capture.start(recorder)
-                    self._record = True
-                    self._state = "START"
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE or self._start_continuous == False: 
+                        self._experiment_id = message.experiment_id
+                        self._stream_data = []
+                        capture.start(recorder)
+                        self._record = True
+                        self._state = "START"
+                        self._start_continuous = True
+
             elif message.type == MessageType.STOP:
+                self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE STOP'])
+
                 if self._state == "STOP":
                    print("Audio streaming has already stopped")
                 else:
@@ -130,24 +141,28 @@ class AudioStreaming(Device):
                         self._save_to_file(file_name, capture)
                     else:
                         print("Audio stop")
+                        
                         self._experiment_id = message.experiment_id
+
                     self._state = "STOP"
             
             elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE TERMINATE'])
+
                     capture.stop()
+                    self._save_log_file(f"{self.output_path}/{self.name}-{self._experiment_id}-log.csv")                    
                     self._record = False
                     file_name = \
                         "{0}/{1}-{2}.wav".format(self.output_path,
                                                  self.name,
                                                  self._experiment_id)
                     self._save_to_file(file_name, capture)
-                
+                    
                 print("Audio terminate")
                 self._terminate = True
                 break
                 
-
     def _save_to_file(self, file_name:str, capture:miniaudio.CaptureDevice):
         buffer = b"".join(self._stream_data)
         samples = array.array('h')
@@ -158,6 +173,13 @@ class AudioStreaming(Device):
                                            capture.format,
                                            samples)
         miniaudio.wav_write_file(file_name, sound)
+
+    def _save_log_file(self, file_name:str):
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            for row in self._log:
+                writer.writerow(row)
+                csv_file.flush()
 
     def get_saving_mode(self):
         '''

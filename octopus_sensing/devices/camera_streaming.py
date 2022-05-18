@@ -18,7 +18,10 @@ import threading
 import cv2
 from octopus_sensing.devices.device import Device
 from octopus_sensing.common.message_creators import MessageType
+from octopus_sensing.devices.common import SavingModeEnum
+import datetime
 import time
+import csv
 
 class CameraStreaming(Device):
     '''
@@ -83,6 +86,7 @@ class CameraStreaming(Device):
                  camera_path: Optional[str] = None,
                  image_width: int = 1280,
                  image_height: int = 720,
+                 saving_mode: int =SavingModeEnum.CONTINIOUS_SAVING_MODE,
                  **kwargs):
         assert (camera_no is not None) ^ (camera_path is not None), \
             "Only one of camera_no or camera_path should have value"
@@ -94,6 +98,7 @@ class CameraStreaming(Device):
         elif camera_path is not None:
             self._camera_number = os.path.realpath(camera_path)
 
+        self._saving_mode = saving_mode
         self._image_width = image_width
         self._image_height = image_height
         self._video_size: Tuple[int, int] = (self._image_width, self._image_height)
@@ -101,8 +106,11 @@ class CameraStreaming(Device):
         self._fps: int = 30
         self._capture_times: list = []
         self._frames: list = []
+        self._log = []
         self._counter = 0
         self._state = ""
+        self._terminate = True
+        self._start_continuous = False
 
     def _run(self):
         print("self._camera_number", self._camera_number)
@@ -131,47 +139,75 @@ class CameraStreaming(Device):
             if message is None:
                 continue
             if message.type == MessageType.START:
+
+                self._log.append([datetime.datetime.now(), len(self._frames), str(message.stimulus_id).zfill(2), 'MESSAGE START'])
+
                 if self._state == "START":
                     print("Video streaming has already started")
                 else:
-                    self._frames = []
-                    self._capture_times = []
-                    if recording_thread is not None:
-                        raise RuntimeError(
-                            ("[{0} device] Received two start messages. "
-                            "A STOP message should be send before trying "
-                            "to start a new video recording.".format(self.name)))
+                    print('Video start')
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE or self._start_continuous == False:
+                        self._experiment_id = message.experiment_id
+                        self._frames = []
+                        self._capture_times = []
+                        if recording_thread is not None:
+                            raise RuntimeError(
+                                ("[{0} device] Received two start messages. "
+                                "A STOP message should be send before trying "
+                                "to start a new video recording.".format(self.name)))
 
-                    file_name = "{0}/{1}-{2}-{3}.avi".format(self.output_path,
-                                                            self.name,
-                                                            message.experiment_id,
-                                                            str(message.stimulus_id).zfill(2))
-                    recording_event = threading.Event()
-                    recording_event.set()
-                    recording_thread = threading.Thread(
-                        target=self._stream_loop, args=(file_name, recording_event), daemon=True)
-                    recording_thread.start()
-                    self._state = "START"
+                        if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                            file_name = "{0}/{1}-{2}-{3}.avi".format(self.output_path,
+                                                                    self.name,
+                                                                    message.experiment_id,
+                                                                    str(message.stimulus_id).zfill(2))
+                        else:
+                            file_name = "{0}/{1}-{2}.avi".format(self.output_path,
+                                        self.name,
+                                        message.experiment_id)
+
+                        recording_event = threading.Event()
+                        recording_event.set()
+                        recording_thread = threading.Thread(
+                            target=self._stream_loop, args=(file_name, recording_event), daemon=True)
+                        recording_thread.start()
+
+                        self._state = "START"
+                        print('Estoy en start!!')
+                        self._start_continuous = True
 
             elif message.type == MessageType.STOP:
+                self._log.append([datetime.datetime.now(), len(self._frames), str(message.stimulus_id).zfill(2), 'MESSAGE STOP'])
+
                 if self._state == "STOP":
-                    print("Video streaming has already started")
+                    print("Video streaming has already stopped")
                 else:
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        print('Video stop separated')
+                        if recording_event is not None:
+                            recording_event.clear()
+                        recording_thread = None
+                        recording_event = None
+                    else:
+                        print('Video stop continuous')
+                        self._experiment_id = message.experiment_id
+                    
+                    self._state = "STOP"
+                    
+            elif message.type == MessageType.TERMINATE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._save_log_file(f"{self.output_path}/{self._experiment_id}-log.csv")
+                    
                     if recording_event is not None:
                         recording_event.clear()
                     recording_thread = None
                     recording_event = None
-                    self._state = "STOP"
 
-            elif message.type == MessageType.TERMINATE:
-                if recording_event is not None:
-                    recording_event.clear()
-                recording_thread = None
-                recording_event = None
+                self._terminate = True
                 break
 
-        print("video terminated")
         self._video_capture.release()
+        print("video terminated")
 
     def _stream_loop(self, file_name: str, event: threading.Event):
         codec = cv2.VideoWriter_fourcc(*'XVID')
@@ -218,3 +254,23 @@ class CameraStreaming(Device):
         except Exception as error:
             print("Error while recording video. Device: {0}".format(self.name))
             print(error)
+
+    def _save_log_file(self, file_name:str):
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            for row in self._log:
+                writer.writerow(row)
+                csv_file.flush()
+
+    def get_saving_mode(self):
+        '''
+        Gets saving mode
+        
+        Returns
+        -----------
+        saving_mode: int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
+        '''
+        return self._saving_mode
