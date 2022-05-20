@@ -15,12 +15,12 @@
 from octopus_sensing.common.endpoint_base import EndpointBase
 
 
-class MonitoringEndpoint(EndpointBase):
+class RealtimeDataEndpoint(EndpointBase):
 
     def __init__(self, device_coordinator):
-        super().__init__(endpoint_name="MonitoringEndpoint-Thread",
+        super().__init__(endpoint_name="RealtimeDataEndpoint-Thread",
                          port=9330, get_callback=self._get_handler)
         self._device_coordinator = device_coordinator
 
     def _get_handler(self, request_reader):
-        return self._device_coordinator.get_monitoring_data()
+        return self._device_coordinator.get_realtime_data()

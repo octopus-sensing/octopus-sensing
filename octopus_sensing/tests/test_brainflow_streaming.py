@@ -15,7 +15,7 @@ from brainflow import board_shim
 import octopus_sensing.devices.brainflow_streaming as brainflow_streaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
-from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
+from octopus_sensing.realtime_data_endpoint import RealtimeDataEndpoint
 
 
 class MockBrainFlowInputParams():
@@ -78,9 +78,9 @@ def test_system_health(mocked):
                                                output_path=output_dir)    
     msg_queue = queue.Queue()
     device.set_queue(msg_queue)
-    monitoring_queue_in = queue.Queue()
-    monitoring_queue_out = queue.Queue()
-    device.set_monitoring_queues(monitoring_queue_in, monitoring_queue_out)
+    realtime_data_queue_in = queue.Queue()
+    realtime_data_queue_out = queue.Queue()
+    device.set_realtime_data_queues(realtime_data_queue_in, realtime_data_queue_out)
 
     device.start()
 
@@ -109,5 +109,5 @@ def test_system_health(mocked):
     filecontent = open(os.path.join(brain_output, filename), 'r').read()
     assert len(filecontent) >= 375
     # TODO: Check if the triggers are there.
-    # TODO: We can check data in monitoring queues as well.
+    # TODO: We can check data in realtime data queues as well.
     

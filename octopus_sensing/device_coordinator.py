@@ -21,14 +21,14 @@ import pickle
 from typing import List, Any, Tuple, Dict
 
 from octopus_sensing.devices.device import Device
-from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message import Message
 from octopus_sensing.common.message_creators import terminate_message
 
 QueueType = multiprocessing.queues.Queue
 
 
-class MonitoringCache:
+class RealtimeDataCache:
     def __init__(self):
         self._time = time.time_ns()
         self._cached_data = []
@@ -57,9 +57,9 @@ class DeviceCoordinator:
         self.__devices = {}
         self.__queues: List[QueueType] = []
         self.__device_counter: int = 0
-        self.__monitoring_queues: List[Tuple[QueueType, QueueType, Device]] = [
+        self.__realtime_data_queues: List[Tuple[QueueType, QueueType, Device]] = [
         ]
-        self.__monitoring_cache = MonitoringCache()
+        self.__realtime_data_cache = RealtimeDataCache()
 
     def __get_device_id(self) -> str:
         '''
@@ -117,7 +117,7 @@ class DeviceCoordinator:
         device.set_queue(msg_queue)
         self.__queues.append(msg_queue)
 
-        self.__set_monitoring_queues(device)
+        self.__set_realtime_data_queues(device)
 
         device.start()
 
@@ -173,7 +173,7 @@ class DeviceCoordinator:
         for item in self.__devices.values():
             item.join()
 
-    def get_monitoring_data(self) -> Dict[str, List[Any]]:
+    def get_realtime_data(self) -> Dict[str, List[Any]]:
         '''
         Returns latest collected data from all devices.
         Device's data can be anything, depending on the device itself.
@@ -185,40 +185,40 @@ class DeviceCoordinator:
         
         Note
         ----
-        This method is being used for real-time monitoring
+        This method is being used for getting data in real-time for monitoring or realtime processing
 
         '''
-        cached = self.__monitoring_cache.get_cache()
+        cached = self.__realtime_data_cache.get_cache()
         if cached:
             return cached
 
         # Putting request for all devices, then collecting them all, for performance reasons.
-        for in_q, _, device in self.__monitoring_queues:
+        for in_q, _, device in self.__realtime_data_queues:
             try:
                 # The sub-process won't use the data we put in the queue. It's just a signal.
                 in_q.put(b'0', timeout=0.1)
             except queue.Full:
-                print("Could not put monitoring request for {0} device.".format(
+                print("Could not put realtime data request for {0} device.".format(
                     device.name), file=sys.stderr)
                 traceback.print_exc()
 
         result = {}
-        for _, out_q, device in self.__monitoring_queues:
+        for _, out_q, device in self.__realtime_data_queues:
             try:
                 records = pickle.loads(out_q.get(timeout=0.1))
                 # We ensured device has a name in the add_device, ignoring it here.
                 result[device.name] = records  # type: ignore
             except (queue.Empty, pickle.PickleError):
-                print("Could not read monitoring data from {0} device".format(
+                print("Could not read realtime data from {0} device".format(
                     device.name), file=sys.stderr)
                 traceback.print_exc()
 
-        self.__monitoring_cache.cache(result)
+        self.__realtime_data_cache.cache(result)
         return result
 
-    def __set_monitoring_queues(self, device: Device) -> None:
-        if isinstance(device, MonitoredDevice):
+    def __set_realtime_data_queues(self, device: Device) -> None:
+        if isinstance(device, RealtimeDataDevice):
             in_q: QueueType = multiprocessing.Queue()
             out_q: QueueType = multiprocessing.Queue()
-            device.set_monitoring_queues(in_q, out_q)
-            self.__monitoring_queues.append((in_q, out_q, device))
+            device.set_realtime_data_queues(in_q, out_q)
+            self.__realtime_data_queues.append((in_q, out_q, device))

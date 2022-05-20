@@ -20,7 +20,7 @@ import pyOpenBCI
 import numpy as np
 
 from octopus_sensing.common.message_creators import MessageType
-from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.devices.common import SavingModeEnum
 
 
@@ -28,7 +28,7 @@ uVolts_per_count = (4500000)/24/(2**23-1)
 accel_G_per_count = 0.002 / (2**4)  # G/count
 
 
-class OpenBCIStreaming(MonitoredDevice):
+class OpenBCIStreaming(RealtimeDataDevice):
     '''
     Manages OpenBCI streaming
     It uses pyOpenBCI library which is not supporting by OpenBCI anymore.
@@ -215,8 +215,8 @@ class OpenBCIStreaming(MonitoredDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_monitoring_data(self):
-        '''Returns latest collected data for monitoring/visualizing purposes.'''
+    def _get_realtime_data(self):
+        '''Returns latest collected data for monitoring/visualizing or realtime processing purposes.'''
         # Last three seconds
         # FIXME: hard-coded data collection rate
         return self._stream_data[-1 * 3 * 128:]

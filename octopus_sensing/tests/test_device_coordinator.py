@@ -15,12 +15,12 @@
 import time
 import pytest
 
-from octopus_sensing.device_coordinator import MonitoringCache, DeviceCoordinator
+from octopus_sensing.device_coordinator import RealtimeDataCache, DeviceCoordinator
 from octopus_sensing.devices.device import Device
 
 
-def test_monitoring_cache():
-    cache = MonitoringCache()
+def test_realtime_data_cache():
+    cache = RealtimeDataCache()
 
     data = [1, 2, 3]
 

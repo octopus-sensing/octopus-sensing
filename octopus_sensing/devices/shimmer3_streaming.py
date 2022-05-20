@@ -22,12 +22,12 @@ import struct
 import serial
 from typing import List, Optional
 
-from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
 from octopus_sensing.devices.common import SavingModeEnum
 
-class Shimmer3Streaming(MonitoredDevice):
+class Shimmer3Streaming(RealtimeDataDevice):
     '''
     Streams and Records Shimmer3 data.
     Data will be recorded in a csv file/files with the following column order:
@@ -379,8 +379,8 @@ class Shimmer3Streaming(MonitoredDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_monitoring_data(self):
-        '''Returns latest collected data for monitoring/visualizing purposes.'''
+    def _get_realtime_data(self):
+        '''Returns latest collected data for monitoring/visualizing or realtime processing purposes.'''
         # Last three seconds
         return self._stream_data[-1 * 3 * self._sampling_rate:]
 

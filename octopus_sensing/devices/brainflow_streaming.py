@@ -22,11 +22,11 @@ from typing import List, Optional
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
 from octopus_sensing.common.message_creators import MessageType
-from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.devices.common import SavingModeEnum
 
 
-class BrainFlowStreaming(MonitoredDevice):
+class BrainFlowStreaming(RealtimeDataDevice):
     '''
     Manage brainflow streaming
 
@@ -196,7 +196,7 @@ class BrainFlowStreaming(MonitoredDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_monitoring_data(self):
-        '''Returns latest collected data for monitoring/visualizing purposes.'''
+    def _get_realtime_data(self):
+        '''Returns latest collected data for monitoring/visualizing or realtime processing purposes.'''
         # Last three seconds
         return self._stream_data[-1 * 3 * self.sampling_rate:]
