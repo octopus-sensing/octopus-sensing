@@ -51,6 +51,10 @@ Support
 ========
 Please contact Nastaran (nsaffar@gmail.com) or Aidin (aidin@aidinhut.com) if you have any questions or seek support.
 
+Citation:
+=========
+Saffaryazdi, N., Gharibnavaz, A., & Billinghurst, M. (2022). Octopus Sensing: A Python library for human behavior studies. Journal of Open Source Software, 7(71), 4045.
+
 Copyright
 =========
 Copyright © 2020-2022 Nastaran Saffaryazdi, Aidin Gharibnavaz

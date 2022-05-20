@@ -24,6 +24,11 @@ Also, this tool can be used as the base structure for creating real-time data pr
 
 **To see the full documentation visit the [Octopus Sensing website](https://octopus-sensing.nastaran-saffar.me/).**
 
+When using the package in your research, please cite:
+-----------------------------------------------------
+
+Saffaryazdi, N., Gharibnavaz, A., & Billinghurst, M. (2022). Octopus Sensing: A Python library for human behavior studies. Journal of Open Source Software, 7(71), 4045.
+
 Main features
 --------------
 
