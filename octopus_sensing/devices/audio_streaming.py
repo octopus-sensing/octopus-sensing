@@ -14,13 +14,16 @@
 
 import os
 import array
-from typing import List
+from typing import List, Any
+import datetime
+import csv
 import miniaudio
 
-from octopus_sensing.devices.device import Device
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
+from octopus_sensing.devices.common import SavingModeEnum
 
-class AudioStreaming(Device):
+class AudioStreaming(RealtimeDataDevice):
     '''
     Stream and Record audio
 
@@ -65,20 +68,26 @@ class AudioStreaming(Device):
     See Also
     -----------
     :class:`octopus_sensing.device_coordinator`
-    :class:`octopus_sensing.devices.device`
+    :class:`octopus_sensing.devices.Device`
+    :class:`octopus_sensing.devices.RealtimeDataDevice`
 
     '''
-    def __init__(self, device_id:int, **kwargs):
+    def __init__(self, device_id:int, 
+                 saving_mode: int=SavingModeEnum.SEPARATED_SAVING_MODE, **kwargs):
         super().__init__(**kwargs)
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
 
         self._device_id = device_id
         
+        self._saving_mode = saving_mode
         self._stream_data: List[bytes] = []
         self._record = False
         self._terminate = False
         self._state = ""
+        self._log: List[str] = []
+        self._continuous_capture = False
+        self._sampling_rate = 44100
 
     def __stream_loop(self):
         _ = yield
@@ -92,7 +101,7 @@ class AudioStreaming(Device):
         selected_device = captures[self._device_id]
         capture = \
             miniaudio.CaptureDevice(buffersize_msec=1000,
-                                    sample_rate=44100,
+                                    sample_rate=self._sampling_rate,
                                     device_id=selected_device["id"])
 
         recorder = self.__stream_loop()
@@ -106,25 +115,53 @@ class AudioStreaming(Device):
                 if self._state == "START":
                     print("Audio streaming has already started")
                 else:
-                    self._stream_data = []
-                    capture.start(recorder)
-                    self._record = True
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        self._stream_data = []
+                        capture.start(recorder)
+                        self._record = True
+                    else:
+                        if self._continuous_capture is False:
+                            capture.start(recorder)
+                            self._continuous_capture = True
+                            self._record = True
+                        self._log.append([datetime.datetime.now(),
+                                         str(message.stimulus_id).zfill(2),
+                                         'MESSAGE START'])
+
                     self._state = "START"
             elif message.type == MessageType.STOP:
                 if self._state == "STOP":
                    print("Audio streaming has already stopped")
                 else:
-                    capture.stop()
-                    self._record = False
-                    file_name = \
-                        "{0}/{1}-{2}-{3}.wav".format(self.output_path,
-                                                    self.name,
-                                                    message.experiment_id,
-                                                    str(message.stimulus_id).zfill(2))
-                    self._save_to_file(file_name, capture)
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        capture.stop()
+                        self._record = False
+                        file_name = \
+                            "{0}/{1}-{2}-{3}.wav".format(self.output_path,
+                                                        self.name,
+                                                        message.experiment_id,
+                                                        str(message.stimulus_id).zfill(2))
+                        self._save_to_file(file_name, capture)
+                    else:
+                        self._log.append([datetime.datetime.now(),
+                                         str(message.stimulus_id).zfill(2),
+                                         'MESSAGE STOP'])
+                        self._experiment_id = message.experiment_id
                     self._state = "STOP"
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._log.append([datetime.datetime.now(),
+                                     "-",
+                                     'MESSAGE TERMINATE'])
+                    capture.stop()
+                    self._record = False
+                    file_name = \
+                        "{0}/{1}-{2}.wav".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
+                    self._save_to_file(file_name, capture)
+                    self._save_log_file(f"{self.output_path}/{self.name}-{self._experiment_id}-log.csv")                    
                 break
 
     def _save_to_file(self, file_name:str, capture:miniaudio.CaptureDevice):
@@ -137,3 +174,40 @@ class AudioStreaming(Device):
                                            capture.format,
                                            samples)
         miniaudio.wav_write_file(file_name, sound)
+
+    def _save_log_file(self, file_name:str):
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            for row in self._log:
+                writer.writerow(row)
+                csv_file.flush()
+
+    def get_saving_mode(self):
+        '''
+        Gets saving mode
+        
+        Returns
+        -----------
+        saving_mode: int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
+        '''
+        return self._saving_mode
+    
+    def _get_realtime_data(self, duration: int) -> List[Any]:
+        '''
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        realtime processing purposes.
+
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
+
+        Returns
+        -------
+        data: List[Any]
+            List of records, or empty list if there's nothing.
+        '''
+        return self._stream_data[-1 * duration * self._sampling_rate:]

@@ -70,8 +70,8 @@ def mocked():
     # 1. Process on Windows doesn't use fork (copy-on-write) so we will lose
     #    the mocks we made in here (the parent process).
     # 2. Coverage will lose track in the child process.
-    original_bases = audio_streaming.AudioStreaming.__bases__[0].__bases__
-    audio_streaming.AudioStreaming.__bases__[0].__bases__ = (threading.Thread,)
+    original_bases = audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__
+    audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
 
     # We're replacing the 'miniaudio' imported by our 'audio_streaming' module
     # with our mocked one.
@@ -81,7 +81,7 @@ def mocked():
     yield None
 
     # Replacing back the original things
-    audio_streaming.AudioStreaming.__bases__[0].__bases__ = original_bases
+    audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
     audio_streaming.miniaudio = original_miniaudio
 
 
@@ -98,7 +98,10 @@ def test_happy_path(mocked):
     # Since there's no device coordinator running, we set the queue ourselves,
     # and will start the process.
     msg_queue = queue.Queue()
+    data_queue_in = queue.Queue()
+    data_queue_out = queue.Queue()
     device.set_queue(msg_queue)
+    device.set_realtime_data_queues(data_queue_in, data_queue_out)
     device.start()
     # To ensure the process is started.
     time.sleep(0.2)

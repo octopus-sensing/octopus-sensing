@@ -196,7 +196,20 @@ class BrainFlowStreaming(RealtimeDataDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_realtime_data(self):
-        '''Returns latest collected data for monitoring/visualizing or realtime processing purposes.'''
+    def _get_realtime_data(self, duration: int):
+        '''
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        realtime processing purposes.
+
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
+
+        Returns
+        -------
+        data: List[Any]
+            List of records, or empty list if there's nothing.
+        '''
         # Last three seconds
-        return self._stream_data[-1 * 3 * self.sampling_rate:]
+        return self._stream_data[-1 * duration * self.sampling_rate:]

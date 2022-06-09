@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Optional, Dict, Any, List
+
 from octopus_sensing.common.endpoint_base import EndpointBase
 
 
@@ -22,5 +24,11 @@ class RealtimeDataEndpoint(EndpointBase):
                          port=9330, get_callback=self._get_handler)
         self._device_coordinator = device_coordinator
 
-    def _get_handler(self, request_reader):
-        return self._device_coordinator.get_realtime_data()
+    def _get_handler(self, request_reader, query_params: Dict[str, str]):
+        duration: int = int(query_params.get('duration', 3)[0])
+
+        device_list_string = query_params.get('device_list', None)[0]
+        device_list: Optional[List[str]] = None
+        if device_list_string is not None:
+            device_list = device_list_string.split(',')
+        return self._device_coordinator.get_realtime_data(duration, device_list)

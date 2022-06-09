@@ -16,11 +16,12 @@ from typing import Tuple, Any, Optional, Union
 import os
 import threading
 import cv2
-from octopus_sensing.devices.device import Device
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
 import time
+from typing import List, Any
 
-class CameraStreaming(Device):
+class CameraStreaming(RealtimeDataDevice):
     '''
     Stream and Record video data. 
     If we have several stimuli, one vide file will be recorded for each stimuli.
@@ -77,6 +78,7 @@ class CameraStreaming(Device):
     -----------
     :class:`octopus_sensing.device_coordinator`
     :class:`octopus_sensing.devices.device`
+    :class:`octopus_sensing.devices.RealtimeDataDevice`
 
     '''
     def __init__(self, camera_no: Optional[Union[int, str]] = None,
@@ -185,12 +187,12 @@ class CameraStreaming(Device):
                         self._frames.append(frame)
                 else:
                     time_diff = self._capture_times[-1]-self._capture_times[0]
-                    fps = \
+                    self._fps = \
                         int(len(self._frames)/(time_diff))
-                    print("Recording frame per second", fps)
+                    print("Recording frame per second", self._fps)
                     writer = cv2.VideoWriter(file_name,
                             codec,
-                            fps,
+                            self._fps,
                             self._video_size)
                     for frame in self._frames:
                         writer.write(frame)
@@ -218,3 +220,20 @@ class CameraStreaming(Device):
         except Exception as error:
             print("Error while recording video. Device: {0}".format(self.name))
             print(error)
+
+    def _get_realtime_data(self, duration: int) -> List[Any]:
+        '''
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        realtime processing purposes.
+
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
+
+        Returns
+        -------
+        data: List[Any]
+            List of records, or empty list if there's nothing.
+        '''
+        return self._frames[-1 * duration * self._fps:]

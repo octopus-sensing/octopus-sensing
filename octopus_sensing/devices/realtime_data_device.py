@@ -55,15 +55,16 @@ class RealtimeDataDevice(Device):
 
     def _realtime_data_loop(self) -> None:
         while True:
-            # We don't use the data from the queue. It's just a signal.
-            self._realtime_data_in_q.get()
+            # There is a duration for getting data n queue
+            data = self._realtime_data_in_q.get()
+            duration = int(data)
 
             try:
                 # Only 10ms timeout, because we don't want to take cpu time from the
                 # main thread (data collector)
                 self._realtime_data_out_q.put(
                     pickle.dumps(
-                        self._get_realtime_data(),
+                        self._get_realtime_data(duration),
                         protocol=pickle.HIGHEST_PROTOCOL),
                     timeout=0.01)
 
@@ -74,18 +75,24 @@ class RealtimeDataDevice(Device):
                 self._realtime_data_out_q(pickle.dumps(
                     [], protocol=pickle.HIGHEST_PROTOCOL))
 
-    def _get_realtime_data(self) -> List[Any]:
-        '''Subclasses must implmenet this method. It should return
+    def _get_realtime_data(self, duration: int) -> List[Any]:
+        '''
+        Subclasses must implmenet this method. It should return
         a list of latest collected records.
         This method will be called in a separate thread, and should
         be thread-safe.
         Also, implmentation must return as quick as possible, to prevent
         blocking of the main thread that doing the collecting.
 
-        @param requested_records: Number of records that should be returned.
-        @type requested_records: int
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
 
-        @return: List of records, or empty list if there's nothing.
-        @rtype: List[Any]
+        Returns
+        -------
+        data: List[Any]
+            List of records, or empty list if there's nothing.
+
         '''
         raise NotImplementedError()

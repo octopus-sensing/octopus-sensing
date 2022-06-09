@@ -18,7 +18,7 @@ import traceback
 import multiprocessing
 import queue
 import pickle
-from typing import List, Any, Tuple, Dict
+from typing import List, Any, Tuple, Dict, Optional
 
 from octopus_sensing.devices.device import Device
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
@@ -173,10 +173,18 @@ class DeviceCoordinator:
         for item in self.__devices.values():
             item.join()
 
-    def get_realtime_data(self) -> Dict[str, List[Any]]:
+    def get_realtime_data(self, duration: int, device_list: Optional[List[str]]) -> Dict[str, List[Any]]:
         '''
         Returns latest collected data from all devices.
         Device's data can be anything, depending on the device itself.
+
+        Parameters
+        ----------
+        duration: int
+            a time duration for getting realtime data in seconds
+        
+        device_list: List[str]
+            a list of device names. Only devices in this list will be monitored or processed in realtime
 
         Returns
         ---------
@@ -192,26 +200,29 @@ class DeviceCoordinator:
         if cached:
             return cached
 
+        out_queues: List[Tuple[QueueType, str]] = []
         # Putting request for all devices, then collecting them all, for performance reasons.
-        for in_q, _, device in self.__realtime_data_queues:
-            try:
-                # The sub-process won't use the data we put in the queue. It's just a signal.
-                in_q.put(b'0', timeout=0.1)
-            except queue.Full:
-                print("Could not put realtime data request for {0} device.".format(
-                    device.name), file=sys.stderr)
-                traceback.print_exc()
+        for in_q, out_q, device in self.__realtime_data_queues:
+            if device_list is None or device.name in device_list:
+                try:
+                    # The sub-process won't use the data we put in the queue. It's just a signal.
+                    in_q.put(str(duration), timeout=0.1)
+                    out_queues.append((out_q, device.name))
+                except queue.Full:
+                    print("Could not put realtime data request for {0} device.".format(
+                        device.name), file=sys.stderr)
+                    traceback.print_exc()
 
         result = {}
-        for _, out_q, device in self.__realtime_data_queues:
-            try:
-                records = pickle.loads(out_q.get(timeout=0.1))
-                # We ensured device has a name in the add_device, ignoring it here.
-                result[device.name] = records  # type: ignore
-            except (queue.Empty, pickle.PickleError):
-                print("Could not read realtime data from {0} device".format(
-                    device.name), file=sys.stderr)
-                traceback.print_exc()
+        for out_q, device_name in out_queues:
+                try:
+                    records = pickle.loads(out_q.get(timeout=0.1))
+                    # We ensured device has a name in the add_device, ignoring it here.
+                    result[device_name] = records  # type: ignore
+                except (queue.Empty, pickle.PickleError):
+                    print("Could not read realtime data from {0} device".format(
+                        device_name), file=sys.stderr)
+                    traceback.print_exc()
 
         self.__realtime_data_cache.cache(result)
         return result
