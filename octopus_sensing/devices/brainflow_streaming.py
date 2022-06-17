@@ -100,6 +100,7 @@ class BrainFlowStreaming(RealtimeDataDevice):
         self._terminate = False
         self._trigger = None
         self._experiment_id = None
+        self.channels: List[str] = [""] 
 
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
@@ -211,5 +212,11 @@ class BrainFlowStreaming(RealtimeDataDevice):
         data: List[Any]
             List of records, or empty list if there's nothing.
         '''
-        # Last three seconds
-        return self._stream_data[-1 * duration * self.sampling_rate:]
+        # Last seconds of data
+        data = self._stream_data[-1 * duration * self.sampling_rate:]
+        metadata = {"sampling_rate": self.sampling_rate,
+                    "channels": self.channels,
+                    "type": self.__class__.__name__}
+        realtime_data = {"data": data,
+                  "metadata": metadata}
+        return realtime_data

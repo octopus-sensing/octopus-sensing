@@ -236,4 +236,15 @@ class CameraStreaming(RealtimeDataDevice):
         data: List[Any]
             List of records, or empty list if there's nothing.
         '''
-        return self._frames[-1 * duration * self._fps:]
+
+        data = self._frames[-1 * duration * self._fps:]
+        one_frame_per_seconds = []
+        for i in range(duration):
+            one_frame_per_seconds.append(data[i * self._fps])
+
+        metadata = {"frame_rate": self._fps,
+                    "type": self.__class__.__name__}
+        realtime_data = {"data": one_frame_per_seconds,
+                         "metadata": metadata}
+
+        return realtime_data

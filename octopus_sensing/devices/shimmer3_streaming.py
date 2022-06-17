@@ -395,7 +395,14 @@ class Shimmer3Streaming(RealtimeDataDevice):
             List of records, or empty list if there's nothing.
         '''
         # Last recorded data
-        return self._stream_data[-1 * duration * self._sampling_rate:]
+        data = self._stream_data[-1 * duration * self._sampling_rate:]
+        metadata = {"sampling_rate": self._sampling_rate,
+                    "channels": ["type", "time stamp", "Acc_x", "Acc_y", "Acc_z",
+                                 "GSR_ohm", "PPG_mv", "time", "trigger"],
+                    "type": self.__class__.__name__}
+        realtime_data = {"data": data,
+                         "metadata": metadata}
+        return realtime_data
 
     def get_saving_mode(self):
         '''

@@ -231,7 +231,14 @@ class OpenBCIStreaming(RealtimeDataDevice):
         data: List[Any]
             List of records, or empty list if there's nothing.
         '''
-        return self._stream_data[-1 * duration * self._sampling_rate:]
+
+        data = self._stream_data[-1 * duration * self._sampling_rate:]
+        metadata = {"sampling_rate": self._sampling_rate,
+                    "channels": self.channels,
+                    "type": self.__class__.__name__}
+        realtime_data = {"data": data,
+                         "metadata": metadata}
+        return realtime_data
 
     def get_saving_mode(self):
         '''
