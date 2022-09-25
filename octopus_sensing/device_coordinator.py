@@ -215,14 +215,14 @@ class DeviceCoordinator:
 
         result = {}
         for out_q, device_name in out_queues:
-                try:
-                    records = pickle.loads(out_q.get(timeout=0.1))
-                    # We ensured device has a name in the add_device, ignoring it here.
-                    result[device_name] = records  # type: ignore
-                except (queue.Empty, pickle.PickleError):
-                    print("Could not read realtime data from {0} device".format(
-                        device_name), file=sys.stderr)
-                    traceback.print_exc()
+            try:
+                records = pickle.loads(out_q.get(timeout=0.1))
+                # We ensured device has a name in the add_device, ignoring it here.
+                result[device_name] = records  # type: ignore
+            except (queue.Empty, pickle.PickleError):
+                print("Could not read realtime data from {0} device".format(
+                    device_name), file=sys.stderr)
+                traceback.print_exc()
 
         self.__realtime_data_cache.cache(result)
         return result

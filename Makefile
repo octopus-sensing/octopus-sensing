@@ -38,3 +38,7 @@ BUILDDIR      = docs_build
 
 docs: ## Build the documents. Output will be './docs_build'
 	poetry run $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+
+docs-latex:
+	poetry run $(SPHINXBUILD) -b latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+
