@@ -100,7 +100,6 @@ class BrainFlowStreaming(RealtimeDataDevice):
         self._terminate = False
         self._trigger = None
         self._experiment_id = None
-        self.channels: List[str] = [""] 
 
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
@@ -197,6 +196,19 @@ class BrainFlowStreaming(RealtimeDataDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
+    def _get_channels(self):
+        '''
+        Gets the list of channels
+
+        Returns
+        -------
+
+        channels_name: List[str]
+            The list of channels' name
+
+        '''
+        raise NotImplementedError()
+    
     def _get_realtime_data(self, duration: int):
         '''
         Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
@@ -213,10 +225,12 @@ class BrainFlowStreaming(RealtimeDataDevice):
             List of records, or empty list if there's nothing.
         '''
         # Last seconds of data
+        
         data = self._stream_data[-1 * duration * self.sampling_rate:]
         metadata = {"sampling_rate": self.sampling_rate,
-                    "channels": self.channels,
+                    "channels": self._get_channels(),
                     "type": self.__class__.__name__}
+
         realtime_data = {"data": data,
                   "metadata": metadata}
         return realtime_data

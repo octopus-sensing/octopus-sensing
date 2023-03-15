@@ -102,7 +102,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                  name: Optional[str] = None,
                  output_path: str = "output",
                  serial_port=None):
-        self.channels = channels_order        
+        self.channels = channels_order      
         if board_type == "cyton-daisy":
             device_id = 2
             sampling_rate = 125
@@ -127,7 +127,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
             if len(self.channels) != 4:
                 raise RuntimeError("The number of channels in channels_order should be 4")
         else:
-            raise RuntimeError("Use BrainflowStreaming fr other boards")
+            raise RuntimeError("Use BrainflowStreaming for other boards")
 
         if serial_port is None:
             if platform.system() == "Linux":
@@ -155,7 +155,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
         '''
         return self.output_path
 
-    def get_channels(self):
+    def _get_channels(self):
         '''
         Gets the list of channels
 
