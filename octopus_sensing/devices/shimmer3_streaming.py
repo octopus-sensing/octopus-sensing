@@ -20,7 +20,7 @@ import csv
 import math
 import struct
 import serial
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
@@ -379,7 +379,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_realtime_data(self, duration: int):
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
         Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
         realtime processing purposes.
@@ -391,8 +391,10 @@ class Shimmer3Streaming(RealtimeDataDevice):
 
         Returns
         -------
-        data: List[Any]
-            List of records, or empty list if there's nothing.
+        data: Dict[str, Any]
+            The keys are `data` and `metadata`.  
+            `data` is a list of records, or empty list if there's nothing.
+            `metadata` is a dictionary of device metadata including `sampling_rate` and `type`
         '''
         # Last recorded data
         data = self._stream_data[-1 * duration * self._sampling_rate:]

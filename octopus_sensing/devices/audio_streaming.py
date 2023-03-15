@@ -14,7 +14,7 @@
 
 import os
 import array
-from typing import List, Any
+from typing import List, Any, Dict
 import datetime
 import csv
 import miniaudio
@@ -195,7 +195,7 @@ class AudioStreaming(RealtimeDataDevice):
         '''
         return self._saving_mode
     
-    def _get_realtime_data(self, duration: int) -> List[Any]:
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
         Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
         realtime processing purposes.
@@ -207,7 +207,16 @@ class AudioStreaming(RealtimeDataDevice):
 
         Returns
         -------
-        data: List[Any]
-            List of records, or empty list if there's nothing.
+        data: Dict[str, Any]
+            The keys are `data` and `metadata`.  
+            `data` is a list of records, or empty list if there's nothing.
+            `metadata` is a dictionary of device metadata including `sampling_rate` and `type`
         '''
-        return self._stream_data[-1 * duration * self._sampling_rate:]
+
+        data = self._stream_data[-1 * duration * self._sampling_rate:]
+        metadata = {"sampling_rate": self._sampling_rate,
+                    "type": self.__class__.__name__}
+
+        realtime_data = {"data": data,
+                         "metadata": metadata}
+        return realtime_data

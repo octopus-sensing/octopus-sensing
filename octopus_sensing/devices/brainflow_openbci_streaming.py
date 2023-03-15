@@ -155,7 +155,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
         '''
         return self.output_path
 
-    def _get_channels(self):
+    def get_channels(self):
         '''
         Gets the list of channels
 

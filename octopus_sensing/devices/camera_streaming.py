@@ -19,7 +19,7 @@ import cv2
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
 import time
-from typing import List, Any
+from typing import Any, Dict
 
 class CameraStreaming(RealtimeDataDevice):
     '''
@@ -221,7 +221,7 @@ class CameraStreaming(RealtimeDataDevice):
             print("Error while recording video. Device: {0}".format(self.name))
             print(error)
 
-    def _get_realtime_data(self, duration: int) -> List[Any]:
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
         Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
         realtime processing purposes.
@@ -233,8 +233,10 @@ class CameraStreaming(RealtimeDataDevice):
 
         Returns
         -------
-        data: List[Any]
-            List of records, or empty list if there's nothing.
+        data: Dict[str, Any]
+            The keys are `data` and `metadata`.  
+            `data` is a list of records, or empty list if there's nothing.
+            `metadata` is a dictionary of device metadata including `frame_rate` and `type` 
         '''
 
         data = self._frames[-1 * duration * self._fps:]

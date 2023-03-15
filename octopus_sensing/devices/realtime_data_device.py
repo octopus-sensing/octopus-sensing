@@ -17,7 +17,7 @@ import pickle
 import multiprocessing.queues
 import threading
 import traceback
-from typing import List, Any
+from typing import Dict, Any
 
 from octopus_sensing.devices.device import Device
 
@@ -75,7 +75,7 @@ class RealtimeDataDevice(Device):
                 self._realtime_data_out_q(pickle.dumps(
                     [], protocol=pickle.HIGHEST_PROTOCOL))
 
-    def _get_realtime_data(self, duration: int) -> List[Any]:
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
         Subclasses must implmenet this method. It should return
         a list of latest collected records.
@@ -91,8 +91,9 @@ class RealtimeDataDevice(Device):
 
         Returns
         -------
-        data: List[Any]
-            List of records, or empty list if there's nothing.
+        data: Dict[str, Any]
+            it includes `data`: List of records, or empty list if there's nothing.
+                        `metadata`: Dict of device metadata
 
         '''
         raise NotImplementedError()

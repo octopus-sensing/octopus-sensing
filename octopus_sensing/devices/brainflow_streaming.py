@@ -18,7 +18,7 @@ import os
 import threading
 import csv
 import numpy as np
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from brainflow.board_shim import BoardShim, BrainFlowInputParams
 
 from octopus_sensing.common.message_creators import MessageType
@@ -196,7 +196,7 @@ class BrainFlowStreaming(RealtimeDataDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_channels(self):
+    def get_channels(self):
         '''
         Gets the list of channels
 
@@ -209,7 +209,7 @@ class BrainFlowStreaming(RealtimeDataDevice):
         '''
         raise NotImplementedError()
     
-    def _get_realtime_data(self, duration: int):
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
         Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
         realtime processing purposes.
@@ -221,14 +221,17 @@ class BrainFlowStreaming(RealtimeDataDevice):
 
         Returns
         -------
-        data: List[Any]
-            List of records, or empty list if there's nothing.
+        data: Dict[str, Any]
+            The keys are `data` and `metadata`.  
+            `data` is a list of records, or empty list if there's nothing.
+            `metadata` is a dictionary of device metadata including `sampling_rate` and `channels` and `type` 
+
         '''
         # Last seconds of data
         
         data = self._stream_data[-1 * duration * self.sampling_rate:]
         metadata = {"sampling_rate": self.sampling_rate,
-                    "channels": self._get_channels(),
+                    "channels": self.get_channels(),
                     "type": self.__class__.__name__}
 
         realtime_data = {"data": data,

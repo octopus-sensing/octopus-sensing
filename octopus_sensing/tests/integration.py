@@ -153,16 +153,16 @@ def test_system_health(mocked):
         realtime_data = pickle.loads(response.read())
         assert isinstance(realtime_data, dict)
 
-        assert isinstance(realtime_data["eeg"], list)
+        assert isinstance(realtime_data["eeg"], dict)
         # three seconds * data rate
-        assert len(realtime_data["eeg"]) == 3 * 128
-        assert len(realtime_data["eeg"][0]) in (34, 35)
-        assert len(realtime_data["eeg"][-1]) in (34, 35)
+        assert len(realtime_data["eeg"]["data"]) == 3 * 128
+        assert len(realtime_data["eeg"]["data"][0]) in (34, 35)
+        assert len(realtime_data["eeg"]["data"][-1]) in (34, 35)
 
-        assert isinstance(realtime_data["shimmer"], list)
-        assert len(realtime_data["shimmer"]) == 3 * 128
-        assert len(realtime_data["shimmer"][0]) in (8, 9)
-        assert len(realtime_data["shimmer"][-1]) in (8, 9)
+        assert isinstance(realtime_data["shimmer"], dict)
+        assert len(realtime_data["shimmer"]["data"]) == 3 * 128
+        assert len(realtime_data["shimmer"]["data"][0]) in (8, 9)
+        assert len(realtime_data["shimmer"]["data"][-1]) in (8, 9)
 
     finally:
         coordinator.dispatch(terminate_message())
