@@ -153,6 +153,7 @@ class BrainFlowStreaming(RealtimeDataDevice):
                 break
 
         self._board.stop_stream()
+        self._board.release_session()
 
     def _stream_loop(self):
         self._board.start_stream()

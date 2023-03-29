@@ -16,6 +16,7 @@ import platform
 from typing import List, Optional
 from brainflow.board_shim import BrainFlowInputParams
 from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
+from octopus_sensing.devices.common import SavingModeEnum
 
 class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
@@ -101,7 +102,8 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                  board_type:str ="cyton-daisy",
                  name: Optional[str] = None,
                  output_path: str = "output",
-                 serial_port=None):
+                 serial_port=None,
+                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE):
         self.channels = channels_order      
         if board_type == "cyton-daisy":
             device_id = 2
@@ -143,7 +145,8 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                          sampling_rate,
                          brain_flow_input_params=params,
                          name=name,
-                         output_path=output_path)
+                         output_path=output_path,
+                         saving_mode=saving_mode)
     def get_output_path(self):
         '''
         Gets the path that is used for data recording

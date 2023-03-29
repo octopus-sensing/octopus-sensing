@@ -25,8 +25,8 @@ test-coverage: ## Runs tests and reports coverage
 #publish: mypy test
 #	update version in __init__.py, pyproject
 #   commit
-#	tag
-#	push tag
+#	git tag version
+#	git push --tag
 #	poetry publish
 
 # You can set these variables from the command line, and also
