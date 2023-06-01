@@ -133,6 +133,7 @@ class CameraStreaming(RealtimeDataDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
+                print("start camera")
                 if self._state == "START":
                     print("Video streaming has already started")
                 else:
@@ -148,8 +149,10 @@ class CameraStreaming(RealtimeDataDevice):
                                                             self.name,
                                                             message.experiment_id,
                                                             str(message.stimulus_id).zfill(2))
+                    print("Starting the thread")
                     recording_event = threading.Event()
                     recording_event.set()
+                    print("recording_event", recording_event)
                     recording_thread = threading.Thread(
                         target=self._stream_loop, args=(file_name, recording_event), daemon=True)
                     recording_thread.start()
@@ -176,6 +179,7 @@ class CameraStreaming(RealtimeDataDevice):
         self._video_capture.release()
 
     def _stream_loop(self, file_name: str, event: threading.Event):
+        print("Start stream camera")
         codec = cv2.VideoWriter_fourcc(*'XVID')
         try:
             while self._video_capture.isOpened:
@@ -186,13 +190,11 @@ class CameraStreaming(RealtimeDataDevice):
                         self._capture_times.append(time.time())
                         self._frames.append(frame)
                 else:
-                    time_diff = self._capture_times[-1]-self._capture_times[0]
-                    self._fps = \
-                        int(len(self._frames)/(time_diff))
-                    print("Recording frame per second", self._fps)
+                    fps = self._get_frame_rate()
+                    print("Recording frame per second", fps)
                     writer = cv2.VideoWriter(file_name,
                             codec,
-                            self._fps,
+                            fps,
                             self._video_size)
                     for frame in self._frames:
                         writer.write(frame)
@@ -238,20 +240,33 @@ class CameraStreaming(RealtimeDataDevice):
             `data` is a list of records, or empty list if there's nothing.
             `metadata` is a dictionary of device metadata including `frame_rate` and `type` 
         '''
-
-        data = self._frames[-1 * duration * self._fps:]
-        metadata = {"frame_rate": self._fps,
+        fps = self._get_frame_rate()
+        print("len(self._frames)", len(self._frames))
+        data = self._frames[-1 * duration * fps:]
+        metadata = {"frame_rate": fps,
                     "type": self.__class__.__name__}
+        print("len(data)", len(data), fps, duration)
         if len(data) == 0:
             realtime_data = {"data": [],
                              "metadata": metadata}
         else:
             one_frame_per_seconds = []
             for i in range(duration):
-                if (i * self._fps) + 1 > len(data):
+                if (i * fps) + 1 > len(data):
                     break
-                one_frame_per_seconds.append(data[i * self._fps])
+                one_frame_per_seconds.append(data[i * fps])
         
             realtime_data = {"data": one_frame_per_seconds,
                              "metadata": metadata}
         return realtime_data
+
+    def _get_frame_rate(self):
+        time_diff = 1
+        i = 1
+        while time_diff < 5 and len(self._capture_times) > i:
+            time_diff = self._capture_times[-1] - self._capture_times[-(i+1)]
+            i += 1
+        fps = int(i/time_diff)
+        print("measured fps: ", fps)
+        return fps
+
