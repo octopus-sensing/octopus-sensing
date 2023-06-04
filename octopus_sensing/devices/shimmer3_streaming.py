@@ -239,6 +239,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
                                                         self._experiment_id,
                                                         message.stimulus_id)
                         self._save_to_file(file_name)
+                        self._stream_data = []
                     else:
                         print("Shimmer stop")
                         self._experiment_id = message.experiment_id
