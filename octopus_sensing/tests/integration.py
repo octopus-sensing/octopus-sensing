@@ -57,7 +57,7 @@ class MockedOpenBCICyton:
 
 
 class MockedSerial:
-    def __init__(self, port, speed):
+    def __init__(self, *args, **kwargs):
         pass
 
     def flushInput(self):

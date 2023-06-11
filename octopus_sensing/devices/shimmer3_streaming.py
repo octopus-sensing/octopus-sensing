@@ -15,6 +15,7 @@
 import os
 import platform
 import threading
+import time
 import datetime
 import csv
 import math
@@ -27,6 +28,8 @@ from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
 from octopus_sensing.devices.common import SavingModeEnum
 
+# In seconds
+SERIAL_PORT_TIMEOUT = 0.6
 
 class Shimmer3Streaming(RealtimeDataDevice):
     '''
@@ -135,7 +138,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
         '''
         Initializing connection with Simmer3 device
         '''
-        self._serial = serial.Serial(self._serial_port, 115200)
+        self._serial = serial.Serial(port=self._serial_port, baudrate=115200, timeout=SERIAL_PORT_TIMEOUT, write_timeout=SERIAL_PORT_TIMEOUT)
         if not self._serial.is_open():
             raise RuntimeError(
                 "shimmer3: Couldn't open the port for some reason.")
@@ -207,9 +210,12 @@ class Shimmer3Streaming(RealtimeDataDevice):
         self._experiment_id = 0
 
     def _wait_for_ack(self):
+        start_time = time.time()
         ddata = ""
         ack = struct.pack('B', 0xff)
         while ddata != ack:
+            if time.time() - start_time >= 1:
+                raise RuntimeError(f"[{self.name}] Did not receive 'ack' from Shimmer3 after one second")
             ddata = self._serial.read(1)
 
     def _run(self):
@@ -225,7 +231,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
             message = self.message_queue.get()
 
             if not self._loop_thread.is_alive():
-                print("Shimmer3: Streaming loop is dead. Terminating.")
+                print(f"[{self.name}] Shimmer3: Streaming loop is dead. Terminating.")
                 break
 
             if message is None:
