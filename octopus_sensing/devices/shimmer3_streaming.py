@@ -27,6 +27,7 @@ from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
 from octopus_sensing.devices.common import SavingModeEnum
 
+
 class Shimmer3Streaming(RealtimeDataDevice):
     '''
     Streams and Records Shimmer3 data.
@@ -103,9 +104,9 @@ class Shimmer3Streaming(RealtimeDataDevice):
     '''
 
     def __init__(self,
-                 sampling_rate: int=128,
-                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
-                 serial_port: Optional[str]=None,
+                 sampling_rate: int = 128,
+                 saving_mode: int = SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 serial_port: Optional[str] = None,
                  **kwargs):
         super().__init__(**kwargs)
 
@@ -114,6 +115,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
         self._sampling_rate = sampling_rate
         self._trigger: Optional[str] = None
         self._break_loop = False
+        self._loop_thread: Optional[threading.Thread] = None
         self.output_path = self._make_output_path()
         self._state = ""
         if serial_port is None:
@@ -134,6 +136,10 @@ class Shimmer3Streaming(RealtimeDataDevice):
         Initializing connection with Simmer3 device
         '''
         self._serial = serial.Serial(self._serial_port, 115200)
+        if not self._serial.is_open():
+            raise RuntimeError(
+                "shimmer3: Couldn't open the port for some reason.")
+
         self._serial.flushInput()
         print("port opening, done.")
         # send the set sensors command
@@ -212,13 +218,19 @@ class Shimmer3Streaming(RealtimeDataDevice):
         '''
         self._inintialize_connection()
 
-        loop_thread = threading.Thread(target=self._stream_loop)
-        loop_thread.start()
+        self._loop_thread = threading.Thread(target=self._stream_loop)
+        self._loop_thread.start()
 
         while True:
             message = self.message_queue.get()
+
+            if not self._loop_thread.is_alive():
+                print("Shimmer3: Streaming loop is dead. Terminating.")
+                break
+
             if message is None:
                 continue
+
             if message.type == MessageType.START:
                 if self._state == "START":
                     print("Shimmer3 streaming has already recorded the START triger")
@@ -235,9 +247,9 @@ class Shimmer3Streaming(RealtimeDataDevice):
                         self._experiment_id = message.experiment_id
                         file_name = \
                             "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                        self.name,
-                                                        self._experiment_id,
-                                                        message.stimulus_id)
+                                                         self.name,
+                                                         self._experiment_id,
+                                                         message.stimulus_id)
                         self._save_to_file(file_name)
                         self._stream_data = []
                     else:
@@ -255,7 +267,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
                 break
 
         self._break_loop = True
-        loop_thread.join()
+        self._loop_thread.join()
 
     def __set_trigger(self, message: Message):
         '''
@@ -327,7 +339,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
 
                 timestamp = timestamp0 + timestamp1*256 + timestamp2*65536
 
-                #print([packettype[0], timestamp, GSR_ohm, PPG_mv] + self._trigger)
+                # print([packettype[0], timestamp, GSR_ohm, PPG_mv] + self._trigger)
 
                 if self._trigger is not None:
                     print("Shimmer trigger")
@@ -382,7 +394,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
 
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
-        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or
         realtime processing purposes.
 
         Parameters
@@ -393,7 +405,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
         Returns
         -------
         data: Dict[str, Any]
-            The keys are `data` and `metadata`.  
+            The keys are `data` and `metadata`.
             `data` is a list of records, or empty list if there's nothing.
             `metadata` is a dictionary of device metadata including `sampling_rate` and `type`
         '''

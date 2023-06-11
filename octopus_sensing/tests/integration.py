@@ -69,6 +69,9 @@ class MockedSerial:
     def close(self):
         pass
 
+    def is_open(self):
+        return True
+
     def read(self, size):
         if size == 1:
             # Asking for ack

@@ -48,8 +48,8 @@ class RealtimeDataCache:
 class DeviceCoordinator:
     '''
     Device coordinator is responsible for coordination, like start recording data
-    from all devices at once, stop recording, triggering (marking data at point), 
-    and terminating devices. 
+    from all devices at once, stop recording, triggering (marking data at point),
+    and terminating devices.
     When a device is added to the device coordinator, it will be initialized and prepared for data recording.
     '''
 
@@ -95,7 +95,7 @@ class DeviceCoordinator:
         ----------
         device: Device
             a device object
-        
+
         Example
         --------
         >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor", output_path="./output")
@@ -129,7 +129,7 @@ class DeviceCoordinator:
         ----------
         devices: List[Device]
             a list of device objects
-    
+
         Example
         --------
         >>> my_shimmer = Shimmer3Streaming(name="Shimmer3_sensor",
@@ -151,9 +151,9 @@ class DeviceCoordinator:
         ----------
         message: Message
             a message object
-        
+
         Example
-        --------     
+        --------
         >>> device_coordinator.dispatch(start_message(experiment_id,
                                                       stimuli_id))
         '''
@@ -161,12 +161,27 @@ class DeviceCoordinator:
         for message_queue in self.__queues:
             message_queue.put(message)
 
+    def health_check(self):
+        '''
+        Checks if all the devices are okay.
+
+        Returns
+        -----------
+        boolean
+            True if all are healthy, False otherwise
+        '''
+        for device_name, device, in self.__devices:
+            if not device.is_alive():
+                print(f"device [device_name] is not alive anymore.")
+                return False
+        return True
+
     def terminate(self):
         '''
-        sends terminate message to all devices and terminate all processes 
+        sends terminate message to all devices and terminate all processes
 
         Example
-        --------     
+        --------
         >>> device_coordinator.terminate()
         '''
         self.dispatch(terminate_message())
@@ -182,7 +197,7 @@ class DeviceCoordinator:
         ----------
         duration: int
             a time duration for getting realtime data in seconds
-        
+
         device_list: List[str]
             a list of device names. Only devices in this list will be monitored or processed in realtime
 
@@ -190,7 +205,7 @@ class DeviceCoordinator:
         ---------
         data : dict[str, list[any]]
             The keys are device names and values are collected data from the device
-        
+
         Note
         ----
         This method is being used for getting data in real-time for monitoring or realtime processing

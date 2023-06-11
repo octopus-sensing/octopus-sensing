@@ -42,6 +42,8 @@ class MockBoardShim():
         pass
     def stop_stream(self):
         pass
+    def release_session(self):
+        pass
 
     def get_board_data(self):
         return (np.array([ [1,1],[1,1],[1,1] ]))
@@ -75,7 +77,7 @@ def test_system_health(mocked):
                                                125,
                                                brain_flow_input_params=params,
                                                name="cyton_daisy",
-                                               output_path=output_dir)    
+                                               output_path=output_dir)
     msg_queue = queue.Queue()
     device.set_queue(msg_queue)
     realtime_data_queue_in = queue.Queue()
@@ -110,4 +112,3 @@ def test_system_health(mocked):
     assert len(filecontent) >= 375
     # TODO: Check if the triggers are there.
     # TODO: We can check data in realtime data queues as well.
-    
