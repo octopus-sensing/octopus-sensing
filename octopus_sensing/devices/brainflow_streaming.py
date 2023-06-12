@@ -33,53 +33,53 @@ class BrainFlowStreaming(RealtimeDataDevice):
     Attributes
     ----------
     device_id
-        Device ID. 
+        Device ID.
         Brainflow support a list of devices, to see supported device IDs go to:
         https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
-    
+
     sampling_rate
         the sampling rate for recording data
-    
+
     brain_flow_input_params
         Each supported board in brainflow gets some parameters, to see the list
         of parameters for each board go to:
         https://brainflow.readthedocs.io/en/stable/SupportedBoards.html
-    
+
     name
         device name
         This name will be used in the output path to identify each device's data
-    
+
     output_path
                  The path for recording files.
                  Audio files will be recorded in folder {output_path}/{name}
 
     saving_mode
-        The way of saving data. It saves data continiously in a file 
-        or saves data which are related to various stimulus in separate files. 
+        The way of saving data. It saves data continiously in a file
+        or saves data which are related to various stimulus in separate files.
         default is SavingModeEnum.CONTINIOUS_SAVING_MODE
         SavingModeEnum is [CONTINIOUS_SAVING_MODE, SEPARATED_SAVING_MODE]
     ** kwargs:
        Extra optional arguments according to the board type
-    
+
     See Also
     -----------
     :class:`octopus_sensing.device_coordinator`
     :class:`octopus_sensing.devices.device`
-    
+
     Examples
     ---------
     Here is an example of using brainflow for reading cyton_daisy board data
 
     >>> params = BrainFlowInputParams()
     >>> params.serial_port = "/dev/ttyUSB0"
-    >>> my_brainflow = 
+    >>> my_brainflow =
     ...       BrainFlowStreaming(2,
     ...                          125,
     ...                          brain_flow_input_params=params,
     ...                          name="cyton_daisy",
     ...                          output_path="./output",
     ...                          saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE)
-        
+
     '''
     def __init__(self,
                  device_id: int,
@@ -100,6 +100,7 @@ class BrainFlowStreaming(RealtimeDataDevice):
         self._terminate = False
         self._trigger = None
         self._experiment_id = None
+        self.__loop_thread: Optional[threading.Thread] = None
 
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
@@ -110,12 +111,19 @@ class BrainFlowStreaming(RealtimeDataDevice):
         self._board.set_log_level(0)
         self._board.prepare_session()
 
-        threading.Thread(target=self._stream_loop).start()
+        self.__loop_thread = threading.Thread(target=self._stream_loop)
+        self.__loop_thread.start()
 
         while True:
             message = self.message_queue.get()
+
+            if not self.__loop_thread.is_alive():
+                print("Brainflow streaming: The streaming thread is dead. Terminating.")
+                break
+
             if message is None:
                 continue
+
             if message.type == MessageType.START:
                 if self._state == "START":
                     print("Brainflow streaming has already recorded the START triger")
@@ -154,13 +162,16 @@ class BrainFlowStreaming(RealtimeDataDevice):
 
         self._board.stop_stream()
         self._board.release_session()
+        self.__loop_thread.join()
 
     def _stream_loop(self):
         self._board.start_stream()
         while True:
             if self._terminate is True:
                 break
+
             data = self._board.get_board_data()
+
             if np.array(data).shape[1] != 0:
                 self._stream_data.extend(list(np.transpose(data)))
                 last_record = self._stream_data.pop()
@@ -179,7 +190,7 @@ class BrainFlowStreaming(RealtimeDataDevice):
     def __set_trigger(self, message):
         '''
         Takes a message and set the trigger using its data
-        
+
         Parameters
         ----------
         message: Message
@@ -209,10 +220,10 @@ class BrainFlowStreaming(RealtimeDataDevice):
 
         '''
         raise NotImplementedError()
-    
+
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
-        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or
         realtime processing purposes.
 
         Parameters
@@ -223,13 +234,13 @@ class BrainFlowStreaming(RealtimeDataDevice):
         Returns
         -------
         data: Dict[str, Any]
-            The keys are `data` and `metadata`.  
+            The keys are `data` and `metadata`.
             `data` is a list of records, or empty list if there's nothing.
-            `metadata` is a dictionary of device metadata including `sampling_rate` and `channels` and `type` 
+            `metadata` is a dictionary of device metadata including `sampling_rate` and `channels` and `type`
 
         '''
         # Last seconds of data
-        
+
         data = self._stream_data[-1 * duration * self.sampling_rate:]
         metadata = {"sampling_rate": self.sampling_rate,
                     "channels": self.get_channels(),

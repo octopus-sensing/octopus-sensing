@@ -23,7 +23,7 @@ from typing import Any, Dict
 
 class CameraStreaming(RealtimeDataDevice):
     '''
-    Stream and Record video data. 
+    Stream and Record video data.
     If we have several stimuli, one vide file will be recorded for each stimuli.
     Device coordinator is responsible for triggerng the camera to start or stop recording.
     The content of recorded file is the recorded video between start and stop triggers
@@ -35,31 +35,31 @@ class CameraStreaming(RealtimeDataDevice):
     ----------
     name: str, default: None:
         The name of device
-    
+
     output_path: str, default: output
                 The path for recording files.
                 Audio files will be recorded in folder {output_path}/{name}
 
     camera_no: int, default:0
         The camera number. Default is 0  which is defaul camera in system
-    
+
     camera_path: str, default: None
         The physical path of camera device. It varies in different platforms.
         For Example in linux it can be something like this:
         `/dev/v4l/by-id/usb-046d_081b_97E6A7D0-video-index0`
-    
+
     image_width: int, default: 1280
         The width of recorded frame/frames
 
     image_height: int, default: 720
         The height of recorded frame/frames.
-    
+
 
     Notes
     -----
     - Only one of camera_no or camera_path should have value.
 
-    - There is no guarantee that we can set the camera resolution. 
+    - There is no guarantee that we can set the camera resolution.
       Because camera may not be able to support these resolution and it will change it
       based on its settings
 
@@ -107,14 +107,13 @@ class CameraStreaming(RealtimeDataDevice):
         self._state = ""
 
     def _run(self):
-        print("self._camera_number", self._camera_number)
         self._video_capture = cv2.VideoCapture(self._camera_number)
         try:
             self._video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, self._image_width)
             self._video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, self._image_height)
         except Exception as error:
             # Ignoring all errors
-            print("Could not set the camera resolution.")
+            print(f"[{self.name}] Could not set the camera resolution. Continuing.")
             print(error)
 
         # There's no guarantee that we can set the camera resolution. So, we
@@ -123,17 +122,22 @@ class CameraStreaming(RealtimeDataDevice):
                             int(self._video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT)))
         self._video_capture.read()
 
+        if self._video_size[0] <= 0 or self._video_size[1] <= 0:
+            print(f"[{self.name}] Couldn't read the video size from the camera. Trying to terminate.")
+            self._video_capture.release()
+            raise RuntimeError(f"[{self.name}] Couldn't read the video size from the camera.")
+
         recording_thread = None
         recording_event = None
 
-        print(f"Initialized video device [{self.name}]: {self._video_size}")
+        print(f"[{self.name}] Initialized video device: video size: {self._video_size}")
 
         while True:
             message = self.message_queue.get()
             if message is None:
                 continue
             if message.type == MessageType.START:
-                print("start camera")
+                print(f"[{self.name}] start camera")
                 if self._state == "START":
                     print("Video streaming has already started")
                 else:
@@ -149,10 +153,9 @@ class CameraStreaming(RealtimeDataDevice):
                                                             self.name,
                                                             message.experiment_id,
                                                             str(message.stimulus_id).zfill(2))
-                    print("Starting the thread")
+                    print(f"[{self.name}] Starting the recording thread")
                     recording_event = threading.Event()
                     recording_event.set()
-                    print("recording_event", recording_event)
                     recording_thread = threading.Thread(
                         target=self._stream_loop, args=(file_name, recording_event), daemon=True)
                     recording_thread.start()
@@ -160,7 +163,7 @@ class CameraStreaming(RealtimeDataDevice):
 
             elif message.type == MessageType.STOP:
                 if self._state == "STOP":
-                    print("Video streaming has already started")
+                    print(f"[{self.name}] Video streaming has already stopped")
                 else:
                     if recording_event is not None:
                         recording_event.clear()
@@ -175,11 +178,11 @@ class CameraStreaming(RealtimeDataDevice):
                 recording_event = None
                 break
 
-        print("video terminated")
+        print(f"[{self.name}] video terminated")
         self._video_capture.release()
 
     def _stream_loop(self, file_name: str, event: threading.Event):
-        print("Start stream camera")
+        print(f"[{self.name}] Start stream camera")
         codec = cv2.VideoWriter_fourcc(*'XVID')
         try:
             while self._video_capture.isOpened:
@@ -191,7 +194,7 @@ class CameraStreaming(RealtimeDataDevice):
                         self._frames.append(frame)
                 else:
                     fps = self._get_frame_rate()
-                    print("Recording frame per second", fps)
+                    print(f"[{self.name}] Recording frame per second", fps)
                     writer = cv2.VideoWriter(file_name,
                             codec,
                             fps,
@@ -202,7 +205,7 @@ class CameraStreaming(RealtimeDataDevice):
                     break
 
         except Exception as error:
-            print("Error while recording video. Device: {0}".format(self.name))
+            print(f"[{self.name}] Error while recording video:")
             print(error)
 
     def _stream_loop_image(self, file_name: str, event: threading.Event):
@@ -220,12 +223,12 @@ class CameraStreaming(RealtimeDataDevice):
                     break
 
         except Exception as error:
-            print("Error while recording video. Device: {0}".format(self.name))
+            print(f"[{self.name}] Error while recording video.")
             print(error)
 
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
-        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or
         realtime processing purposes.
 
         Parameters
@@ -236,16 +239,16 @@ class CameraStreaming(RealtimeDataDevice):
         Returns
         -------
         data: Dict[str, Any]
-            The keys are `data` and `metadata`.  
+            The keys are `data` and `metadata`.
             `data` is a list of records, or empty list if there's nothing.
-            `metadata` is a dictionary of device metadata including `frame_rate` and `type` 
+            `metadata` is a dictionary of device metadata including `frame_rate` and `type`
         '''
         fps = self._get_frame_rate()
-        print("len(self._frames)", len(self._frames))
+
         data = self._frames[-1 * duration * fps:]
         metadata = {"frame_rate": fps,
                     "type": self.__class__.__name__}
-        print("len(data)", len(data), fps, duration)
+
         if len(data) == 0:
             realtime_data = {"data": [],
                              "metadata": metadata}
@@ -255,7 +258,7 @@ class CameraStreaming(RealtimeDataDevice):
                 if (i * fps) + 1 > len(data):
                     break
                 one_frame_per_seconds.append(data[i * fps])
-        
+
             realtime_data = {"data": one_frame_per_seconds,
                              "metadata": metadata}
         return realtime_data
@@ -267,6 +270,5 @@ class CameraStreaming(RealtimeDataDevice):
             time_diff = self._capture_times[-1] - self._capture_times[-(i+1)]
             i += 1
         fps = int(i/time_diff)
-        print("measured fps: ", fps)
-        return fps
 
+        return fps

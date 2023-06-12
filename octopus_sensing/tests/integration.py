@@ -57,7 +57,7 @@ class MockedOpenBCICyton:
 
 
 class MockedSerial:
-    def __init__(self, port, speed):
+    def __init__(self, *args, **kwargs):
         pass
 
     def flushInput(self):
@@ -68,6 +68,9 @@ class MockedSerial:
 
     def close(self):
         pass
+
+    def is_open(self):
+        return True
 
     def read(self, size):
         if size == 1:
