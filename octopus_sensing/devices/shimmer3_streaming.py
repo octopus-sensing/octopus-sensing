@@ -139,7 +139,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
         Initializing connection with Simmer3 device
         '''
         self._serial = serial.Serial(port=self._serial_port, baudrate=115200, timeout=SERIAL_PORT_TIMEOUT, write_timeout=SERIAL_PORT_TIMEOUT)
-        if not self._serial.is_open():
+        if not self._serial.is_open:
             raise RuntimeError(
                 "shimmer3: Couldn't open the port for some reason.")
 

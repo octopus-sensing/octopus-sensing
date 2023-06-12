@@ -170,9 +170,9 @@ class DeviceCoordinator:
         boolean
             True if all are healthy, False otherwise
         '''
-        for device_name, device, in self.__devices:
+        for device_name, device, in self.__devices.items():
             if not device.is_alive():
-                print(f"device [device_name] is not alive anymore.")
+                print("device [{0}] is not alive anymore.".format(device_name))
                 return False
         return True
 
