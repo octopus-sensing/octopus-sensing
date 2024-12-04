@@ -14,16 +14,18 @@
 
 import os
 import array
-from typing import List
+from typing import List, Any, Dict
+import datetime
+import csv
 import miniaudio
 import datetime
 import csv
 
-from octopus_sensing.devices.device import Device
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.devices.common import SavingModeEnum
 
-class AudioStreaming(Device):
+class AudioStreaming(RealtimeDataDevice):
     '''
     Stream and Record audio
 
@@ -68,10 +70,13 @@ class AudioStreaming(Device):
     See Also
     -----------
     :class:`octopus_sensing.device_coordinator`
-    :class:`octopus_sensing.devices.device`
+    :class:`octopus_sensing.devices.Device`
+    :class:`octopus_sensing.devices.RealtimeDataDevice`
 
     '''
-    def __init__(self, device_id:int, saving_mode: int=SavingModeEnum.SEPARATED_SAVING_MODE, **kwargs):
+    def __init__(self, device_id:int, 
+                 saving_mode: int=SavingModeEnum.SEPARATED_SAVING_MODE, **kwargs):
+
         super().__init__(**kwargs)
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
@@ -83,9 +88,12 @@ class AudioStreaming(Device):
         self._record = False
         self._terminate = False
         self._state = ""
-        self._log = []
+
         self._start_continuous = False
-        
+        self._log: List[str] = []
+        self._continuous_capture = False
+        self._sampling_rate = 44100
+
 
     def __stream_loop(self):
         _ = yield
@@ -99,7 +107,7 @@ class AudioStreaming(Device):
         selected_device = captures[self._device_id]
         capture = \
             miniaudio.CaptureDevice(buffersize_msec=1000,
-                                    sample_rate=44100,
+                                    sample_rate=self._sampling_rate,
                                     device_id=selected_device["id"])
 
         recorder = self.__stream_loop()
@@ -115,15 +123,20 @@ class AudioStreaming(Device):
                 if self._state == "START":
                     print("Audio streaming has already started")
                 else:
-                    print("Audio start")
-                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE or self._start_continuous == False: 
-                        self._experiment_id = message.experiment_id
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
                         self._stream_data = []
                         capture.start(recorder)
                         self._record = True
-                        self._state = "START"
-                        self._start_continuous = True
+                    else:
+                        if self._continuous_capture is False:
+                            capture.start(recorder)
+                            self._continuous_capture = True
+                            self._record = True
+                        self._log.append([datetime.datetime.now(),
+                                         str(message.stimulus_id).zfill(2),
+                                         'MESSAGE START'])
 
+                    self._state = "START"
             elif message.type == MessageType.STOP:
                 self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE STOP'])
 
@@ -140,16 +153,17 @@ class AudioStreaming(Device):
                                                         str(message.stimulus_id).zfill(2))
                         self._save_to_file(file_name, capture)
                     else:
-                        print("Audio stop")
-                        
+                        self._log.append([datetime.datetime.now(),
+                                         str(message.stimulus_id).zfill(2),
+                                         'MESSAGE STOP'])
                         self._experiment_id = message.experiment_id
-
                     self._state = "STOP"
-            
             elif message.type == MessageType.TERMINATE:
+                self._terminate = True
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
-                    self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE TERMINATE'])
-
+                    self._log.append([datetime.datetime.now(),
+                                     "-",
+                                     'MESSAGE TERMINATE'])
                     capture.stop()
                     self._save_log_file(f"{self.output_path}/{self.name}-{self._experiment_id}-log.csv")                    
                     self._record = False
@@ -159,8 +173,8 @@ class AudioStreaming(Device):
                                                  self._experiment_id)
                     self._save_to_file(file_name, capture)
                     
-                print("Audio terminate")
-                self._terminate = True
+                    self._save_log_file(f"{self.output_path}/{self.name}-{self._experiment_id}-log.csv")                    
+
                 break
                 
     def _save_to_file(self, file_name:str, capture:miniaudio.CaptureDevice):
@@ -193,3 +207,29 @@ class AudioStreaming(Device):
             SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
         '''
         return self._saving_mode
+    
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
+        '''
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        realtime processing purposes.
+
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
+
+        Returns
+        -------
+        data: Dict[str, Any]
+            The keys are `data` and `metadata`.  
+            `data` is a list of records, or empty list if there's nothing.
+            `metadata` is a dictionary of device metadata including `sampling_rate` and `type`
+        '''
+
+        data = self._stream_data[-1 * duration * self._sampling_rate:]
+        metadata = {"sampling_rate": self._sampling_rate,
+                    "type": self.__class__.__name__}
+
+        realtime_data = {"data": data,
+                         "metadata": metadata}
+        return realtime_data

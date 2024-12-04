@@ -20,7 +20,7 @@ import pyOpenBCI
 import numpy as np
 
 from octopus_sensing.common.message_creators import MessageType
-from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.devices.common import SavingModeEnum
 
 
@@ -28,7 +28,7 @@ uVolts_per_count = (4500000)/24/(2**23-1)
 accel_G_per_count = 0.002 / (2**4)  # G/count
 
 
-class OpenBCIStreaming(MonitoredDevice):
+class OpenBCIStreaming(RealtimeDataDevice):
     '''
     Manages OpenBCI streaming
     It uses pyOpenBCI library which is not supporting by OpenBCI anymore.
@@ -112,6 +112,7 @@ class OpenBCIStreaming(MonitoredDevice):
         self._board = self._inintialize_board(daisy)
         self._trigger = None
         self._experiment_id = None
+        self._sampling_rate = 128
 
         self.output_path = self._make_output_path()
 
@@ -215,11 +216,29 @@ class OpenBCIStreaming(MonitoredDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_monitoring_data(self):
-        '''Returns latest collected data for monitoring/visualizing purposes.'''
-        # Last three seconds
-        # FIXME: hard-coded data collection rate
-        return self._stream_data[-1 * 3 * 128:]
+    def _get_realtime_data(self, duration: int):
+        '''
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or 
+        realtime processing purposes.
+
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
+
+        Returns
+        -------
+        data: List[Any]
+            List of records, or empty list if there's nothing.
+        '''
+
+        data = self._stream_data[-1 * duration * self._sampling_rate:]
+        metadata = {"sampling_rate": self._sampling_rate,
+                    "channels": self.channels,
+                    "type": self.__class__.__name__}
+        realtime_data = {"data": data,
+                         "metadata": metadata}
+        return realtime_data
 
     def get_saving_mode(self):
         '''

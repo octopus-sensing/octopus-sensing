@@ -19,8 +19,9 @@ import io
 import http.server
 import pickle
 import json
+import urllib.parse
 
-from typing import Callable, Optional, Any
+from typing import Callable, Optional, Any, Dict, List
 
 import msgpack
 import numpy
@@ -68,8 +69,14 @@ def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], pos
                 self.end_headers()
                 return
 
+            query_string = urllib.parse.urlparse(self.path).query
+            if query_string:
+                query_params = urllib.parse.parse_qs(query_string)
+            else:
+                query_params = {}
+
             try:
-                response = get_callback(self.rfile)
+                response = get_callback(self.rfile, query_params)
             except EndpointClientError as client_error:
                 self.send_error(
                     400,
@@ -146,7 +153,7 @@ def make_handler(get_callback: Optional[Callable[[io.BufferedIOBase], Any]], pos
 
 class EndpointBase(threading.Thread):
 
-    def __init__(self, endpoint_name: str, port: int, get_callback: Optional[Callable[[io.BufferedIOBase], Any]] = None, post_callback: Optional[Callable[[Any], Any]] = None):
+    def __init__(self, endpoint_name: str, port: int, get_callback: Optional[Callable[[io.BufferedIOBase, Dict[str, List[Any]]], Any]] = None, post_callback: Optional[Callable[[Any], Any]] = None):
         '''
         This class shouldn't be used directly. Use one of the implementations instead.
 

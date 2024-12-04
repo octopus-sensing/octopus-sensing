@@ -66,8 +66,8 @@ class MockedVideoWriterModule:
 
 @pytest.fixture(scope="module")
 def mocked():
-    original_bases = camera_streaming.CameraStreaming.__bases__[0].__bases__
-    camera_streaming.CameraStreaming.__bases__[0].__bases__ = (threading.Thread,)
+    original_bases = camera_streaming.CameraStreaming.__bases__[0].__bases__[0].__bases__
+    camera_streaming.CameraStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
 
     original_cv2 = camera_streaming.cv2
     camera_streaming.cv2 = MockedCv2Module()
@@ -75,7 +75,7 @@ def mocked():
     yield None
 
     # Replacing back the original things
-    camera_streaming.CameraStreaming.__bases__[0].__bases__ = original_bases
+    camera_streaming.CameraStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
     camera_streaming.cv2 = original_cv2
 
 
@@ -90,7 +90,10 @@ def test_happy_path(mocked):
         camera_no=0, output_path=output_dir, name=device_name)
 
     msg_queue = queue.Queue()
+    data_queue_in = queue.Queue()
+    data_queue_out = queue.Queue()
     device.set_queue(msg_queue)
+    device.set_realtime_data_queues(data_queue_in, data_queue_out)
     device.start()
 
     time.sleep(0.2)

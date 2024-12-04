@@ -13,10 +13,10 @@ Device (Base class)
    :show-inheritance:
 
 
-MonitoredDevice
----------------
+RealtimeDataDevice
+--------------------
 
-.. automodule:: octopus_sensing.devices.monitored_device
+.. automodule:: octopus_sensing.devices.realtime_data_device
    :members:
    :undoc-members:
    :show-inheritance:

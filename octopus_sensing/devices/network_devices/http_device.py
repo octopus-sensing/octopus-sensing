@@ -54,7 +54,7 @@ class HttpNetworkDevice(Device):
       A list of URLs to send the message to. It should have the scheme
       (http or https) at the beginning. For example: ["http://localhost:8080"]
       Note that for IPv6, you need to put it between braces, like this:
-      `http://[2345:425:2ca1:0000:0000:567:5673:23b5]/'
+      `http://[2345:425:2ca1:0000:0000:567:5673:23b5]/`
 
     serialization_type:
       Should be one of the types defined in SerializationTypes

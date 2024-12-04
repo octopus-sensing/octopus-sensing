@@ -1,5 +1,5 @@
 ---
-title: 'Octopus Sensing: A python library for human behavior studies'
+title: 'Octopus Sensing: A Python library for human behavior studies'
 tags:
  - Python
  - Javascript
@@ -42,7 +42,7 @@ To overcome these challenges, `Octopus Sensing` facilitates synchronous data acq
 # Statement of need
 Several changes occur in the body and mind due to various internal and external stimuli. Nowadays, researchers use various sensors to measure and monitor these responses to determine an individual's state [@kreibig2010autonomic; @chen2021physiological; @sun2020multimodal] and to assist patients [@hassouneh2020development] or monitor mental health [@jiang2020snapshot]. Monitoring and analyzing human responses can be used to improve social interactions [@verschuere2006psychopathy; @hossain2019observers] and improve quality of life by creating intelligent devices such as Intelligent Tutoring Systems [@dewan2019engagement], creating adaptive systems [@aranha2019adapting], or creating interactive robots and virtual characters [@val2020affective; @hong2021multimodal].
 
-Researchers have recently attempted to gain a deeper understanding of humans by simultaneously studying physiological and behavioral changes in the human body [@shu2018review; @koelstra2011deap]. Acquiring and analyzing data from different sources with various hardware and software is complex, time-consuming, and challenging. Additionally, human error can easily affect synchronously recording data in multiple formats. These tasks slow down the pace of progress in human-computer interaction and human behavior research.
+Researchers have recently attempted to gain a deeper understanding of humans by simultaneously studying physiological and behavioral changes in the human body [@shu2018review; @koelstra2011deap]. Acquiring and analyzing data from different sources with various hardware and software is complex, time-consuming, and challenging. Additionally, human error can easily affect synchronously recording data in multiple formats. These tasks decrease the pace of progress in human-computer interaction and human behavior research.
 
 There are only a few frameworks that support synchronous data acquisition and design. [iMotions](https://imotions.com/) has developed software for integrating and synchronizing data recording through a wide range of various sensors and devices. Despite having many great features, iMotions is commercial software and not open-source. In contrast, there are a few open-source programs for conducting human studies. [Psychopy](https://www.psychopy.org/) [@peirce2019psychopy2] is a powerful open-source, cross-platform software that is mainly used for building experiments' pipelines in behavioral science with visual and auditory stimuli. It can also record data from a few devices and send triggers to them. Another effort in this area is [LabStreamingLayer (LSL) LabRecorder](http://labstreaminglayer.org/). Although LSL LabRecorder provides synchronized, multimodal streaming through a wide range of devices, an extra application still needs to be run for acquiring data from each sensor separately.
 
@@ -52,13 +52,13 @@ There are only a few frameworks that support synchronous data acquisition and de
 
 `Octopus Sensing` is a tool to help in running scientific experiments that involve recording data synchronously from multiple sources. It can simultaneously collect data from various devices such as [OpenBCI EEG headset](https://openbci.com/), [Shimmer3 sensor](https://shimmersensing.com), camera, and audio-recorder without running another software for data recording. Data recording can be started, stopped, and triggered synchronously across all devices through a unified interface.
 
-The main features of `Octopus Sensing` are listed as follows:
+The main features of `Octopus Sensing` are that it:
 
-* Manages data recording from multiple sources using a simple unified interface.
-* Minimizes human errors from manipulating data in synchronous data collection.
-* Provides some utilities for designing studies like showing different stimuli or designing questionnaires.
-* Offers a monitoring interface that prepares and visualizes collected data in real-time.
-* Provides offline visualization of data from multiple sources simultaneously.
+* manages data recording from multiple sources using a simple unified interface,
+* minimizes human errors from manipulating data in synchronous data collection,
+* provides some utilities for designing studies like showing different stimuli or designing questionnaires,
+* offers a monitoring interface that prepares and visualizes collected data in real-time, and
+* provides offline visualization of data from multiple sources simultaneously.
 
 # Methodology
 `Octopus Sensing` synchronizes data recording by using `multiprocessing` in Python. By instantiating the `Device` class, `Octopus Sensing` creates a process for the device. Each device's process has three threads: `data acquisition` thread, `trigger handling and data recording` thread, and `real-time data` thread. The `data acquisition` thread is responsible for acquiring data from a sensor. The `trigger handling and data recording` thread handles trigger messages through a message queue for synchronous data recording. It also records data in a file or files. The `real-time data` thread listens on a queue for requests and returns the last three seconds of the recorded data in the same queue. This data is being used in real-time monitoring and can be used for real-time processing and creating real-time feedback in the future. The `Device Coordinator` sends different triggers such as the start of recording or end of recording to different devices by putting the message in all devices' trigger queues at the same time. The `Device Coordinator` can also send the trigger over the network for devices that are not embedded in the `Octopus Sensing`. The following image shows the overall view of the main components of the `Octopus Sensing` and their relations.

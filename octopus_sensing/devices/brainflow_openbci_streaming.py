@@ -16,6 +16,7 @@ import platform
 from typing import List, Optional
 from brainflow.board_shim import BrainFlowInputParams
 from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
+from octopus_sensing.devices.common import SavingModeEnum
 
 class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
@@ -29,21 +30,21 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     Parameters
     ----------
     name: str, default: None
-        Device name. This name will be used in the output path to identify 
+        Device name. This name will be used in the output path to identify
         each device's data.
 
     output_path: str,  default: output
         The path for recording files.
         Audio files will be recorded in folder {output_path}/{name}
-    
+
     saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data: saving continiously in a file or save data related to
-        each stimulus in a separate file. 
+        each stimulus in a separate file.
         SavingModeEnum is:
 
             0. CONTINIOUS_SAVING_MODE
             1. SEPARATED_SAVING_MODE
-    
+
     board_type: str, default: cyton-daisy
         The type of OpenBCI boards that connect by USB dongle.
         It can be:
@@ -51,7 +52,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
             - cyton: for cyton board sampling rate is 250 and it has 8 channels
             - cyton-daisy: for cyton-daisy board sampling rate is 125 and it has 16 channels
             - ganglion: for Ganglion board sampling rate is 200 and it has 4 channels
-    
+
     serial_port: str, default: None
         The serial port for reading OpenBCI data. By default we set this as follows for various platforms:
 
@@ -64,30 +65,30 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
 
     Example
     --------
-    Creating an instance of OpenBCI board with USB dongle using 
+    Creating an instance of OpenBCI board with USB dongle using
     `brainflow <https://brainflow.readthedocs.io/en/stable/SupportedBoards.html#openbci>`_,
     and adding it to the device coordinator. Device coordinator is responsible
     for triggerng the OpenBCI to start or stop recording  or to add markers to
     recorded data.
-    In this example, since the saving mode is continuous, all recorded data 
+    In this example, since the saving mode is continuous, all recorded data
     will be saved in a file. But, when an event happens, device coordinator will send
     a trigger message to the device and recorded data will be marked with the trigger
-    
+
     >>> my_openbci =
     ...     BrainFlowOpenBCIStreaming(name="OpenBCI",
     ...                               output_path="./output",
     ...                               board_type="cyton-daisy",
     ...                               saving_mode=SavingModeEnum.CONTINIOUS_SAVING_MODE,
-    ...                               channels_order=["Fp1", "Fp2", "F7", "F3", 
+    ...                               channels_order=["Fp1", "Fp2", "F7", "F3",
     ...                                               "F4", "F8", "T3", "C3",
-    ...                                               "C4", "T4", "T5", "P3", 
+    ...                                               "C4", "T4", "T5", "P3",
     ...                                               "P4", "T6", "O1", "O2"])
     >>> device_coordinator.add_device(my_openbci)
 
     Note
     -----
     Before running the code, turn on the OpenBCI, connect the dongle and make sure its port is free.
-  
+
 
     See Also
     -----------
@@ -101,8 +102,9 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                  board_type:str ="cyton-daisy",
                  name: Optional[str] = None,
                  output_path: str = "output",
-                 serial_port=None):
-        self.channels = channels_order        
+                 serial_port=None,
+                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE):
+        self.channels = channels_order
         if board_type == "cyton-daisy":
             device_id = 2
             sampling_rate = 125
@@ -127,7 +129,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
             if len(self.channels) != 4:
                 raise RuntimeError("The number of channels in channels_order should be 4")
         else:
-            raise RuntimeError("Use BrainflowStreaming fr other boards")
+            raise RuntimeError("Use BrainflowStreaming for other boards")
 
         if serial_port is None:
             if platform.system() == "Linux":
@@ -143,7 +145,9 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
                          sampling_rate,
                          brain_flow_input_params=params,
                          name=name,
-                         output_path=output_path)
+                         output_path=output_path,
+                         saving_mode=saving_mode)
+
     def get_output_path(self):
         '''
         Gets the path that is used for data recording
@@ -167,16 +171,16 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
 
         '''
         return self.channels
-    
+
     def get_saving_mode(self):
         '''
         Gets saving mode
-        
+
         Returns
         -----------
         saving_mode: int
             The way of saving data: saving continiously in a file or save data related to
-            each stimulus in a separate file. 
+            each stimulus in a separate file.
             SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
         '''
         return self._saving_mode

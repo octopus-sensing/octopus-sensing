@@ -36,6 +36,13 @@ The created `main.py` file is an example application. To run it:
 
 If you don't want to use the script, you can use the following methods instead.
 
+Pre-requirements
+==================
+
+If you're using Gnu/Linux, you need to install a few packages on your machine. On an Ubuntu distro, run:
+
+:code:`sudo apt-get install libcairo2-dev libgirepository1.0-dev gstreamer-1.0`
+
 Installation using Pipenv (All Platforms)
 =========================================
 
@@ -86,3 +93,5 @@ Troubleshooting
 ===============
 
 - Pip cannot install PyGObject on Windows. If users want to use `octopus-sensing.stimuli` or `octopus-sensing.windows` packages, they need to install it manually themselves. See `PyGObject documentation <https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started>`_ to know how to install PyGObject on Windows.
+
+- If you saw `Namespace Gst not available` (or similar) while importing `octopus_sensing.stimuli` package, you need to install `gstreamer` package on your machine. On Ubuntu run `sudo apt-get install gstreamer-1.0`.

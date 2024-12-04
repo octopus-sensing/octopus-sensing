@@ -13,11 +13,10 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import threading
-from gi.repository import Gtk, Gst
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
-
+from gi.repository import Gtk, Gst
 
 from octopus_sensing.windows import ImageWindow
 from octopus_sensing.stimuli.stimulus import Stimulus
@@ -38,10 +37,10 @@ class ImageStimulus(Stimulus):
 
     path: str
         The path of image
-    
+
     show_time: int
         The time period for displaying the image in seconds
-    
+
     monitor_no: int, default: 0
         The ID of monitor for displaying of image. It can be 0, 1, ...
     '''
@@ -60,7 +59,7 @@ class ImageStimulus(Stimulus):
 
     def show_standalone(self):
         '''
-        If we don't have a Gtk window and want to display it standalone, we are using this method. 
+        If we don't have a Gtk window and want to display it standalone, we are using this method.
         It may have some miliseconds delay to initialize GTK.
         If these miliseconds are important, don't use this method to display image
 

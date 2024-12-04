@@ -17,75 +17,83 @@ import pickle
 import multiprocessing.queues
 import threading
 import traceback
-from typing import List, Any
+from typing import Dict, Any
 
 from octopus_sensing.devices.device import Device
 
 QueueType = multiprocessing.queues.Queue
 
 
-class MonitoredDevice(Device):
+class RealtimeDataDevice(Device):
     '''
-    Provides functionalities for monitoring a device's data. 
+    Provides functionalities for realtime processing or monitoring a device's data. 
     For example, visualizing data in real time.
     '''
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._monitor_in_q = None
-        self._monitor_out_q = None
+        self._realtime_data_in_q = None
+        self._realtime_data_out_q = None
 
-    def set_monitoring_queues(self, monitor_in_q: QueueType, monitor_out_q: QueueType) -> None:
+    def set_realtime_data_queues(self, realtime_data_in_q: QueueType, realtime_data_out_q: QueueType) -> None:
         '''Sets the queues for communicating with the parent process.
         It should be called before the start of the process.
         '''
-        self._monitor_in_q = monitor_in_q
-        self._monitor_out_q = monitor_out_q
+        self._realtime_data_in_q = realtime_data_in_q
+        self._realtime_data_out_q = realtime_data_out_q
 
     def run(self) -> None:
         # Ensuring queues are set.
-        assert self._monitor_in_q is not None
-        assert self._monitor_out_q is not None
+        assert self._realtime_data_in_q is not None
+        assert self._realtime_data_out_q is not None
 
-        threading.Thread(target=self._monitor_loop,
-                         name=self.__class__.__name__ + " monitor thread", daemon=True) \
+        threading.Thread(target=self._realtime_data_loop,
+                         name=self.__class__.__name__ + " realtime data thread", daemon=True) \
             .start()
 
         self._run()
 
-    def _monitor_loop(self) -> None:
+    def _realtime_data_loop(self) -> None:
         while True:
-            # We don't use the data from the queue. It's just a signal.
-            self._monitor_in_q.get()
+            # There is a duration for getting data n queue
+            data = self._realtime_data_in_q.get()
+            duration = int(data)
 
             try:
                 # Only 10ms timeout, because we don't want to take cpu time from the
                 # main thread (data collector)
-                self._monitor_out_q.put(
+                self._realtime_data_out_q.put(
                     pickle.dumps(
-                        self._get_monitoring_data(),
+                        self._get_realtime_data(duration),
                         protocol=pickle.HIGHEST_PROTOCOL),
                     timeout=0.01)
 
             except pickle.PickleError:
-                print("Error pickling monitoring data", file=sys.stderr)
+                print("Error pickling realtime data", file=sys.stderr)
                 traceback.print_exc()
                 # We don't want to keep the parent process waiting
-                self._monitor_out_q(pickle.dumps(
+                self._realtime_data_out_q(pickle.dumps(
                     [], protocol=pickle.HIGHEST_PROTOCOL))
 
-    def _get_monitoring_data(self) -> List[Any]:
-        '''Subclasses must implmenet this method. It should return
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
+        '''
+        Subclasses must implmenet this method. It should return
         a list of latest collected records.
         This method will be called in a separate thread, and should
         be thread-safe.
         Also, implmentation must return as quick as possible, to prevent
         blocking of the main thread that doing the collecting.
 
-        @param requested_records: Number of records that should be returned.
-        @type requested_records: int
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
 
-        @return: List of records, or empty list if there's nothing.
-        @rtype: List[Any]
+        Returns
+        -------
+        data: Dict[str, Any]
+            it includes `data`: List of records, or empty list if there's nothing.
+                        `metadata`: Dict of device metadata
+
         '''
         raise NotImplementedError()

@@ -24,6 +24,11 @@ Also, this tool can be used as the base structure for creating real-time data pr
 
 **To see the full documentation visit the [Octopus Sensing website](https://octopus-sensing.nastaran-saffar.me/).**
 
+When using the package in your research, please cite:
+-----------------------------------------------------
+
+Saffaryazdi, N., Gharibnavaz, A., & Billinghurst, M. (2022). Octopus Sensing: A Python library for human behavior studies. Journal of Open Source Software, 7(71), 4045.
+
 Main features
 --------------
 
@@ -35,7 +40,7 @@ Main features
 
 Copyright
 ---------
-Copyright © 2020-2022 Nastaran Saffaryazdi, Aidin Gharibnavaz
+Copyright © 2020-2023 Nastaran Saffaryazdi, Aidin Gharibnavaz
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation, either version 3 of the

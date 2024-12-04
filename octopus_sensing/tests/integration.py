@@ -57,7 +57,7 @@ class MockedOpenBCICyton:
 
 
 class MockedSerial:
-    def __init__(self, port, speed):
+    def __init__(self, *args, **kwargs):
         pass
 
     def flushInput(self):
@@ -68,6 +68,9 @@ class MockedSerial:
 
     def close(self):
         pass
+
+    def is_open(self):
+        return True
 
     def read(self, size):
         if size == 1:
@@ -123,7 +126,7 @@ def test_system_health(mocked):
     import octopus_sensing.devices.shimmer3_streaming as shimmer3_streaming
     from octopus_sensing.device_coordinator import DeviceCoordinator
     from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
-    from octopus_sensing.monitoring_endpoint import MonitoringEndpoint
+    from octopus_sensing.realtime_data_endpoint import RealtimeDataEndpoint
 
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
 
@@ -137,8 +140,8 @@ def test_system_health(mocked):
         name="shimmer", output_path=output_dir)
     coordinator.add_device(shimmer)
 
-    monitoring_endpoint = MonitoringEndpoint(coordinator)
-    monitoring_endpoint.start()
+    realtime_data_endpoint = RealtimeDataEndpoint(coordinator)
+    realtime_data_endpoint.start()
 
     try:
         coordinator.dispatch(start_message("int_test", "stimulus_1"))
@@ -150,23 +153,23 @@ def test_system_health(mocked):
         http_client.request("GET", "/")
         response = http_client.getresponse()
         assert response.status == 200
-        monitoring_data = pickle.loads(response.read())
-        assert isinstance(monitoring_data, dict)
+        realtime_data = pickle.loads(response.read())
+        assert isinstance(realtime_data, dict)
 
-        assert isinstance(monitoring_data["eeg"], list)
+        assert isinstance(realtime_data["eeg"], dict)
         # three seconds * data rate
-        assert len(monitoring_data["eeg"]) == 3 * 128
-        assert len(monitoring_data["eeg"][0]) in (34, 35)
-        assert len(monitoring_data["eeg"][-1]) in (34, 35)
+        assert len(realtime_data["eeg"]["data"]) == 3 * 128
+        assert len(realtime_data["eeg"]["data"][0]) in (34, 35)
+        assert len(realtime_data["eeg"]["data"][-1]) in (34, 35)
 
-        assert isinstance(monitoring_data["shimmer"], list)
-        assert len(monitoring_data["shimmer"]) == 3 * 128
-        assert len(monitoring_data["shimmer"][0]) in (8, 9)
-        assert len(monitoring_data["shimmer"][-1]) in (8, 9)
+        assert isinstance(realtime_data["shimmer"], dict)
+        assert len(realtime_data["shimmer"]["data"]) == 3 * 128
+        assert len(realtime_data["shimmer"]["data"][0]) in (8, 9)
+        assert len(realtime_data["shimmer"]["data"][-1]) in (8, 9)
 
     finally:
         coordinator.dispatch(terminate_message())
-        monitoring_endpoint.stop()
+        realtime_data_endpoint.stop()
 
     # To ensure termination is happened.
     time.sleep(0.5)

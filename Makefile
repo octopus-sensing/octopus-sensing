@@ -25,8 +25,8 @@ test-coverage: ## Runs tests and reports coverage
 #publish: mypy test
 #	update version in __init__.py, pyproject
 #   commit
-#	tag
-#	push tag
+#	git tag version
+#	git push --tag
 #	poetry publish
 
 # You can set these variables from the command line, and also
@@ -38,3 +38,7 @@ BUILDDIR      = docs_build
 
 docs: ## Build the documents. Output will be './docs_build'
 	poetry run $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+
+docs-latex:
+	poetry run $(SPHINXBUILD) -b latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
+

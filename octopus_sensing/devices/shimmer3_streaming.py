@@ -15,19 +15,23 @@
 import os
 import platform
 import threading
+import time
 import datetime
 import csv
 import math
 import struct
 import serial
-from typing import List, Optional
+from typing import List, Optional, Any, Dict
 
-from octopus_sensing.devices.monitored_device import MonitoredDevice
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.common.message import Message
 from octopus_sensing.devices.common import SavingModeEnum
 
-class Shimmer3Streaming(MonitoredDevice):
+# In seconds
+SERIAL_PORT_TIMEOUT = 0.6
+
+class Shimmer3Streaming(RealtimeDataDevice):
     '''
     Streams and Records Shimmer3 data.
     Data will be recorded in a csv file/files with the following column order:
@@ -39,24 +43,27 @@ class Shimmer3Streaming(MonitoredDevice):
     Parameters
     ----------
     name: str, default: None
-        Device name. This name will be used in the output path to identify 
+        Device name. This name will be used in the output path to identify
         each device's data.
 
     output_path: str,  default: output
         The path for recording files.
         Audio files will be recorded in folder {output_path}/{name}
-    
+
     saving_mode: int, default: SavingModeEnum.CONTINIOUS_SAVING_MODE
         The way of saving data: saving continiously in a file or save data related to
-        each stimulus in a separate file. 
+        each stimulus in a separate file.
         SavingModeEnum is:
-        
+
             0. CONTINIOUS_SAVING_MODE
             1. SEPARATED_SAVING_MODE
-    
+
+    serial_port: str, default: Windows=Com12, Linux=/dev/rfcomm0
+        The serial port that Shimmer is paired with (See the Note below)
+
     sampling_rate: int, default: 128
         The sampling frequency for acquiring data from the device
-    
+
 
     See Also
     -----------
@@ -66,9 +73,9 @@ class Shimmer3Streaming(MonitoredDevice):
     Example
     -------
     Creating an instance of shimmer3 and adding it to the device coordinator.
-    Device coordinator is responsible for triggerng the shimmer3 to 
+    Device coordinator is responsible for triggerng the shimmer3 to
     start or stop recording  or to add markers to recorded data.
-    In this example, since the saving mode is continuous, all recorded data 
+    In this example, since the saving mode is continuous, all recorded data
     will be saved in a file. But, when an event happens, device coordinator will send a trigger message
     to the device and recorded data will be marked with the trigger
 
@@ -86,33 +93,41 @@ class Shimmer3Streaming(MonitoredDevice):
     For example in linux you can do it as follow:
         1- hcitool scan   //It shows the macaddress of device. for shimmer it is 00:06:66:F0:95:95
 
-        2- vim /etc/bluetooth/rfcomm.conf write the below line in it: 
-        rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" } 
+        2- vim /etc/bluetooth/rfcomm.conf write the below line in it:
+        rfcomm0{ bind no; device 00:06:66:F0:95:95; channel 1; comment "serial port" }
 
         3- sudo rfcomm connect rfcomm0 00:06:66:F0:95:95 // This is for reading bluetooth data from a serial port
 
     Note
     -----
-    This class is based on `ShimmerReader <https://github.com/nastaran62/ShimmerReader>`_ 
-    which is an extended version of 
-    `LogAndStream python firmware <http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf>`_ 
+    This class is based on `ShimmerReader <https://github.com/nastaran62/ShimmerReader>`_
+    which is an extended version of
+    `LogAndStream python firmware <http://www.shimmersensing.com/images/uploads/docs/LogAndStream_for_Shimmer3_Firmware_User_Manual_rev0.11a.pdf>`_
     for Shimmer3 data streaming.
     '''
 
     def __init__(self,
-                 sampling_rate: int=128,
-                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 sampling_rate: int = 128,
+                 saving_mode: int = SavingModeEnum.CONTINIOUS_SAVING_MODE,
+                 serial_port: Optional[str] = None,
                  **kwargs):
         super().__init__(**kwargs)
 
         self._saving_mode = saving_mode
         self._stream_data: List[float] = []
         self._sampling_rate = sampling_rate
-        self._inintialize_connection()
         self._trigger: Optional[str] = None
         self._break_loop = False
+        self._loop_thread: Optional[threading.Thread] = None
         self.output_path = self._make_output_path()
         self._state = ""
+        if serial_port is None:
+            if platform.system() == "Windows":
+                self._serial_port = "Com12"
+            else:
+                self._serial_port = "/dev/rfcomm0"
+        else:
+            self._serial_port = serial_port
 
     def _make_output_path(self):
         output_path = os.path.join(self.output_path, self.name)
@@ -123,11 +138,11 @@ class Shimmer3Streaming(MonitoredDevice):
         '''
         Initializing connection with Simmer3 device
         '''
-        os_type = platform.system()
-        if os_type == "Windows":
-            self._serial = serial.Serial("Com12", 115200)
-        else:
-            self._serial = serial.Serial("/dev/rfcomm0", 115200)
+        self._serial = serial.Serial(port=self._serial_port, baudrate=115200, timeout=SERIAL_PORT_TIMEOUT, write_timeout=SERIAL_PORT_TIMEOUT)
+        if not self._serial.is_open:
+            raise RuntimeError(
+                "shimmer3: Couldn't open the port for some reason.")
+
         self._serial.flushInput()
         print("port opening, done.")
         # send the set sensors command
@@ -195,22 +210,33 @@ class Shimmer3Streaming(MonitoredDevice):
         self._experiment_id = 0
 
     def _wait_for_ack(self):
+        start_time = time.time()
         ddata = ""
         ack = struct.pack('B', 0xff)
         while ddata != ack:
+            if time.time() - start_time >= 1:
+                raise RuntimeError(f"[{self.name}] Did not receive 'ack' from Shimmer3 after one second")
             ddata = self._serial.read(1)
 
     def _run(self):
         '''
         Listening to the message queue and manage messages
         '''
-        loop_thread = threading.Thread(target=self._stream_loop)
-        loop_thread.start()
+        self._inintialize_connection()
+
+        self._loop_thread = threading.Thread(target=self._stream_loop)
+        self._loop_thread.start()
 
         while True:
             message = self.message_queue.get()
+
+            if not self._loop_thread.is_alive():
+                print(f"[{self.name}] Shimmer3: Streaming loop is dead. Terminating.")
+                break
+
             if message is None:
                 continue
+
             if message.type == MessageType.START:
                 if self._state == "START":
                     print("Shimmer3 streaming has already recorded the START triger")
@@ -227,10 +253,11 @@ class Shimmer3Streaming(MonitoredDevice):
                         self._experiment_id = message.experiment_id
                         file_name = \
                             "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                        self.name,
-                                                        self._experiment_id,
-                                                        message.stimulus_id)
+                                                         self.name,
+                                                         self._experiment_id,
+                                                         message.stimulus_id)
                         self._save_to_file(file_name)
+                        self._stream_data = []
                     else:
                         print("Shimmer stop")
                         self._experiment_id = message.experiment_id
@@ -246,7 +273,7 @@ class Shimmer3Streaming(MonitoredDevice):
                 break
 
         self._break_loop = True
-        loop_thread.join()
+        self._loop_thread.join()
 
     def __set_trigger(self, message: Message):
         '''
@@ -318,7 +345,7 @@ class Shimmer3Streaming(MonitoredDevice):
 
                 timestamp = timestamp0 + timestamp1*256 + timestamp2*65536
 
-                #print([packettype[0], timestamp, GSR_ohm, PPG_mv] + self._trigger)
+                # print([packettype[0], timestamp, GSR_ohm, PPG_mv] + self._trigger)
 
                 if self._trigger is not None:
                     print("Shimmer trigger")
@@ -371,20 +398,42 @@ class Shimmer3Streaming(MonitoredDevice):
                 writer.writerow(row)
                 csv_file.flush()
 
-    def _get_monitoring_data(self):
-        '''Returns latest collected data for monitoring/visualizing purposes.'''
-        # Last three seconds
-        return self._stream_data[-1 * 3 * self._sampling_rate:]
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
+        '''
+        Returns n seconds (duration) of latest collected data for monitoring/visualizing or
+        realtime processing purposes.
+
+        Parameters
+        ----------
+        duration: int
+            A time duration in seconds for getting the latest recorded data in realtime
+
+        Returns
+        -------
+        data: Dict[str, Any]
+            The keys are `data` and `metadata`.
+            `data` is a list of records, or empty list if there's nothing.
+            `metadata` is a dictionary of device metadata including `sampling_rate` and `type`
+        '''
+        # Last recorded data
+        data = self._stream_data[-1 * duration * self._sampling_rate:]
+        metadata = {"sampling_rate": self._sampling_rate,
+                    "channels": ["type", "time stamp", "Acc_x", "Acc_y", "Acc_z",
+                                 "GSR_ohm", "PPG_mv", "time", "trigger"],
+                    "type": self.__class__.__name__}
+        realtime_data = {"data": data,
+                         "metadata": metadata}
+        return realtime_data
 
     def get_saving_mode(self):
         '''
         Gets saving mode
-        
+
         Returns
         -----------
         saving_mode: int
             The way of saving data: saving continiously in a file or save data related to
-            each stimulus in a separate file. 
+            each stimulus in a separate file.
             SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
         '''
         return self._saving_mode
