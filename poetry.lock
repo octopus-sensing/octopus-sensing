@@ -48,14 +48,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "bluepy"
-version = "1.3.0"
-description = "Python module for interfacing with BLE devices through Bluez"
-category = "main"
-optional = false
-python-versions = "*"
-
-[[package]]
 name = "brainflow"
 version = "4.8.2"
 description = "Python Binding for BrainFlow"
@@ -454,6 +446,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "pydub"
+version = "0.25.1"
+description = "Manipulate audio with an simple and easy high level interface"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pygments"
 version = "2.10.0"
 description = "Pygments is a syntax highlighting package written in Python."
@@ -471,6 +471,14 @@ python-versions = ">=3.6, <4"
 
 [package.dependencies]
 pycairo = ">=1.16.0"
+
+[[package]]
+name = "pylsl"
+version = "1.15.0"
+description = "Python interface to the Lab Streaming Layer"
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
 name = "pyobjc-core"
@@ -498,14 +506,6 @@ description = "A lib for controlling OpenBCI devices"
 category = "main"
 optional = false
 python-versions = "*"
-
-[package.dependencies]
-bitstring = "*"
-bluepy = ">=1.2"
-numpy = "*"
-pyserial = "*"
-requests = "*"
-xmltodict = "*"
 
 [[package]]
 name = "pyparsing"
@@ -852,7 +852,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.1,<4.0"
-content-hash = "dbd5f10bddbcffed65d172e44a562fe196e29fc706543f7c47bd1c7a04d154e5"
+content-hash = "266323780d927a6ebc7ffbd9253dac191df9514c9720f2044f9cea72a97de90b"
 
 [metadata.files]
 alabaster = [
@@ -875,9 +875,6 @@ bitstring = [
     {file = "bitstring-3.1.9-py2-none-any.whl", hash = "sha256:e3e340e58900a948787a05e8c08772f1ccbe133f6f41fe3f0fa19a18a22bbf4f"},
     {file = "bitstring-3.1.9-py3-none-any.whl", hash = "sha256:0de167daa6a00c9386255a7cac931b45e6e24e0ad7ea64f1f92a64ac23ad4578"},
     {file = "bitstring-3.1.9.tar.gz", hash = "sha256:a5848a3f63111785224dca8bb4c0a75b62ecdef56a042c8d6be74b16f7e860e7"},
-]
-bluepy = [
-    {file = "bluepy-1.3.0.tar.gz", hash = "sha256:2a71edafe103565fb990256ff3624c1653036a837dfc90e1e32b839f83971cec"},
 ]
 brainflow = [
     {file = "brainflow-4.8.2-py3-none-any.whl", hash = "sha256:1b5efb6b5ea8bb46cd26ce33d471c58fb7ad81a698222751ce8ff2e70769f6ed"},
@@ -1483,12 +1480,22 @@ pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
 ]
+pydub = [
+    {file = "pydub-0.25.1-py2.py3-none-any.whl", hash = "sha256:65617e33033874b59d87db603aa1ed450633288aefead953b30bded59cb599a6"},
+    {file = "pydub-0.25.1.tar.gz", hash = "sha256:980a33ce9949cab2a569606b65674d748ecbca4f0796887fd6f46173a7b0d30f"},
+]
 pygments = [
     {file = "Pygments-2.10.0-py3-none-any.whl", hash = "sha256:b8e67fe6af78f492b3c4b3e2970c0624cbf08beb1e493b2c99b9fa1b67a20380"},
     {file = "Pygments-2.10.0.tar.gz", hash = "sha256:f398865f7eb6874156579fdf36bc840a03cab64d1cde9e93d68f46a425ec52c6"},
 ]
 pygobject = [
     {file = "PyGObject-3.40.1.tar.gz", hash = "sha256:6fb599aa59ceb9dd05fafb0d72b3862943e7d5e85c8ef6c74856bc6d4321cbab"},
+]
+pylsl = [
+    {file = "pylsl-1.15.0-py2.py3-none-any.whl", hash = "sha256:f7188933b1f61c46a150c63b2f541d4c44c075cb310dff4938db966e206ced9b"},
+    {file = "pylsl-1.15.0-py2.py3-none-macosx_10_13_x86_64.whl", hash = "sha256:c93959fb762b9a222a6154d6928c941febc8a71aa979f44c63af25056beda654"},
+    {file = "pylsl-1.15.0-py2.py3-none-win32.whl", hash = "sha256:853fb4f1d75c596f83c9f3a7c7d9a4ed6f1a93120ec4a11406192699a18e38f3"},
+    {file = "pylsl-1.15.0-py2.py3-none-win_amd64.whl", hash = "sha256:7e5c6996cb4cf648aa172f42874429e71d3f1736fe8a01592df1305611df849f"},
 ]
 pyobjc-core = [
     {file = "pyobjc-core-8.1.tar.gz", hash = "sha256:920914a1a4cd4f8a54babe93f0b4e4cd93b51d11ae38d8ef17f5edb603b7a949"},

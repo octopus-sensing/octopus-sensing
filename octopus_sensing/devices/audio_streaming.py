@@ -18,6 +18,8 @@ from typing import List, Any, Dict
 import datetime
 import csv
 import miniaudio
+import datetime
+import csv
 
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
@@ -74,6 +76,7 @@ class AudioStreaming(RealtimeDataDevice):
     '''
     def __init__(self, device_id:int, 
                  saving_mode: int=SavingModeEnum.SEPARATED_SAVING_MODE, **kwargs):
+
         super().__init__(**kwargs)
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
@@ -85,9 +88,12 @@ class AudioStreaming(RealtimeDataDevice):
         self._record = False
         self._terminate = False
         self._state = ""
+
+        self._start_continuous = False
         self._log: List[str] = []
         self._continuous_capture = False
         self._sampling_rate = 44100
+
 
     def __stream_loop(self):
         _ = yield
@@ -112,6 +118,8 @@ class AudioStreaming(RealtimeDataDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
+                self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE START'])
+
                 if self._state == "START":
                     print("Audio streaming has already started")
                 else:
@@ -130,6 +138,8 @@ class AudioStreaming(RealtimeDataDevice):
 
                     self._state = "START"
             elif message.type == MessageType.STOP:
+                self._log.append([datetime.datetime.now(), str(message.stimulus_id).zfill(2), 'MESSAGE STOP'])
+
                 if self._state == "STOP":
                    print("Audio streaming has already stopped")
                 else:
@@ -155,15 +165,18 @@ class AudioStreaming(RealtimeDataDevice):
                                      "-",
                                      'MESSAGE TERMINATE'])
                     capture.stop()
+                    self._save_log_file(f"{self.output_path}/{self.name}-{self._experiment_id}-log.csv")                    
                     self._record = False
                     file_name = \
                         "{0}/{1}-{2}.wav".format(self.output_path,
                                                  self.name,
                                                  self._experiment_id)
                     self._save_to_file(file_name, capture)
+                    
                     self._save_log_file(f"{self.output_path}/{self.name}-{self._experiment_id}-log.csv")                    
-                break
 
+                break
+                
     def _save_to_file(self, file_name:str, capture:miniaudio.CaptureDevice):
         buffer = b"".join(self._stream_data)
         samples = array.array('h')

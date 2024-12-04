@@ -18,8 +18,12 @@ import threading
 import cv2
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
+from octopus_sensing.devices.common import SavingModeEnum
+import datetime
 import time
+import csv
 from typing import Any, Dict
+
 
 class CameraStreaming(RealtimeDataDevice):
     '''
@@ -85,6 +89,7 @@ class CameraStreaming(RealtimeDataDevice):
                  camera_path: Optional[str] = None,
                  image_width: int = 1280,
                  image_height: int = 720,
+                 saving_mode: int =SavingModeEnum.CONTINIOUS_SAVING_MODE,
                  **kwargs):
         assert (camera_no is not None) ^ (camera_path is not None), \
             "Only one of camera_no or camera_path should have value"
@@ -96,6 +101,7 @@ class CameraStreaming(RealtimeDataDevice):
         elif camera_path is not None:
             self._camera_number = os.path.realpath(camera_path)
 
+        self._saving_mode = saving_mode
         self._image_width = image_width
         self._image_height = image_height
         self._video_size: Tuple[int, int] = (self._image_width, self._image_height)
@@ -103,8 +109,11 @@ class CameraStreaming(RealtimeDataDevice):
         self._fps: int = 30
         self._capture_times: list = []
         self._frames: list = []
+        self._log = []
         self._counter = 0
         self._state = ""
+        self._terminate = True
+        self._start_continuous = False
 
     def _run(self):
         self._video_capture = cv2.VideoCapture(self._camera_number)
@@ -137,6 +146,7 @@ class CameraStreaming(RealtimeDataDevice):
             if message is None:
                 continue
             if message.type == MessageType.START:
+
                 print(f"[{self.name}] start camera")
                 if self._state == "START":
                     print("Video streaming has already started")
@@ -162,24 +172,41 @@ class CameraStreaming(RealtimeDataDevice):
                     self._state = "START"
 
             elif message.type == MessageType.STOP:
+                self._log.append([datetime.datetime.now(), len(self._frames), str(message.stimulus_id).zfill(2), 'MESSAGE STOP'])
+
                 if self._state == "STOP":
+
                     print(f"[{self.name}] Video streaming has already stopped")
                 else:
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        print('Video stop separated')
+                        if recording_event is not None:
+                            recording_event.clear()
+                        recording_thread = None
+                        recording_event = None
+                    else:
+                        print('Video stop continuous')
+                        self._experiment_id = message.experiment_id
+                    
+                    self._state = "STOP"
+                    
+            elif message.type == MessageType.TERMINATE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._save_log_file(f"{self.output_path}/{self._experiment_id}-log.csv")
+                    
                     if recording_event is not None:
                         recording_event.clear()
                     recording_thread = None
                     recording_event = None
-                    self._state = "STOP"
 
-            elif message.type == MessageType.TERMINATE:
-                if recording_event is not None:
-                    recording_event.clear()
-                recording_thread = None
-                recording_event = None
+                self._terminate = True
                 break
 
+
         print(f"[{self.name}] video terminated")
+
         self._video_capture.release()
+        print("video terminated")
 
     def _stream_loop(self, file_name: str, event: threading.Event):
         print(f"[{self.name}] Start stream camera")
@@ -226,6 +253,26 @@ class CameraStreaming(RealtimeDataDevice):
             print(f"[{self.name}] Error while recording video.")
             print(error)
 
+    def _save_log_file(self, file_name:str):
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            for row in self._log:
+                writer.writerow(row)
+                csv_file.flush()
+
+    def get_saving_mode(self):
+        '''
+        Gets saving mode
+        
+        Returns
+        -----------
+        saving_mode: int
+            The way of saving data: saving continiously in a file or save data related to
+            each stimulus in a separate file. 
+            SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
+        '''
+        return self._saving_mode
+      
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
         Returns n seconds (duration) of latest collected data for monitoring/visualizing or
