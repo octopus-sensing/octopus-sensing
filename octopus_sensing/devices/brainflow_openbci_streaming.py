@@ -98,7 +98,7 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
 
     def __init__(self,
-                 channels_order: List[str]=None,
+                 channels_order: Optional[List[str]]=None,
                  board_type:str ="cyton-daisy",
                  name: Optional[str] = None,
                  output_path: str = "output",

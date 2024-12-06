@@ -109,7 +109,7 @@ class CameraStreaming(RealtimeDataDevice):
         self._fps: int = 30
         self._capture_times: list = []
         self._frames: list = []
-        self._log = []
+        self._log: list = []
         self._counter = 0
         self._state = ""
         self._terminate = True

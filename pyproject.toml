@@ -14,7 +14,7 @@ repository = "https://github.com/octopus-sensing/octopus-sensing"
 keywords = ["sensors", "eeg", "gsr", "recorder"]
 
 [tool.poetry.dependencies]
-python = ">=3.7.1,<4.0"
+python = ">=3.10,<4.0"
 sounddevice = "^0.4.0"
 scipy = "^1.5.2"
 opencv-python = "^4.4.0"
@@ -37,12 +37,16 @@ PyGObject = { version = "3.40.1", markers = "sys_platform != 'win32'" }
 screeninfo = "^0.7"
 miniaudio = "^1.45"
 brainflow = "^4.6.1"
-pylsl = "^1.15.0"
+pylsl = "^1.16.2"
 pydub = "^0.25.1"
-
+mypy = "^1.13.0"
+pytest = "^8.3.4"
+setuptools = "^75.6.0"
+numpy = "^1.21.0"
+pyasyncore = "^1.0.4"
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-mypy = "^0.910"
+pytest = "^8.3.4"
+mypy = ">=1.13.0,<2.0.0"
 coverage = "^6.2"
 sphinx = "^4.3.0"
 sphinx-rtd-theme = "^1.0.0"
@@ -50,3 +54,7 @@ sphinx-rtd-theme = "^1.0.0"
 
 [tool.autopep8]
 max_line_length = 100
+
+
+# sudo dpkg -i liblsl (download from https://github.com/sccn/liblsl/releases)
+

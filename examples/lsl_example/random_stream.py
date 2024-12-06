@@ -8,6 +8,7 @@ from random import random as rand
 
 from pylsl import StreamInfo, StreamOutlet, local_clock
 
+'''
 def main(argv):
     srate = 100
     name = 'Random'
@@ -61,3 +62,5 @@ def main(argv):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
+
+'''

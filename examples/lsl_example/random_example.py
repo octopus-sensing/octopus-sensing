@@ -2,8 +2,8 @@ import os
 import time
 from octopus_sensing.common.message_creators import start_message, stop_message
 from octopus_sensing.device_coordinator import DeviceCoordinator
-from octopus_sensing.devices import LSLStreaming, CameraStreaming
-
+from octopus_sensing.devices import LslStreaming, CameraStreaming
+'''
 def main():
     device_coordinator = DeviceCoordinator()
 
@@ -16,7 +16,7 @@ def main():
 
     # Add your devices
     # keyboardLSL = LSLStreaming(name="Keyboard_LSL", device_type="name", device="Keyboard")
-    randomLSL = LSLStreaming(name="RandomLSL", device_type="name", device="Random")
+    randomLSL = LslStreaming("RandomLSL", "name", device="Random")
     my_camera = CameraStreaming(camera_no=0,
                                 name="camera",
                                 output_path="./output")
@@ -40,3 +40,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''

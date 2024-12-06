@@ -150,7 +150,7 @@ class EegPreprocessing():
         Sampling rate of data
 
     '''
-    def __init__(self, data: np.ndarray, channel_names: List[str]=None, sampling_rate: int=128):
+    def __init__(self, data: np.ndarray, channel_names: Optional[List[str]]=None, sampling_rate: int=128):
         if channel_names is None:
             self._channel_names = \
                 ["Fp1", "Fp2", "F7", "F3", "F4", "F8", "T3", "C3",
@@ -204,7 +204,7 @@ class EegPreprocessing():
             self._mne_raw.notch_filter(notch_frequencies)
 
 
-def clean_eeg(data, channel_names: List[str] = None,
+def clean_eeg(data, channel_names: Optional[List[str]] = None,
               low_frequency: float = 1,
               high_frequency: float = 45,
               sampling_rate: int = 128):

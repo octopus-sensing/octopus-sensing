@@ -42,7 +42,7 @@ class Option():
 
     '''
 
-    def __init__(self, id: int, label: str=None, value: Any=None):
+    def __init__(self, id: int, label: str="", value: Any=None):
         self.id = id
         self.label = label
         if self.label is None:
@@ -78,7 +78,7 @@ class OpinionQuestion(Question):
         The default checked option
     '''
     def __init__(self, id: str, text: str, options: Union[dict, int],
-                 image_path: str = None, default_answer: int = 0):
+                 image_path: str = "", default_answer: int = 0):
         super().__init__(id, text)
 
         self._options = []

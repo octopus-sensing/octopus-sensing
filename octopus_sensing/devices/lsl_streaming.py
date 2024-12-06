@@ -13,18 +13,17 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import threading
-from typing import Optional
-
-from pylsl import StreamInlet, resolve_stream
 import csv
 import sys
 import os
+from typing import List, Optional, Any, Dict
+from pylsl import StreamInlet, resolve_stream, resolve_byprop
 
 from octopus_sensing.common.message_creators import MessageType
-from octopus_sensing.devices.device import Device
+from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 
 
-class LSLStreaming(Device):
+class LslStreaming(RealtimeDataDevice):
     '''
     Get and Record data from a LSL stream.
 
@@ -34,20 +33,21 @@ class LSLStreaming(Device):
     Parameters
     ----------
     
-    name: str, optional
+    name: str
           device name
           This name will be used in the output path to identify each device's data
     
     output_path: str, optional
-                 The path for recording files.
-                 Audio files will be recorded in folder {output_path}/{name}
+                The path for recording files.
+                Audio files will be recorded in folder {output_path}/{name}
 
-    device_type: str
-                 Device type provided by the specific LSL streaming device documentation. To access all available devices, see: https://github.com/sccn/labstreaminglayer/tree/master/Apps
+    stream_property_type: str
+                It uses the property info to resolve a device from network. This the info provided by the LSL streamer
+                you want to read. For example, stream_property_type='type' and stream_property_value='EEG' will try to
+                find any device that it's type is 'EEG' and is streaming in the current network.
 
-    device: str
-            Device name provided by the specific LSL streaming device documentation.
-
+    stream_property_value: str
+                See stream_property_type
 
     Example
     -------
@@ -56,10 +56,10 @@ class LSLStreaming(Device):
     Creating an instance of LSL streaming recorder and adding it to the device coordinator.
     Device coordinator is responsible for triggerng the audio recorder to start or stop recording
 
-    >>> lsl_keyboard = LSLStreaming(1,
-    ...                                 name="my_keyboard",
-    ...                                 device_type="name",
-    ...                                  device="MousePosition")
+    >>> lsl_keyboard = LslStreaming(1,
+    ...                             name="my_keyboard",
+    ...                             stream_property_type="name",
+    ...                             stream_property_value="MousePosition")
     >>> device_coordinator.add_device(lsl_keyboard)
 
     See Also
@@ -70,69 +70,58 @@ class LSLStreaming(Device):
     '''
 
     def __init__(self,
-                 name: Optional[str] = None,
-                 device_type: str = "name",
-                 device: str = "Keyboard",                 
+                 name: str,
+                 stream_property_type: str,
+                 stream_property_value: str,
+                 sampling_rate: int,
+                 output_path: str,
+                 channels: Optional[list] = None,
                  **kwargs):
         super().__init__(**kwargs)
 
-        self.output_path = os.path.join(self.output_path, self.name)
-        os.makedirs(self.output_path, exist_ok=True)
         self._name = name
-        self._device_type = device_type
-        self._device = device
-        self._stream_data = []
+        self._stream_property_type = stream_property_type
+        self._stream_property_value = stream_property_value
+        self._stream_data: List[float] = []
+        self._loop_thread: Optional[threading.Thread] = None
         self._terminate = False
         self._state = ""
+        self._experiment_id = None
+        self._stream = None
+        self._inlet = None
+        self.sampling_rate = sampling_rate
+        self.channels = channels
+        self._trigger = None
+
+        self.output_path = os.path.join(output_path, self._name)
+        os.makedirs(self.output_path, exist_ok=True)
 
     def _run(self):
         '''
         Listening to the message queue and manage messages
         '''
+        self._loop_thread = threading.Thread(target=self._stream_loop)
+        self._loop_thread.start()
 
-        self._stream = resolve_stream(self._device_type, self._device)
-        self._inlet = StreamInlet(self._stream[0])
-
-        threading.Thread(target=self._message_loop).start()
-
-        while True:
-            # The main thread.
-            # Do all the communication with LSL here.
-
-            chunk, timestamp = self._inlet.pull_chunk()
-            
-            if timestamp:
-                data = [timestamp[0]]
-                for element in chunk[0]:
-                    data.append(element)
-                self._stream_data.append(data)
-            
-            if self._terminate is True:
-                break
-
-    def _message_loop(self):
         while True:
             message = self.message_queue.get()
             if message is None:
                 continue
 
             if message.type == MessageType.START:
-
-                
                 if self._state == "START":
-                    print(f"LSL Device: '{self._device}' has already started")
+                    print(f"LSL Device: '{self.name}' has already started.")
                 else:
-                    print(f"LSL device: '{self._device}' start")
+                    print(f"LSL Device: '{self.name}' started.")
                     self._experiment_id = message.experiment_id
                     self.__set_trigger(message)
                     self._state = "START"
 
-            elif message.type == MessageType.STOP:                
-                # Probably you want to write the data to the file here.
+            elif message.type == MessageType.STOP:
                 if self._state == "STOP":
-                    print(f"LSL Device '{self._device}' has already stopped")
+                    print(f"LSL Device '{self.name}' has already stopped.")
                 else:
-                    
+                    print(f"LSL Device '{self.name}' stopped.")
                     self._experiment_id = message.experiment_id
                     self.__set_trigger(message)
                     file_name = \
@@ -146,7 +135,26 @@ class LSLStreaming(Device):
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 break
-                
+
+        self._loop_thread.join()
+
+    def _stream_loop(self):
+        # self._stream = resolve_stream(self._device_type, self.device)
+        self._stream = resolve_byprop(self._stream_property_type, self._stream_property_value, timeout=5)
+        if self._stream is None or len(self._stream) == 0:
+            raise RuntimeError(f"Couldn't resolve an LSL stream with {self._stream_property_type}={self._stream_property_value}")
+        self._inlet = StreamInlet(self._stream[0])
+
+        while True:
+            if self._terminate is True:
+                break
+            sample, timestamp = self._inlet.pull_sample(timeout=0.2)
+            if sample is not None:
+                sample.append(timestamp)
+                if self._trigger is not None:
+                    sample.append(self._trigger)
+                self._stream_data.append(sample)
+
     def __set_trigger(self, message):
         '''
         Takes a message and set the trigger using its data
@@ -174,3 +182,32 @@ class LSLStreaming(Device):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+
+    def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
+            '''
+            Returns n seconds (duration) of latest collected data for monitoring/visualizing or
+            realtime processing purposes.
+
+            Parameters
+            ----------
+            duration: int
+                A time duration in seconds for getting the latest recorded data in realtime
+
+            Returns
+            -------
+            data: Dict[str, Any]
+                The keys are `data` and `metadata`.
+                `data` is a list of records, or empty list if there's nothing.
+                `metadata` is a dictionary of device metadata including `sampling_rate` and `channels` and `type`
+
+            '''
+            # Last seconds of data
+
+            data = self._stream_data[-1 * duration * self.sampling_rate:]
+            metadata = {"sampling_rate": self.sampling_rate,
+                        "channels": self.channels,
+                        "type": self.__class__.__name__}
+
+            realtime_data = {"data": data,
+                    "metadata": metadata}
+            return realtime_data

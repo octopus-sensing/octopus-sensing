@@ -19,4 +19,4 @@ from octopus_sensing.devices.audio_streaming import AudioStreaming
 from octopus_sensing.devices.open_vibe_streaming import OpenVibeStreaming
 from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
 from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
-from octopus_sensing.devices.lsl_streaming import LSLStreaming
+from octopus_sensing.devices.lsl_streaming import LslStreaming

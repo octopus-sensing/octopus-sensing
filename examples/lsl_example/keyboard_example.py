@@ -2,8 +2,8 @@ import os
 import time
 from octopus_sensing.common.message_creators import start_message, stop_message
 from octopus_sensing.device_coordinator import DeviceCoordinator
-from octopus_sensing.devices import LSLStreaming, CameraStreaming
-
+from octopus_sensing.devices import LslStreaming, CameraStreaming
+'''
 def main():
     device_coordinator = DeviceCoordinator()
 
@@ -40,3 +40,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    '''
