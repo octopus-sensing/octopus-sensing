@@ -17,10 +17,11 @@ import csv
 import sys
 import os
 from typing import List, Optional, Any, Dict
-from pylsl import StreamInlet, resolve_stream, resolve_byprop
+from pylsl import StreamInlet, resolve_byprop
 
 from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
+from octopus_sensing.devices.common import SavingModeEnum
 
 
 class LslStreaming(RealtimeDataDevice):
@@ -36,18 +37,18 @@ class LslStreaming(RealtimeDataDevice):
     name: str
           device name
           This name will be used in the output path to identify each device's data
-    
-    output_path: str, optional
-                The path for recording files.
-                Audio files will be recorded in folder {output_path}/{name}
 
     stream_property_type: str
-                It uses the property info to resolve a device from network. This the info provided by the LSL streamer
-                you want to read. For example, stream_property_type='type' and stream_property_value='EEG' will try to
-                find any device that it's type is 'EEG' and is streaming in the current network.
+            It uses the property info to resolve a device from network. This the info provided by the LSL streamer
+            you want to read. For example, stream_property_type='name' and stream_property_value='EEG' will try to
+            find any device that it's name is 'EEG' and is streaming in the current network.
 
     stream_property_value: str
-                See stream_property_type
+            See stream_property_type
+    
+    output_path: str, optional
+            The path for recording files.
+            Recorded file/files will be in folder {output_path}/{name}
 
     Example
     -------
@@ -56,11 +57,12 @@ class LslStreaming(RealtimeDataDevice):
     Creating an instance of LSL streaming recorder and adding it to the device coordinator.
     Device coordinator is responsible for triggerng the audio recorder to start or stop recording
 
-    >>> lsl_keyboard = LslStreaming(1,
-    ...                             name="my_keyboard",
-    ...                             stream_property_type="name",
-    ...                             stream_property_value="MousePosition")
-    >>> device_coordinator.add_device(lsl_keyboard)
+    >>> lsl_device = LslStreaming("mbtrain",
+    ...                             "name",
+    ...                             "EEG",
+                                    250,
+    ...                             output_path="output")
+    >>> device_coordinator.add_device(lsl_device)
 
     See Also
     -----------
@@ -74,7 +76,8 @@ class LslStreaming(RealtimeDataDevice):
                  stream_property_type: str,
                  stream_property_value: str,
                  sampling_rate: int,
-                 output_path: str,
+                 output_path: str = "output",
+                 saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
                  channels: Optional[list] = None,
                  **kwargs):
         super().__init__(**kwargs)
@@ -92,6 +95,7 @@ class LslStreaming(RealtimeDataDevice):
         self.sampling_rate = sampling_rate
         self.channels = channels
         self._trigger = None
+        self._saving_mode = saving_mode
 
         self.output_path = os.path.join(output_path, self._name)
         os.makedirs(self.output_path, exist_ok=True)
@@ -122,18 +126,28 @@ class LslStreaming(RealtimeDataDevice):
                     print(f"LSL Device '{self.name}' has already stopped.")
                 else:
                     print(f"LSL Device '{self.name}' stopped.")
-                    self._experiment_id = message.experiment_id
-                    self.__set_trigger(message)
-                    file_name = \
-                        "{0}/{1}-{2}-{3}.csv".format(self.output_path,
-                                                    self.name,
-                                                    self._experiment_id,
-                                                    message.stimulus_id)
-                    self._save_to_file(file_name)                        
-                    self._state = "STOP"                
+                    if self._saving_mode == SavingModeEnum.SEPARATED_SAVING_MODE:
+                        self._experiment_id = message.experiment_id
+                        file_name = \
+                            "{0}/{1}-{2}-{3}.csv".format(self.output_path,
+                                                        self.name,
+                                                        self._experiment_id,
+                                                        message.stimulus_id)
+                        self._save_to_file(file_name)
+                        self._stream_data = []
+                    else:
+                        self._experiment_id = message.experiment_id
+                        self.__set_trigger(message)
+                    self._state = "STOP"              
 
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    file_name = \
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
+                    self._save_to_file(file_name)
                 break
 
         self._loop_thread.join()
@@ -153,6 +167,7 @@ class LslStreaming(RealtimeDataDevice):
                 sample.append(timestamp)
                 if self._trigger is not None:
                     sample.append(self._trigger)
+                    self._trigger = None
                 self._stream_data.append(sample)
 
     def __set_trigger(self, message):
