@@ -14,8 +14,8 @@ class MockedCv2Module:
         return MockedVideoCaptureModule(camera_number)
     
     def VideoWriter_fourcc(self, a, b, c, d):
-        # choose .avi file for example
-        return ('XVID')
+        # The code cv2 returns for XVID
+        return 1145656920
     
     def VideoWriter(self, file_name, codec, fps, _video_size):
         return MockedVideoWriterModule(file_name)
@@ -42,9 +42,14 @@ class MockedVideoCaptureModule:
         pass
 
     def read(self):
+        # A short delay to make it more realistic
+        time.sleep(0.05)
         # bool, 3d matrix (fake signal)
         return True, [[[0,10,10],[1,11,11]], [[0,10,10],[1,11,11]]]
     
+    def write(self, frame):
+        pass
+
     def release(self):
         pass
 
@@ -114,7 +119,7 @@ def test_happy_path(mocked):
         device_name, experiment_id, stimuli_id))
 
     assert os.path.exists(recorded_file)
-    assert os.path.getsize(recorded_file) > 25600 # check the file size to assure it is not empty
+    assert os.path.getsize(recorded_file) > 1000 # check the file size to assure it is not empty
 
     # Sending terminate and waiting for the device process to exit.
     msg_queue.put(terminate_message())

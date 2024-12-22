@@ -103,15 +103,14 @@ def test_system_health(mocked):
 
     # It should save the file after receiving a TERMINATE.
     lsl_output = os.path.join(output_dir, lsl_device_name)
-    filename = f"{lsl_device_name}-{experiment_id}-{stimuli_id}.csv"
+    filename = f"{lsl_device_name}-{experiment_id}.csv"
 
     assert os.path.exists(lsl_output)
     assert len(os.listdir(lsl_output)) == 1
     assert os.listdir(lsl_output)[0] == filename
 
     filecontent = open(os.path.join(lsl_output, filename), 'r').read()
-    print(filecontent, len(filecontent))
-    raise RuntimeError("TODO")
-    #assert len(filecontent) >= 375
+    print(f"filecontent: {filecontent}, length={len(filecontent)}")
+    assert len(filecontent) >= 375
     # TODO: Check if the triggers are there.
     # TODO: We can check data in realtime data queues as well.

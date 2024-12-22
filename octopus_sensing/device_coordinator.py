@@ -29,9 +29,9 @@ QueueType = multiprocessing.queues.Queue
 
 
 class RealtimeDataCache:
-    def __init__(self):
+    def __init__(self) -> None:
         self._time = time.time_ns()
-        self._cached_data = []
+        self._cached_data: Dict[str, List[Any]] = {}
 
     def get_cache(self):
         '''Returns None if cache is not available or expired'''
@@ -40,7 +40,7 @@ class RealtimeDataCache:
             return None
         return self._cached_data
 
-    def cache(self, data: List[Any]):
+    def cache(self, data: Dict[str, List[Any]]):
         self._cached_data = data
         self._time = time.time_ns()
 
@@ -53,8 +53,8 @@ class DeviceCoordinator:
     When a device is added to the device coordinator, it will be initialized and prepared for data recording.
     '''
 
-    def __init__(self):
-        self.__devices = {}
+    def __init__(self) -> None:
+        self.__devices: Dict[str, Device] = {}
         self.__queues: List[QueueType] = []
         self.__device_counter: int = 0
         self.__realtime_data_queues: List[Tuple[QueueType, QueueType, Device]] = [
@@ -228,7 +228,7 @@ class DeviceCoordinator:
                         device.name), file=sys.stderr)
                     traceback.print_exc()
 
-        result = {}
+        result: Dict[str, List[Any]] = {}
         for out_q, device_name in out_queues:
             try:
                 records = pickle.loads(out_q.get(timeout=0.1))
