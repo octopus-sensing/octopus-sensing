@@ -37,7 +37,7 @@ jobs:
           pip install poetry coveralls
 
       - name: Poetry install
-        run: poetry update -v
+        run: poetry sync --with dev --verbose
 
       - name: mypy
         run: make mypy
