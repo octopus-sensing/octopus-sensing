@@ -183,7 +183,8 @@ class CameraStreaming(RealtimeDataDevice):
 
     def _stream_loop(self, file_name: str, event: threading.Event):
         print(f"[{self.name}] Start stream camera")
-        codec = cv2.VideoWriter_fourcc(*'XVID')
+        # It does have a VideWriter_fourcc method, but mypy can't tell.
+        codec = cv2.VideoWriter_fourcc(*'XVID') # type: ignore[attr-defined]
         try:
             while self._video_capture.isOpened:
                 if event.is_set():
