@@ -25,7 +25,12 @@ jobs:
 
       - name: Ubuntu Packages
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: sudo apt-get update && sudo apt-get install --yes libgirepository1.0-dev libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++ python3-dev
+        # libpugixml1v5 is a dependency of liblsl
+        run: >-
+          sudo apt-get update &&
+          sudo apt-get install --yes libgirepository1.0-dev libcairo2-dev libjpeg8-dev libpango1.0-dev libgif-dev build-essential g++ python3-dev libpugixml1v5 &&
+          wget https://github.com/sccn/liblsl/releases/download/v1.16.2/liblsl-1.16.2-jammy_amd64.deb &&
+          sudo dpkg -i liblsl-1.16.2-jammy_amd64.deb
 
       - name: MacOS Packages
         if: ${{ matrix.os == 'macos-latest' }}

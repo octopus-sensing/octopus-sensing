@@ -16,20 +16,20 @@ function check_python {
 
 PYTHON="NOT FOUND"
 
-if check_python 3.10; then
-  PYTHON="python3.10"
+if check_python 3.13; then
+  PYTHON="python3.13"
 else
-  if check_python 3.9; then
-    PYTHON="python3.9"
+  if check_python 3.12; then
+    PYTHON="python3.12"
   else
-    if check_python 3.8; then
-      PYTHON="python3.8"
+    if check_python 3.11; then
+      PYTHON="python3.11"
     else
-      if check_python 3.7; then
-        PYTHON="python3.7"
+      if check_python 3.10; then
+        PYTHON="python3.10"
       else
         echo "Could not find suitable Python version."
-        echo "I need Python 3.7 or later."
+        echo "I need Python 3.10 or later."
         exit 10
       fi
     fi
