@@ -143,7 +143,7 @@ class HttpNetworkDevice(Device):
 
         port: Optional[int] = None
         if port_str:
-            port = int(port_str)
+            port = int(port_str[1:])
 
         connect_to = "{0}:{1}".format(scheme, host)
         post_to = rest
