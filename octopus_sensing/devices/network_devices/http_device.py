@@ -145,13 +145,15 @@ class HttpNetworkDevice(Device):
         if port_str:
             port = int(port_str[1:])
 
-        connect_to = "{0}:{1}".format(scheme, host)
         post_to = rest
         if not rest:
             post_to = "/"
 
         http_client = http.client.HTTPConnection(
-            connect_to, port=port, timeout=self._timeout)
+            host, port=port, timeout=self._timeout)
+        if scheme == 'https://':
+            http_client = http.client.HTTPSConnection(
+                host, port=port, timeout=self._timeout)
 
         http_client.request("POST", post_to, body=body)
         response = http_client.getresponse()
