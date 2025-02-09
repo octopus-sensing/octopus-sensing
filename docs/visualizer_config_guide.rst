@@ -6,8 +6,20 @@ How to prepare a config file for Visualizer
 
 A config file includes one section for defining specific configs for each kind of data.
 
+SERVER
+------
+You can configure the port that server is going to listen on.
+
+Example
+"""""""
+
+::
+    [SERVER]
+    port: 9800
+
+
 EEG
---------------------
+----
 To display EEG data, first of all we should specify the path of recorded EEG file by giving value to the `path` option. 
 Also, we should identify the `sampling_rate` of recorded data. 
 Octopus-sensing-visualizer has provided several options for displaying raw or processed EEG data.
@@ -27,18 +39,20 @@ Octopus-sensing-visualizer supports the following graphs for displaying the EEG 
 Example
 """""""
 
->>> [EEG]
->>> path=data/OpenBCI_01_01.csv
->>> sampling_rate=128
->>> display_signal=False
->>> display_power_band_bars=True
->>> display_alpha_signal=False
->>> display_beta_signal=False
->>> display_gamma_signal=False
->>> display_delta_signal=False
->>> display_theta_signal=False
->>> window_size=3
->>> overlap=2
+::
+    [EEG]
+    path=data/OpenBCI_01_01.csv
+    sampling_rate=128
+    display_signal=False
+    display_power_band_bars=True
+    display_alpha_signal=False
+    display_beta_signal=False
+    display_gamma_signal=False
+    display_delta_signal=False
+    display_theta_signal=False
+    window_size=3
+    overlap=2
+
 
 GSR
 ----
@@ -55,13 +69,14 @@ for extracting GSR components.
 Example
 """""""
 
->>> [GSR]
->>> path=data/gsr-01-01.csv
->>> sampling_rate=128
->>> display_signal=True
->>> display_phasic=True
->>> display_tonic=True
-```
+::
+    [GSR]
+    path=data/gsr-01-01.csv
+    sampling_rate=128
+    display_signal=True
+    display_phasic=True
+    display_tonic=True
+  
 
 PPG
 ----
@@ -82,16 +97,14 @@ for extracting hr, hrv and breathing rate.
 Example
 """""""
 
->>> path=octopus_sensing_visualizer/test_data/ppg_video-43-00-08.csv
->>> sampling_rate=128
->>> display_signal=True
->>> display_hr=True
->>> display_hrv=True
->>> display_breathing_rate=True
->>> window_size=20
->>> overlap=19
-
-
-
-
+::
+    [PPG]
+    path=octopus_sensing_visualizer/test_data/ppg_video-43-00-08.csv
+    sampling_rate=128
+    display_signal=True
+    display_hr=True
+    display_hrv=True
+    display_breathing_rate=True
+    window_size=20
+    overlap=19
 
