@@ -37,8 +37,9 @@ SOURCEDIR     = docs
 BUILDDIR      = docs_build
 
 docs: ## Build the documents. Output will be './docs_build'
+	poetry sync --with docs
 	poetry run $(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
 
 docs-latex:
+	poetry sync --with docs
 	poetry run $(SPHINXBUILD) -b latex "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
-

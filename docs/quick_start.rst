@@ -43,6 +43,8 @@ If you're using Gnu/Linux, you need to install a few packages on your machine. O
 
 :code:`sudo apt-get install libcairo2-dev libgirepository1.0-dev gstreamer-1.0`
 
+You also need to install [liblsl](https://github.com/sccn/liblsl).
+
 Installation using Pipenv (All Platforms)
 =========================================
 
