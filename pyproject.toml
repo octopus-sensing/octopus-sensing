@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "octopus-sensing"
-version = "4.2.5"
+version = "4.2.6"
 description = "Library for recording data synchronously from different physiological sensors"
 authors = ["Nastaran Saffaryazdi <nsaffar@gmail.com>", "Aidin Gharibnavaz <aidin@aidinhut.com>"]
 license = "GPL-3.0-or-later"
@@ -29,7 +29,7 @@ xmltodict = "=0.12.0"
 bitstring = "^3.1.7"
 # End of pyOpenBCI dependencies.
 msgpack = "=1.1.0"
-pandas = "=1.5.3"
+pandas = "=2.2.3"
 mne = "=0.23.4"
 heartpy = "=1.2.7"
 # Pip cannot install PyGObject on Windows. Users need to install it manually themselves.
