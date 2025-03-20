@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "octopus-sensing"
-version = "4.2.6"
+version = "4.2.7"
 description = "Library for recording data synchronously from different physiological sensors"
 authors = ["Nastaran Saffaryazdi <nsaffar@gmail.com>", "Aidin Gharibnavaz <aidin@aidinhut.com>"]
 license = "GPL-3.0-or-later"
@@ -14,7 +14,7 @@ repository = "https://github.com/octopus-sensing/octopus-sensing"
 keywords = ["sensors", "eeg", "gsr", "recorder"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
+python = ">=3.10,<3.13"
 sounddevice = "=0.4.7"
 scipy = "=1.14.1"
 opencv-python = "=4.10.0.84"
