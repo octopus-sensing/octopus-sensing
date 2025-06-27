@@ -17,6 +17,8 @@ from typing import List, Optional
 from brainflow.board_shim import BrainFlowInputParams
 from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
 from octopus_sensing.devices.common import SavingModeEnum
+import os
+import csv
 
 class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
     '''
@@ -184,3 +186,24 @@ class BrainFlowOpenBCIStreaming(BrainFlowStreaming):
             SavingModeEnum is CONTINIOUS_SAVING_MODE = 0 or SEPARATED_SAVING_MODE = 1
         '''
         return self._saving_mode
+
+    def _save_to_file(self, file_name):
+        print("Saving {0} to file {1}".format(self._name, file_name))
+        if not os.path.exists(file_name):
+            csv_file = open(file_name, 'a')
+            header = ["Sample Number"] + self.get_channels() + \
+                     ["Analog Ch0", "Analog Ch1", "Analog Ch2",
+                      "Accel X", "Accel Y", "Accel Z",
+                      "Battery", "Board ID",
+                      "Reserved1", "Reserved2", "Reserved3", "Reserved4", "Reserved5", "Reserved6", "Reserved7", "Reserved8",
+                      "Unix Timestamp", "Unused9", "Time (H:M:S)", "Timestamp", "trigger"]
+            writer = csv.writer(csv_file)
+            writer.writerow(header)
+            csv_file.flush()
+            csv_file.close()
+        with open(file_name, 'a') as csv_file:
+            writer = csv.writer(csv_file)
+            for row in self._stream_data:
+                writer.writerow(row)
+                csv_file.flush()
+        print("Saving {0} to file {1} is done".format(self._name, file_name))

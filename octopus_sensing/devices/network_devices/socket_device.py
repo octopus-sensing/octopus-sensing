@@ -112,6 +112,15 @@ class SocketNetworkDevice(Device):
                     threading.Thread(target=self.__send_message,
                                      args=(connection,)).start()
 
+            elif message.type == MessageType.SAVE:
+                self._experiment_id = message.experiment_id
+                self._trigger = \
+                    "{0}-{1}".format(message.type,  
+                                     message.experiment_id)
+                for connection in self.__connections:
+                    threading.Thread(target=self.__send_message,
+                                     args=(connection,)).start()
+
             elif message.type == MessageType.TERMINATE:
                 self._trigger = "terminate"
                 self._stop_listening = True

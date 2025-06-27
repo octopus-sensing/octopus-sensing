@@ -203,6 +203,7 @@ class CameraStreaming(RealtimeDataDevice):
                     for frame in self._frames:
                         writer.write(frame)
                     writer.release()
+                    print("Saving to file {0} is done".format(file_name))
                     break
 
         except Exception as error:

@@ -150,6 +150,15 @@ class BrainFlowStreaming(RealtimeDataDevice):
                         self._experiment_id = message.experiment_id
                         self.__set_trigger(message)
                     self._state = "STOP"
+            elif message.type == MessageType.SAVE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._experiment_id = message.experiment_id
+                    file_name = \
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
+                    self._save_to_file(file_name)
+                    self._stream_data = []
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
@@ -202,11 +211,13 @@ class BrainFlowStreaming(RealtimeDataDevice):
                                  str(message.stimulus_id).zfill(2))
 
     def _save_to_file(self, file_name):
+        print("Saving {0} to file {1}".format(self._name, file_name))
         with open(file_name, 'a') as csv_file:
             writer = csv.writer(csv_file)
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+        print("Saving {0} to file {1} is done".format(self._name, file_name))
 
     def get_channels(self):
         '''

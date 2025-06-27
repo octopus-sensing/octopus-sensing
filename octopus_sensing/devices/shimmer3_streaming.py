@@ -263,6 +263,15 @@ class Shimmer3Streaming(RealtimeDataDevice):
                         self._experiment_id = message.experiment_id
                         self.__set_trigger(message)
                     self._state = "STOP"
+            elif message.type == MessageType.SAVE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._experiment_id = message.experiment_id
+                    file_name = \
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
+                    self._save_to_file(file_name)
+                    self._stream_data = []
             elif message.type == MessageType.TERMINATE:
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
                     file_name = \
@@ -380,6 +389,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
         print("All done")
 
     def _save_to_file(self, file_name):
+        print("Saving {0} to file {1}".format(self._name, file_name))
         if not os.path.exists(file_name):
             csv_file = open(file_name, 'a')
             header = ["type", "time stamp", "Acc_x", "Acc_y", "Acc_z",
@@ -397,6 +407,7 @@ class Shimmer3Streaming(RealtimeDataDevice):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+        print("Saving {0} to file {1} is done".format(self._name, file_name))
 
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''

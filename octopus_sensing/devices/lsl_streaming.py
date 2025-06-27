@@ -81,7 +81,6 @@ class LslStreaming(RealtimeDataDevice):
                  channels: Optional[list] = None,
                  **kwargs):
         super().__init__(**kwargs)
-
         self._name = name
         self._stream_property_type = stream_property_type
         self._stream_property_value = stream_property_value
@@ -139,7 +138,15 @@ class LslStreaming(RealtimeDataDevice):
                         self._experiment_id = message.experiment_id
                         self.__set_trigger(message)
                     self._state = "STOP"              
-
+            elif message.type == MessageType.SAVE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._experiment_id = message.experiment_id
+                    file_name = \
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
+                    self._save_to_file(file_name)
+                    self._stream_data = []
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
@@ -186,6 +193,7 @@ class LslStreaming(RealtimeDataDevice):
                                  str(message.stimulus_id).zfill(2))
 
     def _save_to_file(self, file_name):
+        print("Saving {0} to file {1}".format(self._name, file_name))
         if not os.path.exists(file_name):
             csv_file = open(file_name, 'a')
             writer = csv.writer(csv_file)
@@ -197,6 +205,7 @@ class LslStreaming(RealtimeDataDevice):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+        print("Saving {0} to file {1} is done".format(self._name, file_name))
 
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
             '''

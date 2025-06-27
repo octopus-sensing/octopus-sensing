@@ -174,6 +174,7 @@ class AudioStreaming(RealtimeDataDevice):
                                            capture.format,
                                            samples)
         miniaudio.wav_write_file(file_name, sound)
+        print("Saving to file {0} is done".format(file_name))
 
     def _save_log_file(self, file_name:str):
         with open(file_name, 'a') as csv_file:

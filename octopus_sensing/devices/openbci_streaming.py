@@ -200,6 +200,7 @@ class OpenBCIStreaming(RealtimeDataDevice):
         self._stream_data.append(data_list)
 
     def _save_to_file(self, file_name):
+        print("Saving {0} to file {1}".format(self._name, file_name))
         if not os.path.exists(file_name):
             csv_file = open(file_name, 'a')
             header = []
@@ -215,6 +216,7 @@ class OpenBCIStreaming(RealtimeDataDevice):
             for row in self._stream_data:
                 writer.writerow(row)
                 csv_file.flush()
+        print("Saving {0} to file {1} is done".format(self._name, file_name))
 
     def _get_realtime_data(self, duration: int):
         '''

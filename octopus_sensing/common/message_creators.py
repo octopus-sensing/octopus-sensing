@@ -24,10 +24,13 @@ class MessageType():
         2- STOP: End of each stimulus
 
         3- TERMINATE: terminating the process of each device
+
+        4- SAVE: Save the data in the file
     '''
     START = "START"
     STOP = "STOP"
     TERMINATE = "TERMINATE"
+    SAVE = "SAVE"
 
 
 def start_message(experiment_id: str, stimulus_id: str, payload=None):
@@ -101,6 +104,39 @@ def stop_message(experiment_id: str, stimulus_id: str):
                    experiment_id=experiment_id,
                    stimulus_id=stimulus_id)
 
+def save_message(experiment_id: str):
+    '''
+    Creates a message to inform device of saving the data in the file
+    This message is used when the data is saved in a continuous mode for partial save of data several times during the experiment.
+    After receiving this message, the device will save the data in a file with the name and clear the data in memory.
+    It will takes some time to save the data in the file, so after sending a message, wait for a short time to make sure IO is done.
+    it is recommended to use this message several times in the long duration experiments to avoid losing data in case of unexpected termination of the program.
+    The device will continue data recording by sending the next start message.
+    
+    Parameters
+    -----------
+    experiment_id: str, default: None
+        A unique ID for each participant and task in the study
+
+    Returns
+    -------
+    message: Message
+        A save message
+
+    Example
+    --------
+    In this example, we created a save message. When DeviceCoordinator
+    dispath this message, it will be sent to all devices in its list.
+    Using this message we inform all devices to save the data in file.
+
+    >>> message = save_message("study_1_p10")
+    >>> device_coordinator.dispatch(message)
+
+    '''
+
+    return Message(MessageType.SAVE,
+                   None,
+                   experiment_id=experiment_id)
 
 def terminate_message():
     '''
@@ -110,7 +146,7 @@ def terminate_message():
     Returns
     -------
     message: Message
-        A start message
+        A terminate message
 
     Example
     --------
@@ -118,10 +154,12 @@ def terminate_message():
     dispath this message, it will be sent to all devices in its list.
     Using this message we inform all devices to terminate.
 
-    >>> message = terminate()
+    >>> message = terminate_message()
     >>> device_coordinator.dispatch(message)
 
     '''
 
     return Message(MessageType.TERMINATE,
                    None)
+
+

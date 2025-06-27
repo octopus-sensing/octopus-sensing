@@ -14,7 +14,7 @@ from pylsl import StreamInfo, StreamOutlet
 
 import octopus_sensing.devices.lsl_streaming as lsl_streaming
 from octopus_sensing.device_coordinator import DeviceCoordinator
-from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
+from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message, save_message
 from octopus_sensing.realtime_data_endpoint import RealtimeDataEndpoint
 
 
@@ -94,6 +94,8 @@ def test_system_health(mocked):
 
     time.sleep(0.2)
 
+    msg_queue.put(save_message(experiment_id))
+
     # Sending terminate and waiting for the device process to exit.
     msg_queue.put(terminate_message())
     device.join()
@@ -114,3 +116,69 @@ def test_system_health(mocked):
     assert len(filecontent) >= 375
     # TODO: Check if the triggers are there.
     # TODO: We can check data in realtime data queues as well.
+
+def test_save_message():
+    remote_lsl_device = RemoteEegLslDevice()
+    remote_lsl_device.start()
+    time.sleep(3)
+
+    output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
+    experiment_id = 'test-exp-1'
+    stimuli_id = 'sti-1'
+
+    lsl_device_name = "FakeLslDevice"
+    device = lsl_streaming.LslStreaming(lsl_device_name, "type", "EEG", 100, output_path=output_dir)
+
+    msg_queue = queue.Queue()
+    data_queue_in = queue.Queue()
+    data_queue_out = queue.Queue()
+    device.set_queue(msg_queue)
+    device.set_realtime_data_queues(data_queue_in, data_queue_out)
+
+    device.start()
+
+    time.sleep(0.5)
+
+    msg_queue.put(save_message(experiment_id))
+    time.sleep(0.5)
+    lsl_output = os.path.join(output_dir, lsl_device_name)
+    print("test, lsl_output", lsl_output)
+    filename = f"{lsl_device_name}-{experiment_id}.csv"
+    print("test, filename", filename)
+
+    # It should save the file after receiving a SAVE.
+    assert os.path.exists(lsl_output)
+    assert len(os.listdir(lsl_output)) == 1
+    assert os.listdir(lsl_output)[0] == filename
+
+    filecontent = open(os.path.join(lsl_output, filename), 'r').read()
+    print(f"filecontent: {filecontent}, length={len(filecontent)}")
+
+    # ToDo: Check the content of the file
+    first_len = len(filecontent)
+    print("first_len", first_len)
+    assert first_len >= 375
+
+    # Sending start and stop messages to collect data.
+    msg_queue.put(start_message(experiment_id, stimuli_id))
+    # Allowing data collection for one second
+    time.sleep(1)
+
+    msg_queue.put(stop_message(experiment_id, stimuli_id))
+
+    msg_queue.put(save_message(experiment_id))
+    time.sleep(1)
+    filecontent = open(os.path.join(lsl_output, filename), 'r').read()
+    print(f"filecontent: {filecontent}, length={len(filecontent)}")
+
+    # ToDo: Check the content of the file
+    print("second_len", len(filecontent))
+    assert len(filecontent) > first_len
+    assert len(filecontent) >= 375 * 2
+
+    # Sending terminate and waiting for the device process to exit.
+    msg_queue.put(terminate_message())
+    device.join()
+
+    remote_lsl_device.stop_device()
+    remote_lsl_device.join()

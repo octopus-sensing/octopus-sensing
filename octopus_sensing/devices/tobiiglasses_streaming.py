@@ -168,6 +168,15 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
                         self._experiment_id = message.experiment_id
                         self.__set_trigger(message)
                     self._state = "STOP"
+            elif message.type == MessageType.SAVE:
+                if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
+                    self._experiment_id = message.experiment_id
+                    file_name = \
+                        "{0}/{1}-{2}.csv".format(self.output_path,
+                                                 self.name,
+                                                 self._experiment_id)
+                    self._save_to_file(file_name)
+                    self._stream_data = []
             elif message.type == MessageType.TERMINATE:
                 self._terminate = True
                 if self._saving_mode == SavingModeEnum.CONTINIOUS_SAVING_MODE:
@@ -221,7 +230,7 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
                                  str(message.stimulus_id).zfill(2))
 
     def _save_to_file(self, file_name):
-
+        print("Saving {0} to file {1}".format(self._name, file_name))
         header = ["ac_ts", "ac_x", "ac_y", "ac_z",
                   "gy_ts", "gy_x", "gy_y", "gy_z",
                   "right_eye_pc_ts", "right_eye_pc_x", "right_eye_pc_y", "right_eye_pc_z",
@@ -240,11 +249,11 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
                 print("TobiiGlassesStreaming: file created")
                 writer.writerow(header)
                 csv_file.flush()
-            else:
-                print("TobiiGlassesStreaming: file already exists, appending data")
-                for row in self._stream_data:
-                    writer.writerow(row)
-                    csv_file.flush()
+            print("TobiiGlassesStreaming: file already exists, appending data")
+            for row in self._stream_data:
+                writer.writerow(row)
+                csv_file.flush()
+        print("Saving {0} to file {1} is done".format(self._name, file_name))
 
 
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
