@@ -196,24 +196,14 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
         while True:
             if self._terminate is True:
                 break
-            data = self._controller.get_data()
-            data = [data["mems"]["ac"]["ts"], data["mems"]["ac"]["ac"][0], data["mems"]["ac"]["ac"][1], data["mems"]["ac"]["ac"][2],
-                    data["mems"]["gy"]["ts"], data["mems"]["gy"]["gy"][0], data["mems"]["gy"]["gy"][1], data["mems"]["gy"]["gy"][2],
-                    data["right_eye"]["pc"]["ts"], data["right_eye"]["pc"]["pc"][0], data["right_eye"]["pc"]["pc"][1], data["right_eye"]["pc"]["pc"][2],
-                    data["right_eye"]["pd"]["ts"], data["right_eye"]["pd"],
-                    data["right_eye"]["gd"]["ts"], data["right_eye"]["gd"]["gd"][0], data["right_eye"]["gd"]["gd"][1], data["right_eye"]["gd"]["gd"][2],
-                    data["left_eye"]["pc"]["ts"], data["left_eye"]["pc"]["pc"][0], data["left_eye"]["pc"]["pc"][1], data["left_eye"]["pc"]["pc"][2],
-                    data["left_eye"]["pd"]["ts"], data["left_eye"]["pd"],
-                    data["left_eye"]["gd"]["ts"], data["left_eye"]["gd"]["gd"][0], data["left_eye"]["gd"]["gd"][1], data["left_eye"]["gd"]["gd"][2],
-                    data["gp"]["ts"], data["gp"]["l"], data["gp"]["gp"][0], data["gp"]["gp"][1],
-                    data["gp3"]["ts"], data["gp3"]["gp3"][0], data["gp3"]["gp3"][1], data["gp3"]["gp3"][2], time.time()]
-
+            data = self.__safe_get(self._controller.get_data())
+            
             if self._trigger is not None:
                 data.append(self._trigger)
                 self._trigger = None
                 self._stream_data.append(np.array(data))
-            else:
-                time.sleep(1/self.sampling_rate)
+
+            time.sleep(1/self.sampling_rate)
 
     def __set_trigger(self, message):
         '''
@@ -233,12 +223,12 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
         print("Saving {0} to file {1}".format(self._name, file_name))
         header = ["ac_ts", "ac_x", "ac_y", "ac_z",
                   "gy_ts", "gy_x", "gy_y", "gy_z",
-                  "right_eye_pc_ts", "right_eye_pc_x", "right_eye_pc_y", "right_eye_pc_z",
-                  "right_eye_pd_ts", "right_eye_pd",
-                  "right_eye_gd_ts", "right_eye_gd_x", "right_eye_gd_y", "right_eye_gd_z",
                   "left_eye_pc_ts", "left_eye_pc_x", "left_eye_pc_y", "left_eye_pc_z",
                   "left_eye_pd_ts", "left_eye_pd",
                   "left_eye_gd_ts", "left_eye_gd_x", "left_eye_gd_y", "left_eye_gd_z",
+                  "right_eye_pc_ts", "right_eye_pc_x", "right_eye_pc_y", "right_eye_pc_z",
+                  "right_eye_pd_ts", "right_eye_pd",
+                  "right_eye_gd_ts", "right_eye_gd_x", "right_eye_gd_y", "right_eye_gd_z",
                   "gp_ts", "gp_l", "gp_x", "gp_y",
                   "gp3_ts", "gp3_x", "gp3_y", "gp3_z",
                   "timestamp",
@@ -283,3 +273,60 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
         realtime_data = {"data": data,
                   "metadata": metadata}
         return realtime_data
+
+
+    def __safe_get(self, data):
+        '''
+        Safely get nested dictionary values with fallback to None.
+        Parameters
+        ----------
+        data: dict
+            The data dictionary to extract values from.
+        Returns
+        -------
+        flat_data: list
+            A flat list of values extracted from the nested dictionary.
+        '''
+        flat_data = []
+        mems = data.get("mems", [None]*8)
+        if isinstance(mems, dict):
+            mems_ac = mems.get("ac", [None]*4)
+            if isinstance(mems_ac, dict):
+                flat_data.extend([mems_ac.get("ts", None), *mems_ac.get("ac", [None]*3)])
+            mems_gy = mems.get("gy", [None]*4)
+            if isinstance(mems_gy, dict):
+                flat_data.extend([mems_gy.get("ts", None), *mems_gy.get("gy", [None]*3)])
+        left_eye = data.get("left_eye", [None]*10)
+        if isinstance(left_eye, dict):
+            left_pc = left_eye.get("pc", [None]*4)
+            if isinstance(left_pc, dict):
+                flat_data.extend([left_pc.get("ts", None), *left_pc.get("pc", [None]*3)])
+
+            left_pd = left_eye.get("pd", [None, None])
+            flat_data.extend([left_pd.get("ts", None), left_pd.get("pd", None)])
+
+            left_gd = left_eye.get("gd", [None]*4)
+            if isinstance(left_gd, dict):
+                flat_data.extend([left_gd.get("ts", None), *left_gd.get("gd", [None]*3)]) 
+        right_eye = data.get("right_eye", [None]*10)
+        if isinstance(right_eye, dict):
+            right_pc = right_eye.get("pc", [None]*4)
+            if isinstance(right_pc, dict):
+                flat_data.extend([right_pc.get("ts", None), *right_pc.get("pc", [None]*3)])
+
+            right_pd = right_eye.get("pd", [None, None])
+            flat_data.extend([right_pd.get("ts", None), right_pd.get("pd", None)])
+
+            right_gd = right_eye.get("gd", [None]*4)
+            if isinstance(right_gd, dict):
+                flat_data.extend([right_gd.get("ts", None), *right_gd.get("gd", [None]*3)])
+        gp = data.get("gp", [None]*4)
+        if isinstance(gp, dict):
+            flat_data.extend([gp.get("ts", None), gp.get("l", None), *gp.get("gp", [None]*2)])
+        gp3 = data.get("gp3", [None]*4)
+        if isinstance(gp3, dict):
+            flat_data.extend([gp3.get("ts", None), *gp3.get("gp3", [None]*3)])
+        flat_data.append(time.time())
+
+        return flat_data
+    
