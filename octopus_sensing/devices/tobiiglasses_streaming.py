@@ -201,8 +201,8 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
             if self._trigger is not None:
                 data.append(self._trigger)
                 self._trigger = None
-                self._stream_data.append(np.array(data))
 
+            self._stream_data.append(np.array(data))
             time.sleep(1/self.sampling_rate)
 
     def __set_trigger(self, message):
