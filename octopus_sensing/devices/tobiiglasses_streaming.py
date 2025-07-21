@@ -101,8 +101,8 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
 
     '''
     def __init__(self,
-                 device_ip: str,
-                 sampling_rate: int,
+                 device_ip: str = "192.168.71.50",
+                 sampling_rate: int = 50,
                  saving_mode: int=SavingModeEnum.CONTINIOUS_SAVING_MODE,
                  name: Optional[str] = None,
                  output_path: str = "output"):
@@ -125,7 +125,7 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
         self._state = ""
 
     def _run(self):
-        self._controller = TobiiGlassesController("192.168.71.50")
+        self._controller = TobiiGlassesController(self._device_ip)
         print("TobiiGlasses streaming: Connecting to the device...")
         print(self._controller.get_battery_status())
         
