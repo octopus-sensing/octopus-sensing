@@ -11,8 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # TODO: Add MacOS (macos-latest)
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest]
         python-version: ["3.12"]
 
     steps:
@@ -34,7 +33,7 @@ jobs:
 
       - name: MacOS Packages
         if: ${{ matrix.os == 'macos-latest' }}
-        run: brew install cairo gobject-introspection
+        run: brew install cairo pygobject3 labstreaminglayer/tap/lsl
 
       - name: Install dependencies
         run: |
@@ -54,6 +53,8 @@ jobs:
       - name: upload coverage to codecov.io
         if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.12' }}
         uses: codecov/codecov-action@v2
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           fail_ci_if_error: true
           verbose: true
