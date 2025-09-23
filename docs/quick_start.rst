@@ -45,6 +45,11 @@ If you're using Gnu/Linux, you need to install a few packages on your machine. O
 
 You also need to install [liblsl](https://github.com/sccn/liblsl).
 
+For Mac OS, you can use `brew` to install the dependencies:
+
+:code:`brew install cairo pygobject3 labstreaminglayer/tap/lsl`
+
+
 Installation using Pipenv (All Platforms)
 =========================================
 
