@@ -52,10 +52,8 @@ class LslStreaming(RealtimeDataDevice):
 
     Example
     -------
-    If you want to know get position data from a keyboard streaming, start the .exe available here: https://github.com/labstreaminglayer/App-Input/tree/5eec1b06b9b5db732acdb96f4bd2fc25a1e562fe
-
     Creating an instance of LSL streaming recorder and adding it to the device coordinator.
-    Device coordinator is responsible for triggerng the audio recorder to start or stop recording
+    Device coordinator is responsible for triggerng the device recorder to start or stop recording
 
     >>> lsl_device = LslStreaming("mbtrain",
     ...                             "name",
