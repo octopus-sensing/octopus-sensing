@@ -21,3 +21,4 @@ from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
 from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
 from octopus_sensing.devices.lsl_streaming import LslStreaming
 from octopus_sensing.devices.tobiiglasses_streaming import TobiiGlassesStreaming
+from octopus_sensing.devices.testdevice_streaming import TestDeviceStreaming
