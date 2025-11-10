@@ -12,16 +12,16 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, List
 
 from octopus_sensing.common.endpoint_base import EndpointBase
 
 
 class RealtimeDataEndpoint(EndpointBase):
 
-    def __init__(self, device_coordinator):
+    def __init__(self, device_coordinator, port: int = 9330):
         super().__init__(endpoint_name="RealtimeDataEndpoint-Thread",
-                         port=9330, get_callback=self._get_handler)
+                         port=port, get_callback=self._get_handler)
         self._device_coordinator = device_coordinator
 
     def _get_handler(self, request_reader, query_params: Dict[str, List[str]]):
