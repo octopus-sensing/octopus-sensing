@@ -191,7 +191,7 @@ class TestDeviceStreaming(RealtimeDataDevice):
             The list of channels' name
 
         '''
-        raise NotImplementedError()
+        return ["channel_1", "channel_2", "timestamp"]
 
     def _get_realtime_data(self, duration: int) -> Dict[str, Any]:
         '''
