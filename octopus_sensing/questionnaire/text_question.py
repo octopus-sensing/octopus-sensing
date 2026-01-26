@@ -14,7 +14,7 @@
 import gi
 gi.require_version('Gtk', '3.0')  # nopep8
 from gi.repository import Gtk  # nopep8
-from typing import List, Union
+from typing import Union
 
 from octopus_sensing.questionnaire.question import Question
 

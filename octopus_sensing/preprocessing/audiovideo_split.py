@@ -11,7 +11,6 @@
 #
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
-import os
 from datetime import datetime
 import csv
 from pydub import AudioSegment

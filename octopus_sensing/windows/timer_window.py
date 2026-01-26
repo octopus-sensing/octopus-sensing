@@ -13,8 +13,7 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 from screeninfo import get_monitors
-from gi.repository import Gtk, GdkPixbuf, GLib, Gst, GObject
-import datetime
+from gi.repository import Gtk, GObject
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
