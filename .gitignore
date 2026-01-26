@@ -18,3 +18,7 @@ docs_build/
 *.jpg
 *.jpeg
 *.mp4
+
+# Mac OS files
+.DS_Store
+Thumbs.db

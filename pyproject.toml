@@ -14,10 +14,9 @@ repository = "https://github.com/octopus-sensing/octopus-sensing"
 keywords = ["sensors", "eeg", "gsr", "recorder"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-sounddevice = "=0.4.7"
-scipy = "=1.14.1"
-opencv-python = "=4.10.0.84"
+python = ">=3.11,<3.13"
+scipy = "=1.17.0"
+opencv-python = "=4.13.0.90"
 # pyOpenBCI doesn't list its dependencies correctly.
 # The followings are pyOpenBCI's dependencies.
 pyOpenBCI = "=0.13"
@@ -28,27 +27,27 @@ xmltodict = "=0.12.0"
 bluepy = { version = "=1.3.0", markers = "sys_platform == 'linux'" }
 bitstring = "^3.1.7"
 # End of pyOpenBCI dependencies.
-msgpack = "=1.1.0"
-pandas = "=2.2.3"
+msgpack = "=1.1.2"
+pandas = "=2.3.3"
 mne = "=0.23.4"
 heartpy = "=1.2.7"
 # Pip cannot install PyGObject on Windows. Users need to install it manually themselves.
 PyGObject = { version = "3.40.1", markers = "sys_platform != 'win32'" }
 screeninfo = "=0.7"
 miniaudio = "=1.61"
-brainflow = "=4.9.3"
-pylsl = "=1.16.2"
+brainflow = "=5.20.1"
+pylsl = "=1.18.1"
 pydub = "=0.25.1"
 setuptools = "=75.6.0"
-numpy = "=1.26.4"
+numpy = "=2.4.1"
 pyasyncore = "=1.0.4"
 libtobiiglassesctrl = "=2.4.3"
 
 
 [tool.poetry.group.dev.dependencies]
-mypy = "=1.13.0"
-pytest = "=8.3.4"
-coverage = "=6.5.0"
+mypy = "=1.19.1"
+pytest = "=9.0.2"
+coverage = "=7.13.2"
 
 [tool.poetry.group.docs.dependencies]
 sphinx = "=5.3.0"
