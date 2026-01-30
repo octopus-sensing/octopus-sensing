@@ -12,14 +12,14 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from typing import Tuple, Any, Optional, Union
+from typing import Tuple, Any, Dict, Optional, Union
 import os
 import threading
 import cv2
+import time
+
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.common.message_creators import MessageType
-import time
-from typing import Any, Dict
 
 class CameraStreaming(RealtimeDataDevice):
     '''

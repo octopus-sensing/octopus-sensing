@@ -2,47 +2,93 @@
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
 
-[tool.poetry]
+[project]
 name = "octopus-sensing"
-version = "5.0.0"
+version = "5.0.0.1"
 description = "Library for recording data synchronously from different physiological sensors"
-authors = ["Nastaran Saffaryazdi <nsaffar@gmail.com>", "Aidin Gharibnavaz <aidin@aidinhut.com>"]
 license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 readme = "README.md"
-homepage = "https://octopus-sensing.nastaran-saffar.me"
-repository = "https://github.com/octopus-sensing/octopus-sensing"
+requires-python = ">=3.11,<3.13"
+authors = [
+  { name = "Nastaran Saffaryazdi", email = "nsaffar@gmail.com" },
+  { name = "Aidin Gharibnavaz", email = "aidin@aidinhut.com" }
+]
 keywords = ["sensors", "eeg", "gsr", "recorder"]
+dynamic = [ "classifiers", "dependencies", "optional-dependencies" ]
+
+[project.urls]
+homepage = "https://octopus-sensing.nastaran-saffar.me"
+documentation = "https://octopus-sensing.nastaran-saffar.me"
+repository = "https://github.com/octopus-sensing/octopus-sensing"
+"Bug Tracker" = "https://github.com/octopus-sensing/octopus-sensing/issues"
+
+# We use this instead of project.classifiers so Poetry automatically include things like python versions and license.
+[tool.poetry]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Typing :: Typed"
+]
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
-scipy = "=1.17.0"
-opencv-python = "=4.13.0.90"
-# pyOpenBCI doesn't list its dependencies correctly.
-# The followings are pyOpenBCI's dependencies.
-pyOpenBCI = "=0.13"
-pyserial = "=3.5"
 requests = "=2.32.5"
-xmltodict = "=0.12.0"
-# bluepy is not needed by pyOpenBCI on other platforms (bluepy only supports Linux)
-bluepy = { version = "=1.3.0", markers = "sys_platform == 'linux'" }
-bitstring = "^3.1.7"
-# End of pyOpenBCI dependencies.
 msgpack = "=1.1.2"
-pandas = "=2.3.3"
-mne = "=0.23.4"
-heartpy = "=1.2.7"
-# Pip cannot install PyGObject on Windows. Users need to install it manually themselves.
-PyGObject = { version = "3.40.1", markers = "sys_platform != 'win32'" }
-screeninfo = "=0.7"
-miniaudio = "=1.61"
-brainflow = "=5.20.1"
-pylsl = "=1.18.1"
-pydub = "=0.25.1"
 setuptools = "=75.6.0"
 numpy = "=2.4.1"
+# TODO: We didn't import this directly. Why is it needed?
 pyasyncore = "=1.0.4"
-libtobiiglassesctrl = "=2.4.3"
 
+# sudo dpkg -i liblsl (download from https://github.com/sccn/liblsl/releases)
+
+# Devices' dependencies. User install them as needed using pip install "octopus-sensing[device_name]"
+[project.optional-dependencies]
+# pyOpenBCI doesn't list its dependencies correctly. So we list them ourselves.
+openbci = [
+  "pyOpenBCI ==0.13",
+  "pyserial ==3.5",
+  "xmltodict ==0.12.0",
+  # bluepy is not needed by pyOpenBCI on other platforms (bluepy only supports Linux)
+  "bluepy ==1.3.0; sys_platform == 'linux'",
+  "bitstring ==3.1.9",
+  # pandas & mne are used for preprocessing too, so we include them here.
+  "pandas ==2.3.3",
+  "mne ==0.23.4"
+  ]
+camera = [
+  "opencv-python ==4.13.0.90",
+  # Used for preprocessing video & audio
+  "pydub ==0.25.1"
+]
+# Note: scipy is only used for preprocessing
+shimmer3 = [
+  "scipy ==1.17.0",
+  "heartpy ==1.2.7"
+]
+brainflow = [
+  "pandas ==2.3.3",
+  "brainflow ==5.20.1",
+  "mne ==0.23.4"
+]
+# For questionnaires, stimuli, and windows packages
+gui = [
+  # Pip cannot install PyGObject on Windows. Users need to install it manually themselves.
+  "PyGObject == 3.40.1; sys_platform != 'win32'",
+  "screeninfo ==0.7"
+]
+audio = [
+  "miniaudio ==1.61",
+  "pydub ==0.25.1"
+]
+lsl = [
+  "pylsl ==1.18.1"
+]
+tobiiglasses = [
+  "libtobiiglassesctrl ==2.4.3"
+]
 
 [tool.poetry.group.dev.dependencies]
 mypy = "=1.19.1"
@@ -53,9 +99,7 @@ coverage = "=7.13.2"
 sphinx = "=5.3.0"
 sphinx-rtd-theme = "=1.3.0"
 
-
 [tool.autopep8]
 max_line_length = 100
 
 
-# sudo dpkg -i liblsl (download from https://github.com/sccn/liblsl/releases)
