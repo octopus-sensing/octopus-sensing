@@ -23,8 +23,13 @@ test-coverage: ## Runs tests and reports coverage
 # TODO: PyPi publish
 #publish: ## Publishes to PyPi
 #publish: mypy test
+#   poetry check
 #	update version in __init__.py, pyproject
 #   commit
+#   poetry build
+#   # Test it first:
+#   poetry config repositories.testpypi https://test.pypi.org/legacy/
+#	poetry publish --repository testpypi
 #	git tag version
 #	git push --tag
 #	poetry publish
