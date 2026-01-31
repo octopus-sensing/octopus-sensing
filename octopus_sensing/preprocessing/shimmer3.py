@@ -13,10 +13,17 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import os
-import heartpy as hp
-from scipy import signal
-import numpy as np
-import pathlib
+
+try:
+    import heartpy as hp
+    from scipy import signal
+    import numpy as np
+    import pathlib
+except ImportError:
+    print()
+    print("Can't find Shimmer3 preprocessing optional dependencies. Please refer to the documentation for installation instructions.")
+    print()
+    raise
 
 from octopus_sensing.preprocessing.utils import load_all_trials, resample, load_all_samples
 from octopus_sensing.devices.common import SavingModeEnum

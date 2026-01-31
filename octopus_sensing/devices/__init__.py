@@ -12,13 +12,66 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
-from octopus_sensing.devices.brainflow_openbci_streaming import BrainFlowOpenBCIStreaming
-from octopus_sensing.devices.camera_streaming import CameraStreaming
-from octopus_sensing.devices.audio_streaming import AudioStreaming
+# pyright: reportUnusedImport=false
+
+print('Importing for the first time. Checking installed devices.')
+print('For not installed devices, please refer to the documentation for installation instructions.')
+
+print('OpenVibeStreaming.................Installed')
 from octopus_sensing.devices.open_vibe_streaming import OpenVibeStreaming
-from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
-from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
-from octopus_sensing.devices.lsl_streaming import LslStreaming
-from octopus_sensing.devices.tobiiglasses_streaming import TobiiGlassesStreaming
+print('TestDeviceStreaming...............Installed')
 from octopus_sensing.devices.testdevice_streaming import TestDeviceStreaming
+print('SocketNetworkDevice...............Installed')
+from octopus_sensing.devices.network_devices.socket_device import SocketNetworkDevice
+print('HttpNetworkDevice.................Installed')
+from octopus_sensing.devices.network_devices.http_device import HttpNetworkDevice
+
+print('Shimmer3Streaming.................', end='')
+try:
+    from octopus_sensing.devices.shimmer3_streaming import Shimmer3Streaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+
+print('BrainFlowOpenBCIStreaming.........', end='')
+try:
+    from octopus_sensing.devices.brainflow_openbci_streaming import BrainFlowOpenBCIStreaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+
+print('CameraStreaming...................', end='')
+try:
+    from octopus_sensing.devices.camera_streaming import CameraStreaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+
+print('AudioStreaming....................', end='')
+try:
+    from octopus_sensing.devices.audio_streaming import AudioStreaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+
+print('BrainFlowStreaming................', end='')
+try:
+    from octopus_sensing.devices.brainflow_streaming import BrainFlowStreaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+
+print('LslStreaming......................', end='')
+try:
+    from octopus_sensing.devices.lsl_streaming import LslStreaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+
+print('TobiiGlassesStreaming.............', end='')
+try:
+    from octopus_sensing.devices.tobiiglasses_streaming import TobiiGlassesStreaming
+    print('Installed')
+except ImportError:
+    print('Not Installed')
+

@@ -13,7 +13,14 @@
 # If not, see <https://www.gnu.org/licenses/>.
 from datetime import datetime
 import csv
-from pydub import AudioSegment
+
+try:
+    from pydub import AudioSegment
+except ImportError:
+    print()
+    print("Can't find audiovideo_split optional dependencies. Please refer to the documentation for installation instructions.")
+    print()
+    raise
 
 def audio_split(log_path: str, audio_path: str):
     timestamps = []

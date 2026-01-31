@@ -12,6 +12,9 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from octopus_sensing.stimuli.video_stimulus import VideoStimulus
-from octopus_sensing.stimuli.image_stimulus import ImageStimulus
+try:
+    from octopus_sensing.stimuli.video_stimulus import VideoStimulus
+    from octopus_sensing.stimuli.image_stimulus import ImageStimulus
+except ImportError:
+    print('"gui" module is not installed. Please refer to the documentation for installation instructions.')
 
