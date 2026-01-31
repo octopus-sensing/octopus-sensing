@@ -13,9 +13,16 @@
 # If not, see <https://www.gnu.org/licenses/>.
 import os
 from typing import List, Optional
-import pandas as pd
-import numpy as np
-import mne
+
+try:
+    import pandas as pd
+    import numpy as np
+    import mne
+except ImportError:
+    print()
+    print("Can't find OpenBCI preprocessing optional dependencies. Please refer to the documentation for installation instructions.")
+    print()
+    raise
 
 from octopus_sensing.preprocessing.utils import load_all_trials, resample, load_all_samples
 from octopus_sensing.devices.common import SavingModeEnum

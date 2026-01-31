@@ -13,7 +13,14 @@
 # If not, see <https://www.gnu.org/licenses/>.
 import os
 from typing import List
-import pandas as pd
+
+try:
+    import pandas as pd
+except ImportError:
+    print()
+    print("Can't find OpenBCI BrainFlow preprocessing optional dependencies. Please refer to the documentation for installation instructions.")
+    print()
+    raise
 
 from octopus_sensing.preprocessing.openbci import clean_eeg
 from octopus_sensing.preprocessing.utils import load_all_samples_without_time, load_all_trials_without_time

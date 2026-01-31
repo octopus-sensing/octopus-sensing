@@ -12,6 +12,9 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from octopus_sensing.windows.image_window import ImageWindow
-from octopus_sensing.windows.message_window import MessageWindow
-from octopus_sensing.windows.timer_window import TimerWindow
+try:
+    from octopus_sensing.windows.image_window import ImageWindow
+    from octopus_sensing.windows.message_window import MessageWindow
+    from octopus_sensing.windows.timer_window import TimerWindow
+except ImportError:
+    print('"gui" module is not installed. Please refer to the documentation for installation instructions.')

@@ -1920,7 +1920,7 @@ description = "Python Serial Port Extension"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "extra == \"openbci\""
+markers = "extra == \"openbci\" or extra == \"shimmer3\""
 files = [
     {file = "pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0"},
     {file = "pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb"},
@@ -2377,10 +2377,10 @@ camera = ["opencv-python", "pydub"]
 gui = ["PyGObject", "screeninfo"]
 lsl = ["pylsl"]
 openbci = ["bitstring", "bluepy", "mne", "pandas", "pyOpenBCI", "pyserial", "xmltodict"]
-shimmer3 = ["heartpy", "scipy"]
+shimmer3 = ["heartpy", "pyserial", "scipy"]
 tobiiglasses = ["libtobiiglassesctrl"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.13"
-content-hash = "e280139ba20a31bdede05341510de5c37f8a9c33af5b4932ae5520161ecfd00b"
+content-hash = "b6951169b03cd1bed26556b87895924b0959d805e4384caeca0a16a60f429b5c"

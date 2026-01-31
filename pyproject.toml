@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [project]
 name = "octopus-sensing"
-version = "5.0.0.1"
+version = "5.0.0.3"
 description = "Library for recording data synchronously from different physiological sensors"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
@@ -65,8 +65,9 @@ camera = [
 ]
 # Note: scipy is only used for preprocessing
 shimmer3 = [
-  "scipy ==1.17.0",
-  "heartpy ==1.2.7"
+  "pyserial ==3.5",
+  "heartpy ==1.2.7",
+  "scipy ==1.17.0"
 ]
 brainflow = [
   "pandas ==2.3.3",
