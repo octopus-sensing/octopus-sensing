@@ -41,7 +41,9 @@ jobs:
           pip install poetry coveralls
 
       - name: Poetry install
-        run: poetry sync --with dev --verbose
+        run: |
+          poetry sync --all-groups --verbose
+          poetry run pip install ".[openbci,camera,shimmer3,brainflow,gui,audio,lsl,tobiiglasses]"
 
       - name: mypy
         run: make mypy
