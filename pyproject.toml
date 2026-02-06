@@ -4,7 +4,7 @@ build-backend = "poetry.masonry.api"
 
 [project]
 name = "octopus-sensing"
-version = "5.0.0.3"
+version = "5.0.0"
 description = "Library for recording data synchronously from different physiological sensors"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE"]
