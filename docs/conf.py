@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Octopus Sensing'
-copyright = '2021, Nastaran Saffaryazdi, Aidin Gharibnavaz'
+copyright = '2021-2026, Nastaran Saffaryazdi, Aidin Gharibnavaz'
 author = 'Nastaran Saffaryazdi, Aidin Gharibnavaz'
 
 

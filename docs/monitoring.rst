@@ -87,7 +87,7 @@ is not encrypted. Don't run it on a network that you don't trust.
 
 **Copyright**
 
-Copyright © 2020,2021 `Aidin Gharibnavaz <https://aidinhut.com>`
+Copyright © 2020,2026 `Aidin Gharibnavaz <https://aidinhut.com>`
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation, either version 3 of the
