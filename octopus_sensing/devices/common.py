@@ -1,5 +1,5 @@
 # This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
-# Copyright © Nastaran Saffaryazdi 2020
+# Copyright © Nastaran Saffaryazdi 2020-2026
 #
 # Octopus Sensing is free software: you can redistribute it and/or modify it under the
 # terms of the GNU General Public License as published by the Free Software Foundation,
