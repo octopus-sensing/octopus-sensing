@@ -16,10 +16,10 @@ for alternative ways of installing Poetry.)
 
 Then `cd` to where the source code located and run:
 
->>> poetry sync --with dev
->>> poetry build
+>>> make install
+>>> make build
 
-It will create a virtual environment and installs `Octopus Sensing` with its dependencies in it.
+It will create a virtual environment and installs `Octopus Sensing` with all its optional dependencies.
 
 Coding Style
 ==============

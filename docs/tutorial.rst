@@ -27,7 +27,7 @@ The example scenario is the most common in emotion recognition research in affec
 
 **Prerequisites**
 
-Create a project and install the `octopus-sensing` package by following the instructions on :ref:`quick_start`. We recommend using `pipenv` to do so.
+Create a project and install the `octopus-sensing` package by following the instructions on :ref:`installation`. We recommend using `pipenv` to do so.
 And then, copy the source of examples from `examples` package in octopus-sensing repository to your project directory and run them.
 
 1- Record data from various sources synchronously

@@ -33,72 +33,7 @@ The created `main.py` file is an example application. To run it:
 
 :code:`pipenv run python main.py`
 
+Note that the script only installs Camera module. See :ref:`installation` to learn how to install other device
+modules.
 
-If you don't want to use the script, you can use the following methods instead.
-
-Pre-requirements
-==================
-
-If you're using Gnu/Linux, you need to install a few packages on your machine. On an Ubuntu distro, run:
-
-:code:`sudo apt-get install libcairo2-dev libgirepository1.0-dev gstreamer-1.0`
-
-You also need to install [liblsl](https://github.com/sccn/liblsl).
-
-For Mac OS, you can use `brew` to install the dependencies:
-
-:code:`brew install cairo pygobject3 labstreaminglayer/tap/lsl`
-
-
-Installation using Pipenv (All Platforms)
-=========================================
-
-We recommend using a package manager like `Pipenv <https://pipenv.pypa.io/>`_ instead of globally
-installing Octopus Sensing using `pip` to prevent package conflicts. To do so, follow these
-commands. (This is same as what the above script does.)
-
-
-.. code-block:: bash
-
-    mkdir my-awesome-project
-    cd my-awesome-project
-    # Or replace it with your python version
-    pipenv --python python3.8
-    pipenv install octopus-sensing
-
-
-
-It installs Octopus Sensing inside the virtual environment created by Pipenv. You need to use
-`pipenv` to run your code. For example:
-
-:code:`pipenv run python main.py`
-
-
-Refer to `Pipenv website <https://pipenv.pypa.io/>`_ for more info.
-
-Installation using pip (All Platforms)
-======================================
-
-You can use `pip` to install `octopus-sensing` as simple as:
-
-:code:`pip3 install octopus-sensing`
-
-(You might need to replace `pip3` with `pip` depending on your system.)
-
-Then it can be imported like:
-
-:code:`import octopus_sensing`
-
-
-Installation from source (All Platforms)
-========================================
-
-If you want to compile it from source for development purposes or to have the un-released features,
-please refer to :ref:`development`.
-
-Troubleshooting
-===============
-
-- Pip cannot install PyGObject on Windows. If users want to use `octopus-sensing.stimuli` or `octopus-sensing.windows` packages, they need to install it manually themselves. See `PyGObject documentation <https://pygobject.readthedocs.io/en/latest/getting_started.html#windows-getting-started>`_ to know how to install PyGObject on Windows.
-
-- If you saw `Namespace Gst not available` (or similar) while importing `octopus_sensing.stimuli` package, you need to install `gstreamer` package on your machine. On Ubuntu run `sudo apt-get install gstreamer-1.0`.
+If you don't want or can't use the script, see :ref:`installation`. It includes a troubleshooting section.

@@ -101,12 +101,34 @@ Network
    :undoc-members:
    :show-inheritance:
 
+LSL (Lab Streaming Layer)
+-------------------------
 
+.. automodule:: octopus_sensing.devices.lsl_streaming
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Tobii Glasses
+-------------
+
+.. automodule:: octopus_sensing.devices.tobiiglasses_streaming
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 Common
 -------
 
 .. automodule:: octopus_sensing.devices.common
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Test Device
+-----------
+
+.. automodule:: octopus_sensing.devices.testdevice_streaming
    :members:
    :undoc-members:
    :show-inheritance:

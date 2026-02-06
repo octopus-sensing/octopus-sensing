@@ -77,7 +77,7 @@ echo
 
 set -e
 pipenv --python $PYTHON
-pipenv install octopus-sensing octopus-sensing-monitoring octopus-sensing-visualizer
+pipenv install "octopus-sensing[camera]" octopus-sensing-monitoring octopus-sensing-visualizer
 set +e
 
 echo "Downloading sample code..."
