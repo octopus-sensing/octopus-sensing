@@ -33,7 +33,14 @@ Main features
 
 Quick Start
 =========== 
-See :ref:`quick_start` to learn how to install Octopus Sensing.
+
+See :ref:`quick_start` for a short introduction on how to use Octopus Sensing.
+
+
+Installation
+============
+
+See :ref:`installation` to learn how to install Octopus Sensing.
 
 Tutorial
 ========
@@ -57,7 +64,7 @@ Saffaryazdi, N., Gharibnavaz, A., & Billinghurst, M. (2022). Octopus Sensing: A 
 
 Copyright
 =========
-Copyright © 2020-2022 Nastaran Saffaryazdi, Aidin Gharibnavaz
+Copyright © 2020-2026 Nastaran Saffaryazdi, Aidin Gharibnavaz
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation, either version 3 of the
@@ -74,6 +81,7 @@ Content
    :maxdepth: 3
    :caption: .
 
+   installation
    quick_start
    tutorial
    api_reference

@@ -25,7 +25,7 @@ from octopus_sensing.devices.common import SavingModeEnum
 
 class TestDeviceStreaming(RealtimeDataDevice):
     '''
-    Manage TestDevice streaming
+    A simulated device for creating a random data stream and testing the flow without any devices
 
     Attributes
     ----------
