@@ -17,7 +17,6 @@ import time
 import tempfile
 import queue
 import threading
-import multiprocessing
 
 import pytest
 

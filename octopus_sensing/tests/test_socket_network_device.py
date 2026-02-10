@@ -13,8 +13,6 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 import time
-import pytest
-import sys  # nopep8
 import threading
 import socket
 

@@ -14,7 +14,6 @@
 
 import threading
 import csv
-import sys
 import os
 from typing import List, Optional, Any, Dict
 from pylsl import StreamInlet, resolve_byprop

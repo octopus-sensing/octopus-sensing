@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
+from typing import Any
 from octopus_sensing.common.message import Message
 
 
@@ -33,7 +34,7 @@ class MessageType():
     SAVE = "SAVE"
 
 
-def start_message(experiment_id: str, stimulus_id: str, payload=None):
+def start_message(experiment_id: str, stimulus_id: str, payload: Any=None):
     '''
     Creates a message to inform device of starting the stimulus
 

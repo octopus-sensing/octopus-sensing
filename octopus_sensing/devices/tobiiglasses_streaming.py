@@ -12,7 +12,6 @@
 # You should have received a copy of the GNU General Public License along with Octopus Sensing.
 # If not, see <https://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import time
 import os
 import threading

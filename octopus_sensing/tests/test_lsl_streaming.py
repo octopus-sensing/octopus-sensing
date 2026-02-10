@@ -1,21 +1,14 @@
 import pytest
-import multiprocessing
-import multiprocessing.queues
 import threading
 import queue
-import http.client
-import pickle
 import os
-import json
 import numpy as np
 import time
 import tempfile
 from pylsl import StreamInfo, StreamOutlet
 
 import octopus_sensing.devices.lsl_streaming as lsl_streaming
-from octopus_sensing.device_coordinator import DeviceCoordinator
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message, save_message
-from octopus_sensing.realtime_data_endpoint import RealtimeDataEndpoint
 
 
 class RemoteEegLslDevice(threading.Thread):
