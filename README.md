@@ -3,7 +3,7 @@
   <img src="https://octopus-sensing.nastaran-saffar.me/_static/octopus-sensing-logo-small.png" alt="Octopus Sensing Logo">
 </p>
 <p align="center">
-  <img src="https://img.shields.io/github/workflow/status/octopus-sensing/octopus-sensing/Python%20Check?label=checks" alt="GitHub Workflow Status">
+  <img src="https://img.shields.io/github/actions/workflow/status/octopus-sensing/octopus-sensing/python-check.yml?label=checks&branch=master" alt="GitHub Workflow Status">
   <img src="https://img.shields.io/codecov/c/gh/octopus-sensing/octopus-sensing" alt="Codecov">
   <img src="https://img.shields.io/pypi/v/octopus-sensing" alt="PyPI">
   <img src="https://img.shields.io/pypi/l/octopus-sensing" alt="PyPI - License">

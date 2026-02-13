@@ -177,6 +177,6 @@ Then follow these steps to publish a new version:
 7. If everything is fine, tag the version and publish it to PyPi:
    $ git commit
    $ git tag version
-   $ git push --tag
+   $ git push --tags
    $ poetry publish
 8. Create a new Release in GitHub and add the changes in the release notes.
