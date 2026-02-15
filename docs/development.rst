@@ -156,6 +156,7 @@ everything is working fine.
 You need a separate account for `pypi.org` and `test.pypi.org`. Create an API token, and add it to Poetry:
 
 .. code-block:: bash
+
    # Add test.pypi repository
    $ poetry config repositories.testpypi https://test.pypi.org/legacy/
    # Add your tokens
@@ -166,17 +167,32 @@ You need a separate account for `pypi.org` and `test.pypi.org`. Create an API to
 Then follow these steps to publish a new version:
 
 1. poetry check
+
 2. update version in __init__.py and pyproject.toml
-4. poetry build
-5. Publish it to test.pypi first:
+
+3. poetry build
+
+4. Publish it to test.pypi first:
+
+.. code-block:: bash
+    
     $ poetry publish --repository testpypi
-6. Install and test it from test.pypi:
+
+5. Install and test it from test.pypi:
+
+.. code-block:: bash
+
     $ python3.12 -m venv .venv
     $ . .venv/bin/activate
     $ python3 -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple octopus-sensing
-7. If everything is fine, tag the version and publish it to PyPi:
+
+6. If everything is fine, tag the version and publish it to PyPi:
+
+.. code-block:: bash
+
    $ git commit
    $ git tag version
    $ git push --tags
    $ poetry publish
-8. Create a new Release in GitHub and add the changes in the release notes.
+
+7. Create a new Release in GitHub and add the changes in the release notes.
