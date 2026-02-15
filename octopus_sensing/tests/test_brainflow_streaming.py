@@ -1,5 +1,4 @@
-import pytest
-import threading
+import multiprocessing
 import queue
 import os
 import time
@@ -10,18 +9,7 @@ import octopus_sensing.devices.brainflow_streaming as brainflow_streaming
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
 
 
-
-@pytest.fixture(scope="module")
-def run_on_thread():
-    original_bases = brainflow_streaming.BrainFlowStreaming.__bases__[0].__bases__[0].__bases__
-    brainflow_streaming.BrainFlowStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
-
-    yield None
-
-    brainflow_streaming.BrainFlowStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
-
-
-def test_system_health(run_on_thread):
+def test_system_health():
 
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
     experiment_id = 'test-exp-2'
@@ -35,10 +23,10 @@ def test_system_health(run_on_thread):
                                                brain_flow_input_params=params,
                                                name="cyton_daisy",
                                                output_path=output_dir)
-    msg_queue = queue.Queue()
+    msg_queue = multiprocessing.Queue()
     device.set_queue(msg_queue)
-    realtime_data_queue_in = queue.Queue()
-    realtime_data_queue_out = queue.Queue()
+    realtime_data_queue_in = multiprocessing.Queue()
+    realtime_data_queue_out = multiprocessing.Queue()
     device.set_realtime_data_queues(realtime_data_queue_in, realtime_data_queue_out)
 
     device.start()

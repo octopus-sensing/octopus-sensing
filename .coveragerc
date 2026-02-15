@@ -1,7 +1,7 @@
 [run]
 source = octopus_sensing
-# Tests mock the multiprocessing module.
-# concurrency = multiprocessing
+concurrency = multiprocessing,thread
+patch = subprocess
 
 [report]
 exclude_lines =

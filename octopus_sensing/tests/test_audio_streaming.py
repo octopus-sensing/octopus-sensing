@@ -12,16 +12,16 @@
 # You should have received a copy of the GNU General Public License along with Foobar.
 # If not, see <https://www.gnu.org/licenses/>.
 
+import multiprocessing
 import os
 import time
 import tempfile
-import queue
-import threading
 
 import pytest
 
 import octopus_sensing.devices.audio_streaming as audio_streaming
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
+from octopus_sensing.tests.test_helpers import wait_until_path_exists
 
 
 class MockedMiniAudioModule:
@@ -69,8 +69,8 @@ def mocked():
     # 1. Process on Windows doesn't use fork (copy-on-write) so we will lose
     #    the mocks we made in here (the parent process).
     # 2. Coverage will lose track in the child process.
-    original_bases = audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__
-    audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
+    # original_bases = audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__
+    # audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
 
     # We're replacing the 'miniaudio' imported by our 'audio_streaming' module
     # with our mocked one.
@@ -80,7 +80,7 @@ def mocked():
     yield None
 
     # Replacing back the original things
-    audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
+    # audio_streaming.AudioStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
     audio_streaming.miniaudio = original_miniaudio
 
 
@@ -96,9 +96,9 @@ def test_happy_path(mocked):
 
     # Since there's no device coordinator running, we set the queue ourselves,
     # and will start the process.
-    msg_queue = queue.Queue()
-    data_queue_in = queue.Queue()
-    data_queue_out = queue.Queue()
+    msg_queue = multiprocessing.Queue()
+    data_queue_in = multiprocessing.Queue()
+    data_queue_out = multiprocessing.Queue()
     device.set_queue(msg_queue)
     device.set_realtime_data_queues(data_queue_in, data_queue_out)
     device.start()
@@ -111,13 +111,15 @@ def test_happy_path(mocked):
 
     msg_queue.put(stop_message(experiment_id, stimuli_id))
 
-    time.sleep(0.2)
-
+    
     # It should save the file after receiving a STOP.
     device_output = os.path.join(output_dir, device_name)
-    assert os.path.exists(device_output)
     recorded_file = os.path.join(device_output, '{}-{}-{}.wav'.format(
         device_name, experiment_id, stimuli_id))
+
+    wait_until_path_exists([device_output, recorded_file], timeout=5)
+
+    assert os.path.exists(device_output)
     assert os.path.exists(recorded_file)
 
     # Sending terminate and waiting for the device process to exit.

@@ -4,6 +4,7 @@ venv
 env
 .pytest_cache
 .coverage
+.coverage.*
 coverage.xml
 dist/
 build/
