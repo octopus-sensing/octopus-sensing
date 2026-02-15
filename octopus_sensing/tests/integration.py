@@ -145,8 +145,12 @@ def test_system_health(mocked):
 
     try:
         coordinator.dispatch(start_message("int_test", "stimulus_1"))
-        # Allowing data collection for five seconds
-        time.sleep(5)
+        
+        # Allowing data collection for five seconds        
+        time.sleep(2)
+        assert coordinator.health_check() is True
+        time.sleep(3)
+
         coordinator.dispatch(stop_message("int_test", "stimulus_1"))
 
         http_client = http.client.HTTPConnection("127.0.0.1:9330")
@@ -173,6 +177,8 @@ def test_system_health(mocked):
 
     # To ensure termination is happened.
     time.sleep(0.5)
+
+    assert coordinator.health_check() is False
 
     eeg_output = os.path.join(output_dir, "eeg")
     assert os.path.exists(eeg_output)
