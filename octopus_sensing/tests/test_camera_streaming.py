@@ -1,12 +1,26 @@
+# This file is part of Octopus Sensing <https://octopus-sensing.nastaran-saffar.me/>
+# Copyright © Nastaran Saffaryazdi 2020-2026
+#
+# Octopus Sensing is free software: you can redistribute it and/or modify it under the
+# terms of the GNU General Public License as published by the Free Software Foundation,
+#  either version 3 of the License, or (at your option) any later version.
+#
+# Octopus Sensing is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with Foobar.
+# If not, see <https://www.gnu.org/licenses/>.
+
+import multiprocessing
 import os
 import time
 import tempfile
-import queue
-import threading
 import pytest
 
 import octopus_sensing.devices.camera_streaming as camera_streaming
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
+from octopus_sensing.tests.test_helpers import wait_until_path_exists
 
 class MockedCv2Module:
 
@@ -71,16 +85,12 @@ class MockedVideoWriterModule:
 
 @pytest.fixture(scope="module")
 def mocked():
-    original_bases = camera_streaming.CameraStreaming.__bases__[0].__bases__[0].__bases__
-    camera_streaming.CameraStreaming.__bases__[0].__bases__[0].__bases__ = (threading.Thread,)
-
     original_cv2 = camera_streaming.cv2
     camera_streaming.cv2 = MockedCv2Module()
 
     yield None
 
     # Replacing back the original things
-    camera_streaming.CameraStreaming.__bases__[0].__bases__[0].__bases__ = original_bases
     camera_streaming.cv2 = original_cv2
 
 
@@ -94,9 +104,9 @@ def test_happy_path(mocked):
     device = camera_streaming.CameraStreaming(
         camera_no=0, output_path=output_dir, name=device_name)
 
-    msg_queue = queue.Queue()
-    data_queue_in = queue.Queue()
-    data_queue_out = queue.Queue()
+    msg_queue = multiprocessing.Queue()
+    data_queue_in = multiprocessing.Queue()
+    data_queue_out = multiprocessing.Queue()
     device.set_queue(msg_queue)
     device.set_realtime_data_queues(data_queue_in, data_queue_out)
     device.start()
@@ -107,17 +117,25 @@ def test_happy_path(mocked):
 
     time.sleep(1)
 
+    # Sending None message to the queue and making sure it does not cause any problem.
+    msg_queue.put(None)
+    time.sleep(0.05)
+
     msg_queue.put(stop_message(experiment_id, stimuli_id))
 
     time.sleep(0.2)
 
+    # Second stop message should be ignored.
+    msg_queue.put(stop_message(experiment_id, 'ignore-this'))
+
     # It should save the file after receiving a STOP.
     device_output = os.path.join(output_dir, device_name)
-    assert os.path.exists(device_output)
-
     recorded_file = os.path.join(device_output, '{}-{}-{}.avi'.format(
         device_name, experiment_id, stimuli_id))
+    
+    wait_until_path_exists([device_output, recorded_file], timeout=5)
 
+    assert os.path.exists(device_output)
     assert os.path.exists(recorded_file)
     assert os.path.getsize(recorded_file) > 1000 # check the file size to assure it is not empty
 

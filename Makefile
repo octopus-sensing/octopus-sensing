@@ -18,8 +18,10 @@ test: ## Runs tests
 
 test-coverage: ## Runs tests and reports coverage
 # See 'test' comment for why we're running two commands.
+	rm -f .coverage coverage.xml .coverage.*
 	poetry run coverage run -m pytest --full-trace --showlocals octopus_sensing/
-	poetry run coverage run --append -m pytest --full-trace --showlocals octopus_sensing/tests/integration.py
+	poetry run coverage run -m pytest --full-trace --showlocals octopus_sensing/tests/integration.py
+	poetry run coverage combine
 	poetry run coverage xml
 	poetry run coverage report
 

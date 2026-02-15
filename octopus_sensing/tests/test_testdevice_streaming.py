@@ -1,15 +1,13 @@
-import queue
+import multiprocessing
 import os
 import time
 import tempfile
-import threading
 
 from octopus_sensing.devices.testdevice_streaming import TestDeviceStreaming
 from octopus_sensing.common.message_creators import start_message, stop_message, terminate_message
 
 
-def test_system_health():
-    print("test device")
+def test_test_device():
     output_dir = tempfile.mkdtemp(prefix="octopus-sensing-test")
     experiment_id = 'test-exp-2'
     stimuli_id = 'sti-2'
@@ -18,17 +16,15 @@ def test_system_health():
         TestDeviceStreaming(12,
                             name="test_device",
                             output_path=output_dir)
-    msg_queue = queue.Queue()
+    msg_queue = multiprocessing.Queue()
     device.set_queue(msg_queue)
-    realtime_data_queue_in = queue.Queue()
-    realtime_data_queue_out = queue.Queue()
+    realtime_data_queue_in = multiprocessing.Queue()
+    realtime_data_queue_out = multiprocessing.Queue()
     device.set_realtime_data_queues(realtime_data_queue_in, realtime_data_queue_out)
 
-    device_thread = threading.Thread(target=device._run)
-    device_thread.start()
-    print("after start")
+    device.start()
 
-    time.sleep(0.2)
+    time.sleep(0.4)
 
     msg_queue.put(start_message(experiment_id, stimuli_id))
     # Allowing data collection for one second
@@ -36,11 +32,11 @@ def test_system_health():
 
     msg_queue.put(stop_message(experiment_id, stimuli_id))
 
-    time.sleep(0.2)
+    time.sleep(0.4)
 
     # Sending terminate and waiting for the device process to exit.
     msg_queue.put(terminate_message())
-    device_thread.join()
+    device.join()
 
     # It should save the file after receiving a TERMINATE.
     test_device_output = os.path.join(output_dir, "test_device")

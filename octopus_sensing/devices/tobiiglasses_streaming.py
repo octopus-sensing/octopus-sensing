@@ -23,7 +23,7 @@ from octopus_sensing.common.message_creators import MessageType
 from octopus_sensing.devices.realtime_data_device import RealtimeDataDevice
 from octopus_sensing.devices.common import SavingModeEnum
 
-from libtobiiglassesctrl import TobiiGlassesController
+import libtobiiglassesctrl
 
 
 class TobiiGlassesStreaming(RealtimeDataDevice):
@@ -118,13 +118,15 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
         self._experiment_id = None
         self.__loop_thread: Optional[threading.Thread] = None
         self._controller = None
+        # Used to inject mocked controller in tests.
+        self._controller_class = libtobiiglassesctrl.TobiiGlassesController
 
         self.output_path = os.path.join(self.output_path, self.name)
         os.makedirs(self.output_path, exist_ok=True)
         self._state = ""
 
     def _run(self):
-        self._controller = TobiiGlassesController(self._device_ip)
+        self._controller = self._controller_class(self._device_ip)
         print("TobiiGlasses streaming: Connecting to the device...")
         print(self._controller.get_battery_status())
         
@@ -277,10 +279,12 @@ class TobiiGlassesStreaming(RealtimeDataDevice):
     def __safe_get(self, data):
         '''
         Safely get nested dictionary values with fallback to None.
+
         Parameters
         ----------
         data: dict
             The data dictionary to extract values from.
+
         Returns
         -------
         flat_data: list
