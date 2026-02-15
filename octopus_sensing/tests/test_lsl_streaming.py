@@ -74,9 +74,9 @@ def test_lsl_streaming(device: lsl_streaming.LslStreaming):
     stimuli_id = 'sti-1'
     lsl_output = device.output_path
 
-    msg_queue = multiprocessing.Queue()
-    data_queue_in = multiprocessing.Queue()
-    data_queue_out = multiprocessing.Queue()
+    msg_queue: multiprocessing.Queue = multiprocessing.Queue()
+    data_queue_in: multiprocessing.Queue = multiprocessing.Queue()
+    data_queue_out: multiprocessing.Queue = multiprocessing.Queue()
     device.set_queue(msg_queue)
     device.set_realtime_data_queues(data_queue_in, data_queue_out)
 
@@ -125,9 +125,9 @@ def test_save_message(device: lsl_streaming.LslStreaming):
     experiment_id = 'test-exp-1'
     stimuli_id = 'sti-1'
 
-    msg_queue = multiprocessing.Queue()
-    data_queue_in = multiprocessing.Queue()
-    data_queue_out = multiprocessing.Queue()
+    msg_queue: multiprocessing.Queue = multiprocessing.Queue()
+    data_queue_in: multiprocessing.Queue = multiprocessing.Queue()
+    data_queue_out: multiprocessing.Queue = multiprocessing.Queue()
     device.set_queue(msg_queue)
     device.set_realtime_data_queues(data_queue_in, data_queue_out)
 
